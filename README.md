@@ -49,7 +49,11 @@ Uncheck Microsoft Visual Studio 2019 and check WebGL Build Support. We will inst
 
 5) **Install [Git](https://git-scm.com/downloads)**: Version control system for tracking file changes during software development. Useful for backing up and sharing files. While installing, you can choose the default options.
 
-6) **Clone the project**: Cloning is a git term for downloading a repository. There are several ways to do this, but the easiest way is to use Visual Studio Code. Open the command palette (Ctrl+Shift+P or F1) and search for "Git: Clone". Then, copy the URL of this repository and paste it into the prompt. It will ask you to choose a location to save the project. Once downloaded, it will prompt you to open the project.
+6) **Clone the project**: Cloning is a git term for downloading a repository. There are several ways to do this, but the easiest way is to use Visual Studio Code. Open the command palette (Ctrl+Shift+P or F1) and search for "Git: Clone". Then, copy the URL of this repository by selecting the green "Code" button or by copying the URL of this page. Paste the URL into the VS Code prompt. It will ask you to choose a location to save the project. Once downloaded, it will prompt you to open the project.
+
+<p align="center">
+	<img src="Documentation/ProjectLink.png" alt="Cloning project Link">
+</p>
 
 7) **Open the project in Unity**: Open Unity Hub and click "Add" to add a new project. Then, navigate to the folder where you cloned the project and select it. Unity will open the project and begin importing assets. This may take a while.
 
