@@ -23,13 +23,36 @@ namespace Pnak
 		public bool PlayerLoaded => CharacterType != byte.MaxValue;
 		public CharacterData CurrentCharacterData => PlayerLoaded ? GameManager.Instance.Characters[CharacterType] : LoadingData;
 
+		[Networked] private TickTimer reloadDelay { get; set; }
+		[SerializeField] private Bullet _prefabBullet;
+
+		private float angle = 0.0f;
 		public override void FixedUpdateNetwork()
 		{
 			if (GetInput(out NetworkInputData input))
 			{
 				if (!PlayerLoaded) return;
 
-				transform.position += (Vector3)input.movement * Runner.DeltaTime * CurrentCharacterData.Speed;
+				Vector2 movement = input.movement * CurrentCharacterData.Speed;
+
+				transform.position += (Vector3)movement * Runner.DeltaTime;
+
+				if (movement != Vector2.zero)
+				{
+					angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
+				}
+
+				if (reloadDelay.ExpiredOrNotRunning(Runner))
+				{
+					if (input.GetButton(0))
+					{
+						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
+						Runner.Spawn(_prefabBullet, transform.position, Quaternion.Euler(0.0f, 0.0f, angle), Object.InputAuthority, (runner, o) =>
+						{
+							o.GetComponent<Bullet>().Init(angle);
+						});
+					}
+				}
 			}
 		}
 

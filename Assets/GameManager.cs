@@ -113,6 +113,13 @@ namespace Pnak
 			_inputData.movement = context.ReadValue<Vector2>();
 		}
 
+		[InputActionTriggered("Shoot")]
+		private void OnShootTriggered(InputAction.CallbackContext context)
+		{
+			if (!context.ReadValueAsButton()) return;
+			_inputData.SetButton(0, true);
+		}
+
 		[InputActionTriggered("MenuButton_1")]
 		private void OnMenuButton1Triggered(InputAction.CallbackContext context)
 		{

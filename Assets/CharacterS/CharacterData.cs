@@ -9,7 +9,8 @@ namespace Pnak
 	{
 		public string Name;
 		public Sprite Sprite;
-		public float Speed;
+		public float Speed = 1f;
+		public float ReloadTime = 1f;
 		public Vector2 UIScale;
 		public Vector2 UIPosition;
 		public Vector2 SpriteScale;
