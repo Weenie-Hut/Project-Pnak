@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b84073f424e46be4facbcb158ab96224, type: 3}
   m_Name: SpaceGuy
   m_EditorClassIdentifier: 
-  Name: Alex the Destroyer
+  Name: Space Guy
   Sprite: {fileID: 21300000, guid: 519dafacd208bb64c83d5124be03b09d, type: 3}
   Speed: 1.5
+  ReloadTime: 0.8
+  TowerPlacementTime: 3
+  TowerLifetime: 10
+  TowerReloadTime: 5
   UIScale: {x: 373, y: 364.2}
   UIPosition: {x: 0, y: 0}
   SpriteScale: {x: 0.2, y: 0.2}

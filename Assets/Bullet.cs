@@ -10,10 +10,11 @@ namespace Pnak
 		[SerializeField] private float speed;
 		private Vector3 direction;
 
-		public void Init(float direction)
+		public void Init()
 		{
 			life = TickTimer.CreateFromSeconds(Runner, 5.0f);
-			this.direction = new Vector2(Mathf.Cos(direction), Mathf.Sin(direction));
+			float angle = transform.localEulerAngles.z;
+			direction = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0.0f);
 		}
 
 		public override void FixedUpdateNetwork()
@@ -29,10 +30,9 @@ namespace Pnak
 					Enemy enemy = Enemy.Enemies[i];
 					if (enemy == null) continue;
 
-					if (Vector3.Distance(transform.position, enemy.transform.position) < 0.1f)
+					if (Vector3.Distance(transform.position, enemy.transform.position) < 0.6f)
 					{
-						if (Object.HasInputAuthority)
-							Runner.Despawn(Object);
+						Runner.Despawn(Object);
 						if (enemy.Damage(1.0f))
 							i--;
 					}

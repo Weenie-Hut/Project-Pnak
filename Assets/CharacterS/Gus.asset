@@ -15,6 +15,10 @@ MonoBehaviour:
   Name: Gus and Mr Shooty
   Sprite: {fileID: 21300000, guid: 07103c52b3aaeca4da8a83361edd059f, type: 3}
   Speed: 1.9
+  ReloadTime: 0.5
+  TowerPlacementTime: 20
+  TowerLifetime: 12
+  TowerReloadTime: 3
   UIScale: {x: 373, y: 300.7}
   UIPosition: {x: 0, y: 0}
   SpriteScale: {x: 0.2, y: 0.2}

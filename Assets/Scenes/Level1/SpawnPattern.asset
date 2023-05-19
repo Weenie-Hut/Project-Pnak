@@ -13,7 +13,40 @@ MonoBehaviour:
   m_Name: SpawnPattern
   m_EditorClassIdentifier: 
   Data:
-  - delay: 1
-    speed: 1
+  - delay: 6
+    speed: 0.7
     health: 3
+  - delay: 2
+    speed: 1
+    health: 2
+  - delay: 2
+    speed: 1
+    health: 2
+  - delay: 2
+    speed: 1
+    health: 2
+  - delay: 8
+    speed: 0.2
+    health: 10
+  - delay: 6
+    speed: 1
+    health: 2
+  - delay: 2
+    speed: 1
+    health: 2
+  - delay: 2
+    speed: 1
+    health: 2
+  - delay: 2
+    speed: 1
+    health: 2
+  - delay: 6
+    speed: 2
+    health: 1
+  - delay: 0.33
+    speed: 2
+    health: 1
+  - delay: 0.33
+    speed: 2
+    health: 1
   Loop: 1

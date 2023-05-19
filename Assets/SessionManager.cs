@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
@@ -36,6 +37,8 @@ namespace Pnak
 			});
 		}
 
+		public int PlayerCount => Instance.NetworkRunner.Simulation.ActivePlayers.Count();
+
 		[SerializeField] private NetworkPrefabRef _characterPrefab;
 		private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
 
@@ -44,7 +47,9 @@ namespace Pnak
 			if (runner.IsServer)
 			{
 				Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3,1,0);
-				NetworkObject networkPlayerObject = runner.Spawn(_characterPrefab, spawnPosition, Quaternion.identity, player);
+				NetworkObject networkPlayerObject = runner.Spawn(_characterPrefab, spawnPosition, Quaternion.identity, player, (_, __) => {
+					MessageBox.Instance.SendMessage($"Player {player} has joined the game!");
+				});
 				_spawnedCharacters.Add(player, networkPlayerObject);
 			}
 		}

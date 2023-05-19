@@ -15,6 +15,10 @@ MonoBehaviour:
   Name: Seven??
   Sprite: {fileID: 21300040, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
   Speed: 2.8
+  ReloadTime: 3
+  TowerPlacementTime: 5
+  TowerLifetime: 15
+  TowerReloadTime: 3
   UIScale: {x: 229, y: 272.2}
   UIPosition: {x: 0, y: 0}
   SpriteScale: {x: 1.5, y: 1.5}

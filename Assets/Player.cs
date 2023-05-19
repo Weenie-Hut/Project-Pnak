@@ -18,13 +18,15 @@ namespace Pnak
 
 
 		[Networked(OnChanged = nameof(OnCharacterTypeChanged))]
-		public byte CharacterType { get; private set; } = byte.MaxValue;
+		public byte CharacterType { get; private set; }
 
-		public bool PlayerLoaded => CharacterType != byte.MaxValue;
-		public CharacterData CurrentCharacterData => PlayerLoaded ? GameManager.Instance.Characters[CharacterType] : LoadingData;
+		public bool PlayerLoaded => CharacterType != 0;
+		public CharacterData CurrentCharacterData => PlayerLoaded ? GameManager.Instance.Characters[CharacterType - 1] : LoadingData;
 
 		[Networked] private TickTimer reloadDelay { get; set; }
+		[Networked] private TickTimer towerDelay { get; set; }
 		[SerializeField] private Bullet _prefabBullet;
+		[SerializeField] private Tower _prefabTower;
 
 		private float angle = 0.0f;
 		public override void FixedUpdateNetwork()
@@ -39,7 +41,7 @@ namespace Pnak
 
 				if (movement != Vector2.zero)
 				{
-					angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
+					angle = Mathf.Atan2(input.movement.y, input.movement.x) * Mathf.Rad2Deg;
 				}
 
 				if (reloadDelay.ExpiredOrNotRunning(Runner))
@@ -47,26 +49,51 @@ namespace Pnak
 					if (input.GetButton(0))
 					{
 						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
+						UnityEngine.Debug.Log("Firing bullet at angle: " + angle + " (x: " + input.movement.x + ", y: " + input.movement.y + ")");
 						Runner.Spawn(_prefabBullet, transform.position, Quaternion.Euler(0.0f, 0.0f, angle), Object.InputAuthority, (runner, o) =>
 						{
-							o.GetComponent<Bullet>().Init(angle);
+							o.GetComponent<Bullet>().Init();
+						});
+					}
+				}
+
+				if (towerDelay.ExpiredOrNotRunning(Runner))
+				{
+					if (input.GetButton(1))
+					{
+						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
+						Runner.Spawn(_prefabTower, transform.position, Quaternion.Euler(0.0f, 0.0f, angle), Object.InputAuthority, (runner, o) =>
+						{
+							o.GetComponent<Tower>().Init(CurrentCharacterData.TowerReloadTime, CurrentCharacterData.TowerLifetime);
 						});
 					}
 				}
 			}
 		}
 
+		private void Update()
+		{
+			if (!PlayerLoaded) return;
+			if (!Object.HasInputAuthority) return;
+			if (!LevelUI.Exists) return;
+
+			float? reloadTime = reloadDelay.RemainingTime(Runner);
+			LevelUI.Instance.ShootReloadBar.Value = reloadTime.HasValue ? (1 - reloadTime.Value / CurrentCharacterData.ReloadTime) : 1.0f;
+			float? towerTime = towerDelay.RemainingTime(Runner);
+			LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
+		}
+
 		private KeyValuePair<GameManager.Buttons, Action>[] _buttonActions;
 
-		private IEnumerator Start()
+		private void Start()
 		{
-			if (!Object.HasInputAuthority) yield break;
+			// if (!Object.HasInputAuthority) yield break;
 
 			_buttonActions = new KeyValuePair<GameManager.Buttons, Action>[] {
-				new (GameManager.Buttons.MenuButton_1, () => SetCharacterType(0)),
-				new (GameManager.Buttons.MenuButton_2, () => SetCharacterType(1)),
-				new (GameManager.Buttons.MenuButton_3, () => SetCharacterType(2)),
-				new (GameManager.Buttons.MenuButton_4, () => SetCharacterType(3))
+				new (GameManager.Buttons.MenuButton_1, () => SetCharacterType(1)),
+				new (GameManager.Buttons.MenuButton_2, () => SetCharacterType(2)),
+				new (GameManager.Buttons.MenuButton_3, () => SetCharacterType(3)),
+				new (GameManager.Buttons.MenuButton_4, () => SetCharacterType(4))
 			};
 
 			foreach (var buttonAction in _buttonActions)
@@ -107,6 +134,8 @@ namespace Pnak
 		/// </summary>
 		private void OnValidate()
 		{
+			if (Application.isPlaying) return;
+
 			if (LoadingData != null)
 			{
 				if (CharacterRenderer != null)

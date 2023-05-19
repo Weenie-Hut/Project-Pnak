@@ -1188,6 +1188,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _CreateOnStart:
+  - {fileID: 5490469982482213666, guid: caec0176b97b87f4ab7f704c7c7d0719, type: 3}
   - {fileID: 1845082666668908558, guid: 91f3c1283b3959c45a4bef0b6faaf649, type: 3}
   - {fileID: 4413507493206898244, guid: d5bbcac44f48383488836134648c42dc, type: 3}
   - {fileID: 4963591070500781632, guid: a33788d22bd031141bd4aa528460868a, type: 3}

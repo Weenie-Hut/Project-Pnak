@@ -16,7 +16,8 @@ namespace Pnak
 			MenuButton_1,
 			MenuButton_2,
 			MenuButton_3,
-			MenuButton_4
+			MenuButton_4,
+			Shoot,
 		}
 
 		[Tooltip("The character data to use for each character type. Temporary until we have character prefabs.")]
@@ -120,6 +121,13 @@ namespace Pnak
 			_inputData.SetButton(0, true);
 		}
 
+		[InputActionTriggered("PlaceTower")]
+		private void OnPlaceTowerTriggered(InputAction.CallbackContext context)
+		{
+			if (!context.ReadValueAsButton()) return;
+			_inputData.SetButton(1, true);
+		}
+
 		[InputActionTriggered("MenuButton_1")]
 		private void OnMenuButton1Triggered(InputAction.CallbackContext context)
 		{
@@ -198,7 +206,7 @@ namespace Pnak
 			}
 		}
 
-		private void InvokeButtonListener(Buttons button)
+		public void InvokeButtonListener(Buttons button)
 		{
 			if (ButtonActions.ContainsKey(button))
 			{

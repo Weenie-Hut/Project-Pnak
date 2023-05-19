@@ -14,6 +14,9 @@ namespace Pnak
 		/// <summary> Encapsulated instance of the manager. </summary>
 		private static T _instance;
 
+		/// <summary> True if an instance of the manager exists, used to prevent creating a new instance </summary>
+		public static bool Exists => _instance != null;
+
 		/// <summary>
 		/// The instance of the manager.
 		/// If none exists, one will be created in the root of the scene unless the application is quitting.

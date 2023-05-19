@@ -38,15 +38,16 @@ namespace Pnak
 			foreach (var buttonAction in _buttonActions)
 				GameManager.Instance.AddButtonListener(buttonAction.Key, buttonAction.Value);
 
-			// int index = 0;
-			foreach (var character in GameManager.Instance.Characters)
+			for (int i = 0; i < GameManager.Instance.Characters.Length; i++)
 			{
+				CharacterData character = GameManager.Instance.Characters[i];
 				var characterOption = Instantiate(CharacterOptionPrefab, CharacterOptions);
 				var characterSelectUI = characterOption.GetComponent<CharacterSelectUI>();
 				characterSelectUI.SetData(character);
 
-				// var screenInput = characterOption.GetComponent<UnityEngine.InputSystem.OnScreen.OnScreenButton>();
-				// screenInput.controlPath = $"<Keyboard>/{++index}";
+				var button = characterOption.GetComponent<UnityEngine.UI.Button>();
+				GameManager.Buttons index = (GameManager.Buttons)(GameManager.Buttons.MenuButton_1 + i);
+				button.onClick.AddListener(() => GameManager.Instance.InvokeButtonListener(index));
 			}
 		}
 

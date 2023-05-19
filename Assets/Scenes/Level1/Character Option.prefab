@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 8653739482762852674}
   - component: {fileID: 4269790959865047079}
   - component: {fileID: 5322627510999250389}
-  - component: {fileID: 7018346402972147653}
   - component: {fileID: 4944266107475243215}
   m_Layer: 5
   m_Name: Character Option
@@ -125,19 +124,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &7018346402972147653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 240098907236173538}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d54531977ecb194c95e2d3aa7a5d72a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ControlPath: <Keyboard>/1
 --- !u!114 &4944266107475243215
 MonoBehaviour:
   m_ObjectHideFlags: 0

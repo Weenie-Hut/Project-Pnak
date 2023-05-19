@@ -14,14 +14,29 @@ namespace Pnak
 
 		private int _SpawnIndex = 0;
 
+		public override void Spawned()
+		{
+			base.Spawned();
+
+			if (Runner.IsServer)
+			{
+				delay = TickTimer.CreateFromSeconds(Runner, _SpawnPattern[_SpawnIndex].delay);
+			}
+		}
+
 		public override void FixedUpdateNetwork()
 		{
 			if (!Runner.IsServer) return;
 
 			if (delay.ExpiredOrNotRunning(Runner))
 			{
+				if (_SpawnIndex >= _SpawnPattern.Length && !_SpawnPattern.Loop) return;
+
 				while (true)
 				{
+					Spawn();
+					
+					_SpawnIndex++;
 					if (_SpawnIndex >= _SpawnPattern.Length)
 					{
 						if (_SpawnPattern.Loop)
@@ -30,15 +45,13 @@ namespace Pnak
 							return;
 					}
 
-					Spawn();
-
 					if (_SpawnPattern[_SpawnIndex].delay > float.Epsilon)
 					{
-						delay = TickTimer.CreateFromSeconds(Runner, _SpawnPattern[_SpawnIndex++].delay);
+						delay = TickTimer.CreateFromSeconds(Runner, _SpawnPattern[_SpawnIndex].delay);
 						break;
 					}
 
-					_SpawnIndex++;
+					
 				}
 			}
 		}

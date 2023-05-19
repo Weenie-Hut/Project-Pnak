@@ -9,8 +9,7 @@ namespace Pnak
 		public static List<Enemy> Enemies = new List<Enemy>();
 
 		[Networked] private float Health { get; set; }
-
-		private byte PathIndex { get; set; }
+		private byte PathIndex = 1;
 		[Networked] private Vector3 _targetPosition { get; set; }
 
 		private Transform path;
@@ -32,9 +31,14 @@ namespace Pnak
 
 		public void SetNextPosition()
 		{
+			if (PathIndex >= path.childCount)
+			{
+				Runner.Despawn(Object);
+				return;
+			}
+
 			var target = Random.Range(0, path.GetChild(PathIndex).childCount);
-			if (Object.HasInputAuthority)
-				_targetPosition = path.GetChild(PathIndex).GetChild(target).position;
+			_targetPosition = path.GetChild(PathIndex).GetChild(target).position;
 
 			if (PathIndex >= path.childCount)
 			{
@@ -48,12 +52,9 @@ namespace Pnak
 		{
 			this.path = path;
 			this.speed = speed;
-			Health = health;
+			Health = health * SessionManager.Instance.PlayerCount;
 
 			SetNextPosition();
-			transform.position = _targetPosition;
-			SetNextPosition();
-
 			Enemies.Add(this);
 		}
 
@@ -62,11 +63,8 @@ namespace Pnak
 			float movement = speed * Runner.DeltaTime;
 			transform.position = Vector3.MoveTowards(transform.position, _targetPosition, movement);
 
-			if (Object.HasInputAuthority)
-			{
-				if (Vector3.Distance(transform.position, _targetPosition) < 0.1f)
-					SetNextPosition();
-			}
+			if (Vector3.Distance(transform.position, _targetPosition) < 0.1f)
+				SetNextPosition();
 		}
 	}
 }
