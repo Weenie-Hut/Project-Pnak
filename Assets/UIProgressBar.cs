@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class UIProgressBar : MonoBehaviour
 {
+	[SerializeField, Range(0, 1)]
+	[Tooltip("Current fill amount of the bar. 0 = empty, 1 = full. Changing this value will automatically update the visuals but only if in the editor.")]
 	private float _fillAmount = 0.24f;
 	/// <summary>
 	/// Current fill amount of the bar. 0 = empty, 1 = full.
 	/// Setting this value will automatically update the visuals.
 	/// </summary>
-	[Tooltip("Current fill amount of the bar. 0 = empty, 1 = full. Changing this value will automatically update the visuals.")]
-	[Sirenix.OdinInspector.ShowInInspector, Sirenix.OdinInspector.PropertyRange(0, 1), Sirenix.OdinInspector.PropertyOrder(-1), Sirenix.OdinInspector.SuffixLabel("%")]
+
 	public float Value
 	{
 		get { return _fillAmount; }
@@ -38,4 +39,12 @@ public class UIProgressBar : MonoBehaviour
 		FillBar.anchorMax = new Vector2(Value, 1);
 		Text.text = string.Format(TextFormat, Value);
 	}
+
+#if UNITY_EDITOR
+	private void OnValidate()
+	{
+		UnityEditor.EditorApplication.delayCall += SyncVisuals;
+		
+	}
+#endif
 }

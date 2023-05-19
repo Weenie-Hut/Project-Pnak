@@ -14,14 +14,22 @@ namespace Pnak
 		[Tooltip("The character sprite renderer. Temporary until we have character prefabs.")]
 		public TMPro.TextMeshPro CharacterText;
 
+		public CharacterData LoadingData;
+
+
 		[Networked(OnChanged = nameof(OnCharacterTypeChanged))]
-		public byte CharacterType { get; private set; }
+		public byte CharacterType { get; private set; } = byte.MaxValue;
+
+		public bool PlayerLoaded => CharacterType != byte.MaxValue;
+		public CharacterData CurrentCharacterData => PlayerLoaded ? GameManager.Instance.Characters[CharacterType] : LoadingData;
 
 		public override void FixedUpdateNetwork()
 		{
 			if (GetInput(out NetworkInputData input))
 			{
-				transform.position += (Vector3)input.movement * Runner.DeltaTime * GameManager.Instance.Characters[CharacterType].Speed;
+				if (!PlayerLoaded) return;
+
+				transform.position += (Vector3)input.movement * Runner.DeltaTime * CurrentCharacterData.Speed;
 			}
 		}
 
@@ -38,18 +46,21 @@ namespace Pnak
 				new (GameManager.Buttons.MenuButton_4, () => SetCharacterType(3))
 			};
 
-			while (!GameManager.Exists)
-				yield return null;
-
 			foreach (var buttonAction in _buttonActions)
 				GameManager.Instance.AddButtonListener(buttonAction.Key, buttonAction.Value);
 		}
 
+		public override void Spawned()
+		{
+			if (!Object.HasInputAuthority) return;
+
+			GameManager.Instance.SceneLoader.FinishedLoading();
+		}
+
 		private void OnDestroy()
 		{
-			if (GameManager.Exists)
-				foreach (var buttonAction in _buttonActions)
-					GameManager.Instance.RemoveButtonListener(buttonAction.Key, buttonAction.Value);
+			foreach (var buttonAction in _buttonActions)
+				GameManager.Instance?.RemoveButtonListener(buttonAction.Key, buttonAction.Value);
 		}
 
 		private void SetCharacterType(byte characterType)
@@ -61,10 +72,30 @@ namespace Pnak
 
 		private void ChangeCharacterSprite()
 		{
-			CharacterRenderer.sprite = GameManager.Instance.Characters[CharacterType].Sprite;
-			CharacterText.text = GameManager.Instance.Characters[CharacterType].Name;
-			CharacterRenderer.transform.localScale = (Vector3)GameManager.Instance.Characters[CharacterType].SpriteScale;
-			CharacterRenderer.transform.localPosition = (Vector3)GameManager.Instance.Characters[CharacterType].SpritePosition;
+			CharacterRenderer.sprite = CurrentCharacterData.Sprite;
+			CharacterText.text = CurrentCharacterData.Name;
+			CharacterRenderer.transform.localScale = (Vector3)CurrentCharacterData.SpriteScale;
+			CharacterRenderer.transform.localPosition = (Vector3)CurrentCharacterData.SpritePosition;
 		}
+
+#if UNITY_EDITOR
+		/// <summary>
+		/// Sets the character information so it doesn't need to be loaded on create. Also useful for previewing.
+		/// </summary>
+		private void OnValidate()
+		{
+			if (LoadingData != null)
+			{
+				if (CharacterRenderer != null)
+				{
+					CharacterRenderer.sprite = LoadingData.Sprite;
+					CharacterRenderer.transform.localScale = (Vector3)LoadingData.SpriteScale;
+					CharacterRenderer.transform.localPosition = (Vector3)LoadingData.SpritePosition;
+				}
+				if (CharacterText != null)
+					CharacterText.text = LoadingData.Name;
+			}
+		}
+#endif
 	}
 }

@@ -8,35 +8,46 @@ namespace Pnak
 	public class GameStart : MonoBehaviour
 	{
 		[Tooltip("Objects to create on start.")]
-		[SerializeField, Sirenix.OdinInspector.AssetsOnly] private GameObject[] _createOnStart;
+		[SerializeField] private GameObject[] _CreateOnStart;
 		[Tooltip("Progress bar to update as objects are created.")]
-		[SerializeField] private UIProgressBar _progressBar;
+		[SerializeField] private UIProgressBar _ProgressBar;
 		[Tooltip("Event to invoke when the game has finished loading.")]
 		public UnityEvent OnFinishedLoading;
 
-		public SceneAsset SceneAsset;
+		private int _progressSteps;
+		private int _currentProgressStep;
+
+		private void Awake()
+		{
+			_progressSteps = _CreateOnStart.Length + 1;
+			_currentProgressStep = 0;
+
+			UpdateSteps();
+		}
+
+		private void UpdateSteps(int inc = 1)
+		{
+			_currentProgressStep += inc;
+			_ProgressBar.Value = (float)_currentProgressStep / _progressSteps;
+		}
 
 		private IEnumerator Start()
 		{
 			lastUpdateTime = Time.timeAsDouble;
-			yield return null;
+			yield return null; // Wait for the first frame to start loading objects.
 
-			var totalCount = _createOnStart.Length + 1;
-			var currentCount = 1;
-
-			foreach(var obj in _createOnStart)
+			foreach(var obj in _CreateOnStart)
 			{
 				Instantiate(obj);
 
 				if (NeedsUpdate())
 				{
-					_progressBar.Value = (float)(currentCount) / totalCount;
+					UpdateSteps();
 					yield return null;
-					currentCount++;
 				}
 			}
 
-			_progressBar.Value = 1;
+			_ProgressBar.Value = 1;
 			OnFinishedLoading.Invoke();
 
 			GameManager.Instance.AddButtonListener(GameManager.Buttons.MenuButton_1, HostGame);
@@ -45,8 +56,8 @@ namespace Pnak
 
 		private void OnDestroy()
 		{
-			GameManager.Instance.RemoveButtonListener(GameManager.Buttons.MenuButton_1, HostGame);
-			GameManager.Instance.RemoveButtonListener(GameManager.Buttons.MenuButton_2, JoinGame);
+			GameManager.Instance?.RemoveButtonListener(GameManager.Buttons.MenuButton_1, HostGame);
+			GameManager.Instance?.RemoveButtonListener(GameManager.Buttons.MenuButton_2, JoinGame);
 		}
 
 		/// <summary>

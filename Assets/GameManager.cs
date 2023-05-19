@@ -64,8 +64,9 @@ namespace Pnak
 			PlayerInput.SwitchCurrentActionMap("Menu");
 		}
 
-		private void OnDestroy()
+		protected override void OnDestroy()
 		{
+			base.OnDestroy();
 			if (PlayerInput != null)
 				PlayerInput.onActionTriggered -= context => OnActionTriggered(context);
 		}

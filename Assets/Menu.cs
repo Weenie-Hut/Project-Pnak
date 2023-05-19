@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Pnak
 {
 	public class Menu : MonoBehaviour
 	{
-		[SerializeField, Sirenix.OdinInspector.SceneObjectsOnly] private RectTransform CharacterOptions;
-		[SerializeField, Sirenix.OdinInspector.AssetsOnly] private GameObject CharacterOptionPrefab;
+		[SerializeField] private RectTransform CharacterOptions;
+		[SerializeField] private GameObject CharacterOptionPrefab;
 
 		private KeyValuePair<GameManager.Buttons, Action>[] _buttonActions;
 
@@ -52,7 +53,7 @@ namespace Pnak
 		private void OnDestroy()
 		{
 			foreach (var buttonAction in _buttonActions)
-				GameManager.Instance.RemoveButtonListener(buttonAction.Key, buttonAction.Value);
+				GameManager.Instance?.RemoveButtonListener(buttonAction.Key, buttonAction.Value);
 		}
 
 	}

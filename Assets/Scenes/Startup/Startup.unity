@@ -213,6 +213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a518ec225b2229b418b91637ccab3496, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _fillAmount: 0.128
   TextFormat: Loading... {0:P0}
   FillBar: {fileID: 738138149}
   Text: {fileID: 1790071374}
@@ -228,6 +229,7 @@ GameObject:
   - component: {fileID: 672557768}
   - component: {fileID: 672557767}
   - component: {fileID: 672557766}
+  - component: {fileID: 672557769}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -338,6 +340,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 672557764}
   m_CullTransparentMesh: 1
+--- !u!114 &672557769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672557764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d54531977ecb194c95e2d3aa7a5d72a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ControlPath: <Keyboard>/1
 --- !u!1 &738138148
 GameObject:
   m_ObjectHideFlags: 0
@@ -372,7 +387,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.139, y: 1}
+  m_AnchorMax: {x: 0.128, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -808,6 +823,7 @@ GameObject:
   - component: {fileID: 1773115071}
   - component: {fileID: 1773115070}
   - component: {fileID: 1773115069}
+  - component: {fileID: 1773115072}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -918,6 +934,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1773115067}
   m_CullTransparentMesh: 1
+--- !u!114 &1773115072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1773115067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d54531977ecb194c95e2d3aa7a5d72a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ControlPath: <Keyboard>/2
 --- !u!1 &1784953667
 GameObject:
   m_ObjectHideFlags: 0
@@ -1052,7 +1081,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Loading... 14 %
+  m_text: Loading... 13 %
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1158,11 +1187,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1fb12d0716ebfb459f5ec3752fd5baf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _createOnStart:
-  - {fileID: 4413507493206898244, guid: d5bbcac44f48383488836134648c42dc, type: 3}
+  _CreateOnStart:
   - {fileID: 1845082666668908558, guid: 91f3c1283b3959c45a4bef0b6faaf649, type: 3}
+  - {fileID: 4413507493206898244, guid: d5bbcac44f48383488836134648c42dc, type: 3}
   - {fileID: 4963591070500781632, guid: a33788d22bd031141bd4aa528460868a, type: 3}
-  _progressBar: {fileID: 595174186}
+  _ProgressBar: {fileID: 595174186}
   OnFinishedLoading:
     m_PersistentCalls:
       m_Calls:
@@ -1190,9 +1219,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  SceneAsset:
-    _buildIndex: -1
-    _sceneAsset: {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
 --- !u!4 &1825321446
 Transform:
   m_ObjectHideFlags: 0
