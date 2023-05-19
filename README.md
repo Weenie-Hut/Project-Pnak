@@ -55,7 +55,7 @@ Uncheck Microsoft Visual Studio 2019 and check WebGL Build Support. We will inst
 	<img src="Documentation/ProjectLink.png" alt="Cloning project Link">
 </p>
 
-7) **Open the project in Unity**: Open Unity Hub and click "Add" to add a new project. Then, navigate to the folder where you cloned the project and select it. Unity will open the project and begin importing assets. This may take a while.
+7) **Open the project in Unity**: Open Unity Hub and click "Open" on the projects tab to add a new project (tabs are on the left, "Open" on the top right). Then, navigate to the folder where you cloned the project and select it. Unity will open the project and begin importing assets. This may take a while.
 
 8) (Optional) **Install Useful VS Code Extensions":
 
