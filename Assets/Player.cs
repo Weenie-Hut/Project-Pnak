@@ -62,9 +62,10 @@ namespace Pnak
 					if (input.GetButton(1))
 					{
 						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
-						Runner.Spawn(_prefabTower, transform.position, Quaternion.Euler(0.0f, 0.0f, angle), Object.InputAuthority, (runner, o) =>
+						float _rotation = angle;
+						Runner.Spawn(_prefabTower, transform.position, Quaternion.identity, Object.InputAuthority, (runner, o) =>
 						{
-							o.GetComponent<Tower>().Init(CurrentCharacterData.TowerReloadTime, CurrentCharacterData.TowerLifetime);
+							o.GetComponent<Tower>().Init(CurrentCharacterData.TowerReloadTime, CurrentCharacterData.TowerLifetime, _rotation);
 						});
 					}
 				}

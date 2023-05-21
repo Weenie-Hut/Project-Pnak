@@ -64,7 +64,7 @@ namespace Pnak
 			Runner.Spawn(_Enemy, spawnPos, transform.rotation, Object.InputAuthority, (runner, o) =>
 			{
 				var enemy = o.GetComponent<Enemy>();
-				enemy.Init(_SpawnPath, _SpawnPattern[_SpawnIndex].speed, _SpawnPattern[_SpawnIndex].health);
+				enemy.Init(_SpawnPath, _SpawnPattern[_SpawnIndex].speed, _SpawnPattern[_SpawnIndex].health * SessionManager.Instance.PlayerCount);
 			});
 		}
 	}

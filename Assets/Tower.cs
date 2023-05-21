@@ -9,15 +9,43 @@ namespace Pnak
 		[Networked] private TickTimer life { get; set; }
 
 		[SerializeField] private Bullet _BulletPrefab;
-		[SerializeField] private float _RotationSpeed;
+		[Tooltip("How fast in degrees the tower rotates towards enemies")]
+		[SerializeField] private float _DefaultInitialDelay = 1f;
+		[SerializeField] private float _DefaultRotationSpeed = 3f;
+		[SerializeField] private float _DefaultReloadDelay = 1f;
+		[SerializeField] private float _DefaultLifeTime = 10f;
+		[SerializeField] private Transform _GunTransform;
 
+		[SerializeField] private SpriteFillBar _ReloadBar;
+		[SerializeField] private SpriteFillBar _LifeBar;
+
+		private float rotationSpeed;
 		private float reloadDelay;
+		private float lifeTime;
 
-		public void Init(float reloadDelay, float lifeTime)
+		[Networked] private float Rotation { get; set; }
+
+		public void Init(float _reloadDelay, float lifeTime, float _rotation)
 		{
-			this.reloadDelay = reloadDelay;
-			reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
+			rotationSpeed = _DefaultRotationSpeed;
+			reloadDelay = _reloadDelay;
+			float initialDelay = Mathf.Min(_DefaultInitialDelay, reloadDelay);
+			reloadTime = TickTimer.CreateFromSeconds(Runner, initialDelay);
+			this.lifeTime = lifeTime;
 			life = TickTimer.CreateFromSeconds(Runner, lifeTime);
+			Rotation = _rotation;
+		}
+
+		private void Update()
+		{
+			float? temp;
+			if ((temp = reloadTime.RemainingTime(Runner)).HasValue)
+				_ReloadBar.Value = 1 - temp.Value / reloadDelay;
+
+			if ((temp = life.RemainingTime(Runner)).HasValue)
+				_LifeBar.Value = temp.Value / lifeTime;
+
+			_GunTransform.rotation = Quaternion.Euler(0, 0, Rotation);
 		}
 
 		public override void FixedUpdateNetwork()
@@ -47,13 +75,15 @@ namespace Pnak
 				{
 					Vector3 direction = closestEnemy.transform.position - transform.position;
 					float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-					transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 0.0f, angle), _RotationSpeed * Runner.DeltaTime);
+
+					float delta = Mathf.DeltaAngle(Rotation, angle);
+					Rotation = Rotation + Mathf.Clamp(delta, -rotationSpeed, rotationSpeed);
 				}
 
 				// Shoot
 				if (reloadTime.ExpiredOrNotRunning(Runner))
 				{
-					Runner.Spawn(_BulletPrefab, transform.position, transform.rotation, Object.InputAuthority, (runner, o) =>
+					Runner.Spawn(_BulletPrefab, transform.position, Quaternion.Euler(0, 0, Rotation), Object.InputAuthority, (runner, o) =>
 					{
 						Bullet bullet = o.GetComponent<Bullet>();
 						bullet.Init();

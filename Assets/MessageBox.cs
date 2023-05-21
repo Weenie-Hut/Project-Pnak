@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using System;
 
 namespace Pnak
 {
@@ -36,6 +37,12 @@ namespace Pnak
 			text.text = message;
 			text.autoSizeTextContainer = true;
 			_Messages.Add(text);
+
+			if (_Messages.Count > _MaxMessages)
+			{
+				Destroy(_Messages[0].gameObject);
+				_Messages.RemoveAt(0);
+			}
 
 			// Focus on the last message by scrolling to the bottom
 			_MessageContainer.verticalNormalizedPosition = 0;

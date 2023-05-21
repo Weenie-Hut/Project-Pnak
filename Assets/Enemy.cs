@@ -8,18 +8,25 @@ namespace Pnak
 	{
 		public static List<Enemy> Enemies = new List<Enemy>();
 
-		[Networked] private float Health { get; set; }
+		[SerializeField] private SpriteFillBar _HealthBar;
+		[SerializeField] private float _DefaultHealth = 1f;
+		[SerializeField] private float _DefaultMovementSpeed = 1f;
+
+		[Networked(OnChanged = nameof(OnHealthChanged))] private float _Health { get; set; }
+		public float Health => _Health;
+		[Networked(OnChanged = nameof(OnHealthChanged))] private float _MaxHealth { get; set; }
+		public float MaxHealth => _MaxHealth;
+		[Networked] private Vector3 _TargetPosition { get; set; }
+		public Vector3 TargetPosition => _TargetPosition;
+		[Networked] private float _MovementSpeed { get; set; }
+		public float MovementSpeed => _MovementSpeed;
 		private byte PathIndex = 1;
-		[Networked] private Vector3 _targetPosition { get; set; }
-
 		private Transform path;
-
-		private float speed;
 
 		public bool Damage(float amount)
 		{
-			Health -= amount;
-			if (Health <= float.Epsilon)
+			_Health -= amount;
+			if (_Health <= float.Epsilon)
 			{
 				Runner.Despawn(Object);
 				Enemies.Remove(this);
@@ -28,6 +35,9 @@ namespace Pnak
 
 			return false;
 		}
+
+		public static void OnHealthChanged(Changed<Enemy> changed) => changed.Behaviour.OnHealthChanged();
+		private void OnHealthChanged() => _HealthBar.Value = _Health / _MaxHealth;
 
 		public void SetNextPosition()
 		{
@@ -38,7 +48,7 @@ namespace Pnak
 			}
 
 			var target = Random.Range(0, path.GetChild(PathIndex).childCount);
-			_targetPosition = path.GetChild(PathIndex).GetChild(target).position;
+			_TargetPosition = path.GetChild(PathIndex).GetChild(target).position;
 
 			if (PathIndex >= path.childCount)
 			{
@@ -48,11 +58,11 @@ namespace Pnak
 			PathIndex++;
 		}
 
-		public void Init(Transform path, float speed, float health)
+		public void Init(Transform path, float speedScale, float healthScale)
 		{
 			this.path = path;
-			this.speed = speed;
-			Health = health * SessionManager.Instance.PlayerCount;
+			_MovementSpeed = _DefaultMovementSpeed * speedScale;
+			_MaxHealth = _Health = _DefaultHealth * healthScale;
 
 			SetNextPosition();
 			Enemies.Add(this);
@@ -60,10 +70,10 @@ namespace Pnak
 
 		public override void FixedUpdateNetwork()
 		{
-			float movement = speed * Runner.DeltaTime;
-			transform.position = Vector3.MoveTowards(transform.position, _targetPosition, movement);
+			float movement = _MovementSpeed * Runner.DeltaTime;
+			transform.position = Vector3.MoveTowards(transform.position, _TargetPosition, movement);
 
-			if (Vector3.Distance(transform.position, _targetPosition) < 0.1f)
+			if (Vector3.Distance(transform.position, _TargetPosition) < 0.1f)
 				SetNextPosition();
 		}
 	}

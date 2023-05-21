@@ -10,7 +10,7 @@ namespace Pnak
 		[Tooltip("Objects to create on start.")]
 		[SerializeField] private GameObject[] _CreateOnStart;
 		[Tooltip("Progress bar to update as objects are created.")]
-		[SerializeField] private UIProgressBar _ProgressBar;
+		[SerializeField] private UIFillBar _ProgressBar;
 		[Tooltip("Event to invoke when the game has finished loading.")]
 		public UnityEvent OnFinishedLoading;
 
