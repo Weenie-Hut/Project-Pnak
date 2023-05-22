@@ -15,7 +15,8 @@ MonoBehaviour:
   Name: Space Guy
   Sprite: {fileID: 21300000, guid: 519dafacd208bb64c83d5124be03b09d, type: 3}
   Speed: 1.5
-  ReloadTime: 0.8
+  ReloadTime: 1.2
+  ProjectilePrefab: {fileID: 1559252364345579475, guid: c398c0885225003439acc45b58b8c316, type: 3}
   TowerPlacementTime: 3
   TowerPrefab: {fileID: 8095831076234495228, guid: 96b16704e74cab544b1a44a01b6b8113, type: 3}
   UIScale: {x: 373, y: 364.2}

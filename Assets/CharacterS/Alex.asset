@@ -16,7 +16,8 @@ MonoBehaviour:
   Sprite: {fileID: 21300002, guid: 07103c52b3aaeca4da8a83361edd059f, type: 3}
   Speed: 2.1
   ReloadTime: 1
-  TowerPlacementTime: 15
+  ProjectilePrefab: {fileID: 1559252364345579475, guid: 5e4b7a5bfbacab74cb70e8dfaa96f695, type: 3}
+  TowerPlacementTime: 9
   TowerPrefab: {fileID: 8095831076234495228, guid: 862209c7a75ab4146ab31d763bf39a21, type: 3}
   UIScale: {x: 373, y: 300.7}
   UIPosition: {x: 5, y: 0}

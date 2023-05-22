@@ -15,7 +15,8 @@ MonoBehaviour:
   Name: Gus and Mr Shooty
   Sprite: {fileID: 21300000, guid: 07103c52b3aaeca4da8a83361edd059f, type: 3}
   Speed: 1.9
-  ReloadTime: 0.5
+  ReloadTime: 0.25
+  ProjectilePrefab: {fileID: 1559252364345579475, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
   TowerPlacementTime: 20
   TowerPrefab: {fileID: 8095831076234495228, guid: 8b1785ff0ec28204daa501712f48bb9a, type: 3}
   UIScale: {x: 373, y: 300.7}

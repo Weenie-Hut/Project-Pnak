@@ -245,8 +245,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8095831076234495219}
   - component: {fileID: 8095831076234495229}
-  - component: {fileID: 8095831076234495228}
   - component: {fileID: -8490948727475308021}
+  - component: {fileID: 8095831076234495228}
   - component: {fileID: 4256950308788126747}
   - component: {fileID: 8849502059222146450}
   m_Layer: 0
@@ -294,32 +294,10 @@ MonoBehaviour:
     RawGuidValue: 862209c7a75ab4146ab31d763bf39a21
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 8095831076234495228}
   - {fileID: -8490948727475308021}
+  - {fileID: 8095831076234495228}
   - {fileID: 4256950308788126747}
   SimulationBehaviours: []
---- !u!114 &8095831076234495228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8095831076234495231}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b7f915af7bc76846b3a8da5e7484f80, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  _BulletPrefab: {fileID: 1559252364345579475, guid: f154aa82ebfe59d44bce5abca8fd1870, type: 3}
-  _SpawnReloadDelay: 5
-  _SpawnInitialReloadDelay: 1
-  _SpawnRotationSpeed: 100
-  _GunTransform: {fileID: 8095831076185135268}
-  _TargetMask:
-    serializedVersion: 2
-    m_Bits: 64
-  _ReloadBar: {fileID: 8676252409511859197}
 --- !u!114 &-8490948727475308021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348,6 +326,28 @@ MonoBehaviour:
     RotTeleportRadians: 1.5
   UseLegacySharedModeInterpolation: 0
   TargetInterpolationDelay: 0.03
+--- !u!114 &8095831076234495228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8095831076234495231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b7f915af7bc76846b3a8da5e7484f80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _BulletPrefab: {fileID: 1559252364345579475, guid: f154aa82ebfe59d44bce5abca8fd1870, type: 3}
+  _SpawnReloadDelay: 5
+  _SpawnInitialReloadDelay: 1
+  _SpawnRotationSpeed: 100
+  _GunTransform: {fileID: 8095831076185135268}
+  _TargetMask:
+    serializedVersion: 2
+    m_Bits: 64
+  _ReloadBar: {fileID: 8676252409511859197}
 --- !u!114 &4256950308788126747
 MonoBehaviour:
   m_ObjectHideFlags: 0
