@@ -12,10 +12,7 @@ namespace Pnak
 		{
 			[Tooltip("The delay in seconds from the previous spawn time.")]
 			public float delay;
-
-			public float speed;
-
-			public float health;
+			public Enemy enemy;
 		}
 
 		public List<SpawnData> Data;

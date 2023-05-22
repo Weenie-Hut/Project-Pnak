@@ -25,14 +25,23 @@ namespace Pnak
 
 		[Networked] private TickTimer reloadDelay { get; set; }
 		[Networked] private TickTimer towerDelay { get; set; }
-		[SerializeField] private Bullet _prefabBullet;
-		[SerializeField] private Tower _prefabTower;
 
 		private float angle = 0.0f;
 		public override void FixedUpdateNetwork()
 		{
 			if (GetInput(out NetworkInputData input))
 			{
+				if (input.ControllerConfig == ControllerConfig.Menu)
+				{
+					if (input.Button3Pressed) CharacterType = 1;
+					if (input.Button4Pressed) CharacterType = 2;
+					if (input.Button5Pressed) CharacterType = 3;
+					if (input.Button6Pressed) CharacterType = 4;
+
+					reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
+					towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
+				}
+
 				if (!PlayerLoaded) return;
 
 				Vector2 movement = input.movement * CurrentCharacterData.Speed;
@@ -46,25 +55,22 @@ namespace Pnak
 
 				if (reloadDelay.ExpiredOrNotRunning(Runner))
 				{
-					if (input.GetButton(0))
+					if (input.Button1Pressed)
 					{
 						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
-						UnityEngine.Debug.Log("Firing bullet at angle: " + angle + " (x: " + input.movement.x + ", y: " + input.movement.y + ")");
-						Runner.Spawn(_prefabBullet, transform.position, Quaternion.Euler(0.0f, 0.0f, angle), Object.InputAuthority, (runner, o) =>
-						{
-							o.GetComponent<Bullet>().Init();
-						});
+						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, angle), Object.InputAuthority);
 					}
 				}
 
 				if (towerDelay.ExpiredOrNotRunning(Runner))
 				{
-					if (input.GetButton(1))
+					if (input.Button2Pressed)
 					{
 						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
-						Runner.Spawn(_prefabTower, transform.position, Quaternion.Euler(0.0f, 0.0f, angle), Object.InputAuthority, (runner, o) =>
+						float _rotation = angle;
+						Runner.Spawn(CurrentCharacterData.TowerPrefab, transform.position, Quaternion.identity, Object.InputAuthority, (runner, o) =>
 						{
-							o.GetComponent<Tower>().Init(CurrentCharacterData.TowerReloadTime, CurrentCharacterData.TowerLifetime);
+							o.GetComponent<Tower>().Init(_rotation);
 						});
 					}
 				}
@@ -83,21 +89,17 @@ namespace Pnak
 			LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
 		}
 
-		private KeyValuePair<GameManager.Buttons, Action>[] _buttonActions;
+		// private KeyValuePair<GameManager.Buttons, Action>[] _buttonActions;
 
 		private void Start()
 		{
 			// if (!Object.HasInputAuthority) yield break;
 
-			_buttonActions = new KeyValuePair<GameManager.Buttons, Action>[] {
-				new (GameManager.Buttons.MenuButton_1, () => SetCharacterType(1)),
-				new (GameManager.Buttons.MenuButton_2, () => SetCharacterType(2)),
-				new (GameManager.Buttons.MenuButton_3, () => SetCharacterType(3)),
-				new (GameManager.Buttons.MenuButton_4, () => SetCharacterType(4))
-			};
+			// _buttonActions = new KeyValuePair<GameManager.Buttons, Action>[] {
+			// };
 
-			foreach (var buttonAction in _buttonActions)
-				GameManager.Instance.AddButtonListener(buttonAction.Key, buttonAction.Value);
+			// foreach (var buttonAction in _buttonActions)
+			// 	GameManager.Instance.AddButtonListener(buttonAction.Key, buttonAction.Value);
 		}
 
 		public override void Spawned()
@@ -109,12 +111,13 @@ namespace Pnak
 
 		private void OnDestroy()
 		{
-			foreach (var buttonAction in _buttonActions)
-				GameManager.Instance?.RemoveButtonListener(buttonAction.Key, buttonAction.Value);
+			// foreach (var buttonAction in _buttonActions)
+			// 	GameManager.Instance?.RemoveButtonListener(buttonAction.Key, buttonAction.Value);
 		}
 
 		private void SetCharacterType(byte characterType)
 		{
+			UnityEngine.Debug.Log("Setting character type to " + characterType);
 			CharacterType = characterType;
 		}
 
@@ -122,6 +125,8 @@ namespace Pnak
 
 		private void ChangeCharacterSprite()
 		{
+			MessageBox.Instance.ShowMessage("Player changed character to " + CurrentCharacterData.Name + "!");
+
 			CharacterRenderer.sprite = CurrentCharacterData.Sprite;
 			CharacterText.text = CurrentCharacterData.Name;
 			CharacterRenderer.transform.localScale = (Vector3)CurrentCharacterData.SpriteScale;

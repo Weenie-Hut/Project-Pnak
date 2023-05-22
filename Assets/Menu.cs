@@ -17,11 +17,12 @@ namespace Pnak
 		{
 			if (value)
 			{
-				if (GameManager.Instance.PlayerInput.currentActionMap.name != "Menu")
-					GameManager.Instance.PlayerInput.SwitchCurrentActionMap("Menu");
+				if (GameManager.Instance.InputData.ControllerConfig != ControllerConfig.Menu)
+					GameManager.Instance.SetControllerConfig(ControllerConfig.Menu);
+
 			}
-			else if (GameManager.Instance.PlayerInput.currentActionMap.name != "Gameplay")
-				GameManager.Instance.PlayerInput.SwitchCurrentActionMap("Gameplay");
+			else if (GameManager.Instance.InputData.ControllerConfig != ControllerConfig.Gameplay)
+				GameManager.Instance.SetControllerConfig(ControllerConfig.Gameplay);
 			gameObject.SetActive(value);
 		}
 
@@ -38,6 +39,26 @@ namespace Pnak
 			foreach (var buttonAction in _buttonActions)
 				GameManager.Instance.AddButtonListener(buttonAction.Key, buttonAction.Value);
 
+			UnityEngine.Events.UnityAction[] menuButtons = new UnityEngine.Events.UnityAction[]
+			{
+				() => {
+					GameManager.Instance.InvokeButtonListener(GameManager.Buttons.MenuButton_1);
+					GameManager.Instance.InputData.Button3Pressed = true;
+				},
+				() => {
+					GameManager.Instance.InvokeButtonListener(GameManager.Buttons.MenuButton_2);
+					GameManager.Instance.InputData.Button4Pressed = true;
+				},
+				() => {
+					GameManager.Instance.InvokeButtonListener(GameManager.Buttons.MenuButton_3);
+					GameManager.Instance.InputData.Button5Pressed = true;
+				},
+				() => {
+					GameManager.Instance.InvokeButtonListener(GameManager.Buttons.MenuButton_4);
+					GameManager.Instance.InputData.Button6Pressed = true;
+				}
+			};
+
 			for (int i = 0; i < GameManager.Instance.Characters.Length; i++)
 			{
 				CharacterData character = GameManager.Instance.Characters[i];
@@ -47,7 +68,7 @@ namespace Pnak
 
 				var button = characterOption.GetComponent<UnityEngine.UI.Button>();
 				GameManager.Buttons index = (GameManager.Buttons)(GameManager.Buttons.MenuButton_1 + i);
-				button.onClick.AddListener(() => GameManager.Instance.InvokeButtonListener(index));
+				button.onClick.AddListener(menuButtons[i]);
 			}
 		}
 

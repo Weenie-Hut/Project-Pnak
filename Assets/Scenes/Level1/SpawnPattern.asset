@@ -14,39 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Data:
   - delay: 6
-    speed: 0.7
-    health: 3
+    enemy: {fileID: 6067962359517261133, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
   - delay: 2
-    speed: 1
-    health: 2
+    enemy: {fileID: 6067962359517261133, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
   - delay: 2
-    speed: 1
-    health: 2
+    enemy: {fileID: 6067962359517261133, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
   - delay: 2
-    speed: 1
-    health: 2
+    enemy: {fileID: 6067962359517261133, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
   - delay: 8
-    speed: 0.2
-    health: 10
+    enemy: {fileID: 6067962359517261133, guid: 35231fac6650e98449f8027ab4fc0849, type: 3}
   - delay: 6
-    speed: 1
-    health: 2
+    enemy: {fileID: 6067962359517261133, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
   - delay: 2
-    speed: 1
-    health: 2
+    enemy: {fileID: 6067962359517261133, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
   - delay: 2
-    speed: 1
-    health: 2
+    enemy: {fileID: 6067962359517261133, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
   - delay: 2
-    speed: 1
-    health: 2
+    enemy: {fileID: 6067962359517261133, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
   - delay: 6
-    speed: 2
-    health: 1
+    enemy: {fileID: 6067962359517261133, guid: ec2ca944f5d08dd4e89fd0ec225d8912, type: 3}
   - delay: 0.33
-    speed: 2
-    health: 1
+    enemy: {fileID: 6067962359517261133, guid: ec2ca944f5d08dd4e89fd0ec225d8912, type: 3}
   - delay: 0.33
-    speed: 2
-    health: 1
+    enemy: {fileID: 6067962359517261133, guid: ec2ca944f5d08dd4e89fd0ec225d8912, type: 3}
+  - delay: 0.33
+    enemy: {fileID: 6067962359517261133, guid: ec2ca944f5d08dd4e89fd0ec225d8912, type: 3}
+  - delay: 0.33
+    enemy: {fileID: 6067962359517261133, guid: ec2ca944f5d08dd4e89fd0ec225d8912, type: 3}
   Loop: 1
