@@ -277,7 +277,7 @@ MonoBehaviour:
   CharacterText: {fileID: 6668936615884505547}
   LoadingData: {fileID: 11400000, guid: af71ebc8eb272ff48b3581ea7fc89d45, type: 2}
   _CharacterType: 0
-  _prefabBullet: {fileID: 7408844930241553186, guid: 5e4b7a5bfbacab74cb70e8dfaa96f695, type: 3}
+  _prefabBullet: {fileID: 1559252364345579475, guid: 5e4b7a5bfbacab74cb70e8dfaa96f695, type: 3}
   _prefabTower: {fileID: 8095831076234495228, guid: 8b1785ff0ec28204daa501712f48bb9a, type: 3}
 --- !u!1 &6171953303633001884
 GameObject:

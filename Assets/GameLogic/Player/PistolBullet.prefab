@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4824208289284672205}
+  - component: {fileID: 3072735703879940987}
   m_Layer: 0
   m_Name: Graphics
   m_TagString: Untagged
@@ -32,6 +33,22 @@ Transform:
   m_Father: {fileID: 6328995277521983043}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!70 &3072735703879940987
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584255750843065848}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.01, y: 0}
+  m_Size: {x: 0.59, y: 0.3}
+  m_Direction: 1
 --- !u!1 &2513871686737893388
 GameObject:
   m_ObjectHideFlags: 0
@@ -43,9 +60,12 @@ GameObject:
   - component: {fileID: 6328995277521983043}
   - component: {fileID: 1984285038170924512}
   - component: {fileID: 2273252125631242694}
-  - component: {fileID: 7408844930241553186}
+  - component: {fileID: -1179920862828738698}
+  - component: {fileID: 5270848876961268193}
+  - component: {fileID: 1559252364345579475}
+  - component: {fileID: -2771670484422843685}
   m_Layer: 0
-  m_Name: Bullet
+  m_Name: PistolBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118,9 +138,12 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 1984285038170924512}
-  - {fileID: 7408844930241553186}
+  - {fileID: -1179920862828738698}
+  - {fileID: 5270848876961268193}
+  - {fileID: 1559252364345579475}
+  - {fileID: -2771670484422843685}
   SimulationBehaviours: []
---- !u!114 &7408844930241553186
+--- !u!114 &-1179920862828738698
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -129,11 +152,66 @@ MonoBehaviour:
   m_GameObject: {fileID: 2513871686737893388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c7b1f7bba782174db1b7bcc832f2cde, type: 3}
+  m_Script: {fileID: 11500000, guid: b4d6a6017d063b944976858ae22d51cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  speed: 5
+  SpawnMovementSpeed: 5
+--- !u!114 &5270848876961268193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513871686737893388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ec43fa111b41e7478d24cf202449fac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _Collider: {fileID: 3072735703879940987}
+  _CollisionMask:
+    serializedVersion: 2
+    m_Bits: 320
+  SortByDistance: 0
+  UseTransformDistance: 0
+  maxCollisions: 5
+--- !u!114 &1559252364345579475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513871686737893388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e7c41dc6d8c22b46aaba34042b41a73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _DamageByPeirce:
+  - PhysicalDamage: 0
+    MagicalDamage: 0
+    PureDamage: 1
+  CappedPeirce: 1
+  IgnoreAfterFirstHit: 1
+--- !u!114 &-2771670484422843685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513871686737893388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92e23f9385be46c48916664f78f1f404, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _DespawnImpactLayers:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1 &2973621702732448016
 GameObject:
   m_ObjectHideFlags: 0

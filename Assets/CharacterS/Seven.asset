@@ -17,8 +17,7 @@ MonoBehaviour:
   Speed: 2.8
   ReloadTime: 3
   TowerPlacementTime: 5
-  TowerLifetime: 15
-  TowerReloadTime: 3
+  TowerPrefab: {fileID: 8095831076234495228, guid: 61652c70d2ce3884ba66c023e49e8322, type: 3}
   UIScale: {x: 229, y: 272.2}
   UIPosition: {x: 0, y: 0}
   SpriteScale: {x: 1.5, y: 1.5}

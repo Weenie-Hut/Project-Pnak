@@ -8,7 +8,6 @@ namespace Pnak
 	{
 		[Networked] private TickTimer delay { get; set; }
 
-		[SerializeField] private Enemy _Enemy;
 		[SerializeField] private SpawnPattern _SpawnPattern;
 		[SerializeField] private Transform _SpawnPath;
 
@@ -61,10 +60,10 @@ namespace Pnak
 			int random = Random.Range(0, _SpawnPath.GetChild(0).childCount);
 			Vector3 spawnPos = _SpawnPath.GetChild(0).GetChild(random).position;
 
-			Runner.Spawn(_Enemy, spawnPos, transform.rotation, Object.InputAuthority, (runner, o) =>
+			Runner.Spawn(_SpawnPattern[_SpawnIndex].enemy, spawnPos, transform.rotation, Object.InputAuthority, (runner, o) =>
 			{
 				var enemy = o.GetComponent<Enemy>();
-				enemy.Init(_SpawnPath, _SpawnPattern[_SpawnIndex].speed, _SpawnPattern[_SpawnIndex].health * SessionManager.Instance.PlayerCount);
+				enemy.Init(_SpawnPath);
 			});
 		}
 	}

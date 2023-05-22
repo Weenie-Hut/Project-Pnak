@@ -246,8 +246,11 @@ GameObject:
   - component: {fileID: 8095831076234495219}
   - component: {fileID: 8095831076234495229}
   - component: {fileID: 8095831076234495228}
+  - component: {fileID: -8490948727475308021}
+  - component: {fileID: 4256950308788126747}
+  - component: {fileID: 8849502059222146450}
   m_Layer: 0
-  m_Name: Tower
+  m_Name: TowerExample_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -288,10 +291,12 @@ MonoBehaviour:
   AoiPositionSource: {fileID: 0}
   Flags: 2305
   NetworkGuid:
-    RawGuidValue: 8b1785ff0ec28204daa501712f48bb9a
+    RawGuidValue: 96b16704e74cab544b1a44a01b6b8113
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 8095831076234495228}
+  - {fileID: -8490948727475308021}
+  - {fileID: 4256950308788126747}
   SimulationBehaviours: []
 --- !u!114 &8095831076234495228
 MonoBehaviour:
@@ -306,14 +311,72 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  _BulletPrefab: {fileID: 7408844930241553186, guid: 5e4b7a5bfbacab74cb70e8dfaa96f695, type: 3}
-  _DefaultInitialDelay: 1
-  _DefaultRotationSpeed: 3
-  _DefaultReloadDelay: 1
-  _DefaultLifeTime: 10
+  _BulletPrefab: {fileID: 1559252364345579475, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
+  _SpawnReloadDelay: 0.5
+  _SpawnInitialReloadDelay: 1
+  _SpawnRotationSpeed: 140
   _GunTransform: {fileID: 8095831076185135268}
+  _TargetMask:
+    serializedVersion: 2
+    m_Bits: 64
   _ReloadBar: {fileID: 8676252409511859197}
-  _LifeBar: {fileID: 2196272155905738352}
+--- !u!114 &-8490948727475308021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8095831076234495231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  InterpolationSpace: 0
+  InterpolationTarget: {fileID: 5354909407563661407}
+  InterpolateErrorCorrection: 1
+  InterpolatedErrorCorrectionSettings:
+    MinRate: 3.3
+    MaxRate: 10
+    PosBlendStart: 0.25
+    PosBlendEnd: 1
+    PosMinCorrection: 0.025
+    PosTeleportDistance: 2
+    RotBlendStart: 0.1
+    RotBlendEnd: 0.5
+    RotTeleportRadians: 1.5
+  UseLegacySharedModeInterpolation: 0
+  TargetInterpolationDelay: 0.03
+--- !u!114 &4256950308788126747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8095831076234495231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 583cc54e80ad1b049acd6b5744f07647, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _SpawnLifetime: 8
+  _SpawnMaxLifetime: 8
+  _DespawnOnExpire: 1
+--- !u!114 &8849502059222146450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8095831076234495231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc9e5c4417028484f928bee93d937ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _FillBar: {fileID: 2196272155905738352}
 --- !u!1001 &4237724863682835918
 PrefabInstance:
   m_ObjectHideFlags: 0

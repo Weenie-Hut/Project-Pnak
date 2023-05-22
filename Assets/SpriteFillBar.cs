@@ -39,7 +39,7 @@ public class SpriteFillBar : MonoBehaviour
 			return;
 #endif
 
-		FillBar.localScale = new Vector2(Value, 1);
+		FillBar.localScale = new Vector2(Mathf.Max(Value, 1e-4f), 1);
 		Text.text = string.Format(TextFormat, Value);
 	}
 

@@ -20,6 +20,12 @@ namespace Pnak
 			Shoot,
 		}
 
+		public readonly static Dictionary<ControllerConfig, string> ControllerConfigNames = new Dictionary<ControllerConfig, string>()
+		{
+			{ ControllerConfig.Gameplay, "Gameplay" },
+			{ ControllerConfig.Menu, "Menu" },
+		};
+
 		[Tooltip("The character data to use for each character type. Temporary until we have character prefabs.")]
 		public CharacterData[] Characters;
 
@@ -34,21 +40,21 @@ namespace Pnak
 			}
 		}
 
-		private NetworkInputData _inputData;
+		public NetworkInputData InputData;
 
 		public Camera MainCamera { get; private set; }
 		public PlayerInput PlayerInput { get; private set;}
 		public EventSystem EventSystem { get; private set; }
 		public SceneLoader SceneLoader { get; private set; }
 		public InputSystemUIInputModule InputSystemUIInputModule { get; private set; }
-		public Vector2 GetMovement() => _inputData.movement;
-		public bool GetButton(int button) => _inputData.GetButton(button);
+
+		public ControllerConfig LoadingConfig { get; private set; }
 
 		protected override void Awake()
 		{
 			base.Awake();
 
-			_inputData = new NetworkInputData();
+			InputData = new NetworkInputData();
 
 			MainCamera = Camera.main;
 			DontDestroyOnLoad(MainCamera.gameObject);
@@ -62,7 +68,15 @@ namespace Pnak
 			PlayerInput.onActionTriggered += context => OnActionTriggered(context);
 			PlayerInput.uiInputModule = InputSystemUIInputModule;
 
-			PlayerInput.SwitchCurrentActionMap("Menu");
+			LoadingConfig = ControllerConfig.Menu;
+			PlayerInput.SwitchCurrentActionMap(ControllerConfigNames[LoadingConfig]);
+			InputData.ControllerConfig = LoadingConfig;
+		}
+
+		public void SetControllerConfig(ControllerConfig config)
+		{
+			PlayerInput.SwitchCurrentActionMap(ControllerConfigNames[config]);
+			LoadingConfig = config;
 		}
 
 		protected override void OnDestroy()
@@ -74,9 +88,10 @@ namespace Pnak
 
 		public NetworkInputData GetNetworkInput()
 		{
-			var result = _inputData;
+			var result = InputData;
 
-			_inputData.buttons = 0;
+			InputData.ClearButtons();
+			InputData.ControllerConfig = LoadingConfig;
 
 			return result;
 		}
@@ -111,21 +126,21 @@ namespace Pnak
 		[InputActionTriggered("Move")]
 		private void OnMoveTriggered(InputAction.CallbackContext context)
 		{
-			_inputData.movement = context.ReadValue<Vector2>();
+			InputData.movement = context.ReadValue<Vector2>();
 		}
 
 		[InputActionTriggered("Shoot")]
 		private void OnShootTriggered(InputAction.CallbackContext context)
 		{
 			if (!context.ReadValueAsButton()) return;
-			_inputData.SetButton(0, true);
+			InputData.Button1Pressed = true;
 		}
 
 		[InputActionTriggered("PlaceTower")]
 		private void OnPlaceTowerTriggered(InputAction.CallbackContext context)
 		{
 			if (!context.ReadValueAsButton()) return;
-			_inputData.SetButton(1, true);
+			InputData.Button2Pressed = true;
 		}
 
 		[InputActionTriggered("MenuButton_1")]
@@ -134,6 +149,7 @@ namespace Pnak
 			if (!context.ReadValueAsButton()) return;
 			UnityEngine.Debug.Log("MenuButton_1 Pressed");
 			InvokeButtonListener(Buttons.MenuButton_1);
+			InputData.Button3Pressed = true;
 		}
 
 		[InputActionTriggered("MenuButton_2")]
@@ -142,6 +158,7 @@ namespace Pnak
 			if (!context.ReadValueAsButton()) return;
 			UnityEngine.Debug.Log("MenuButton_2 Pressed");
 			InvokeButtonListener(Buttons.MenuButton_2);
+			InputData.Button4Pressed = true;
 		}
 
 		[InputActionTriggered("MenuButton_3")]
@@ -150,6 +167,7 @@ namespace Pnak
 			if (!context.ReadValueAsButton()) return;
 			UnityEngine.Debug.Log("MenuButton_3 Pressed");
 			InvokeButtonListener(Buttons.MenuButton_3);
+			InputData.Button5Pressed = true;
 		}
 
 		[InputActionTriggered("MenuButton_4")]
@@ -158,6 +176,7 @@ namespace Pnak
 			if (!context.ReadValueAsButton()) return;
 			UnityEngine.Debug.Log("MenuButton_4 Pressed");
 			InvokeButtonListener(Buttons.MenuButton_4);
+			InputData.Button6Pressed = true;
 		}
 
 		[InputActionTriggered("ToggleMenu")]
@@ -166,7 +185,7 @@ namespace Pnak
 			if (!context.ReadValueAsButton()) return;
 			UnityEngine.Debug.Log("ToggleMenu Pressed");
 
-			_inputData.movement = Vector2.zero; // Reset movement
+			InputData.movement = Vector2.zero; // Reset movement
 
 			InvokeButtonListener(Buttons.ToggleMenu);
 		}

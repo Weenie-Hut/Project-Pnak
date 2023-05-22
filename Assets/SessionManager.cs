@@ -48,8 +48,8 @@ namespace Pnak
 			{
 				Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3,1,0);
 				NetworkObject networkPlayerObject = runner.Spawn(_characterPrefab, spawnPosition, Quaternion.identity, player, (_, __) => {
-					MessageBox.Instance.SendMessage($"Player {player} has joined the game!");
 				});
+				MessageBox.Instance.ShowMessage($"Player {player} has joined the game!");
 				_spawnedCharacters.Add(player, networkPlayerObject);
 			}
 		}
