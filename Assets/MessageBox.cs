@@ -10,6 +10,8 @@ namespace Pnak
 		[SerializeField] private UnityEngine.UI.ScrollRect _MessageContainer;
 		[SerializeField] private TMPro.TextMeshProUGUI _MessagePrefab;
 		[SerializeField] private int _MaxMessages = 50;
+		[Tooltip("How long a message will be displayed before being removed")]
+		[SerializeField] private float _MessageLifetime = 30;
 
 		private List<TMPro.TextMeshProUGUI> _Messages;
 
@@ -35,7 +37,9 @@ namespace Pnak
 
 			TMPro.TextMeshProUGUI text = Instantiate(_MessagePrefab, _MessageContainer.transform);
 			text.text = message;
-			text.autoSizeTextContainer = true;
+
+			// Set the hight of the text to match the text
+			text.rectTransform.sizeDelta = new Vector2(text.rectTransform.sizeDelta.x, text.preferredHeight);
 			_Messages.Add(text);
 
 			if (_Messages.Count > _MaxMessages)
@@ -43,6 +47,7 @@ namespace Pnak
 				Destroy(_Messages[0].gameObject);
 				_Messages.RemoveAt(0);
 			}
+			text.StartCoroutine(CommonCoroutines.CallAfterSeconds(_MessageLifetime, () => Destroy(text.gameObject)));
 
 			// Focus on the last message by scrolling to the bottom
 			_MessageContainer.verticalNormalizedPosition = 0;
