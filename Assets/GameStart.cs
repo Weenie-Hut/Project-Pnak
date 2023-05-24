@@ -51,12 +51,12 @@ namespace Pnak
 			_ProgressBar.Value = 1;
 			OnFinishedLoading.Invoke();
 
-			InputCallbackSystem.RegisterInputCallbacks(this);
+			InputCallbackSystem.SetupInputCallbacks(this);
 		}
 
 		private void OnDestroy()
 		{
-			InputCallbackSystem.UnregisterInputCallbacks(this);
+			InputCallbackSystem.CleanupInputCallbacks(this);
 		}
 
 		/// <summary>
@@ -93,6 +93,7 @@ namespace Pnak
 		[InputActionTriggered(ActionNames.Menu_Button1, InputStateFilters.PreformedThisFrame)]
 		private void QuickJoin(UnityEngine.InputSystem.InputAction.CallbackContext context)
 		{
+			UnityEngine.Debug.Log("Quick Join");
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.AutoHostOrClient);
 		}
 

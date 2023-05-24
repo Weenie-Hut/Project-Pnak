@@ -34,28 +34,35 @@ namespace Pnak
 		{
 			if (GetInput(out NetworkInputData input))
 			{
-				if (input.ControllerConfig == ControllerConfig.Menu)
+				if (input.CurrentInputMap == Input.InputMap.Menu)
 				{
-					if (input.Button3Pressed) CharacterType = 1;
-					if (input.Button4Pressed) CharacterType = 2;
-					if (input.Button5Pressed) CharacterType = 3;
-					if (input.Button6Pressed) CharacterType = 4;
+					byte nextType = CharacterType;
+					if (input.GetButtonPressed(1)) nextType = 1;
+					if (input.GetButtonPressed(2)) nextType = 2;
+					if (input.GetButtonPressed(3)) nextType = 3;
+					if (input.GetButtonPressed(4)) nextType = 4;
 
-					reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
-					towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
+					if (nextType != CharacterType)
+					{
+						CharacterType = nextType;
+						
+						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
+						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
+					}
+
+					return;
 				}
 
 				if (!PlayerLoaded) return;
 
-				Vector2 movement = input.movement * CurrentCharacterData.Speed;
-
+				Vector2 movement = input.Movement * CurrentCharacterData.Speed;
 				transform.position += (Vector3)movement * Runner.DeltaTime;
 
 				float _rotation = input.AimAngle;
 
 				if (reloadDelay.ExpiredOrNotRunning(Runner))
 				{
-					if (input.Button1Pressed)
+					if (input.GetButtonDown(1))
 					{
 						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
 						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, _rotation), Object.InputAuthority);
@@ -64,7 +71,7 @@ namespace Pnak
 
 				if (towerDelay.ExpiredOrNotRunning(Runner))
 				{
-					if (input.Button2Pressed)
+					if (input.GetButtonPressed(2))
 					{
 						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
 						Runner.Spawn(CurrentCharacterData.TowerPrefab, transform.position, Quaternion.identity, Object.InputAuthority, (runner, o) =>
@@ -87,12 +94,16 @@ namespace Pnak
 			float? towerTime = towerDelay.RemainingTime(Runner);
 			LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
 
-			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, GameManager.Instance.InputData.AimAngle);
+			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, Input.GameInput.Instance.InputData.AimAngle);
 		}
 
 		public override void Spawned()
 		{
-			if (!Object.HasInputAuthority) return;
+			if (!Object.HasInputAuthority)
+			{
+				_AimGraphic.gameObject.SetActive(false);
+				return;
+			}
 			
 			if (LocalPlayer != null)
 			{

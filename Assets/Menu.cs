@@ -11,8 +11,6 @@ namespace Pnak
 		[SerializeField] private RectTransform CharacterOptions;
 		[SerializeField] private GameObject CharacterOptionPrefab;
 
-		private KeyValuePair<GameManager.ButtonAction, Action>[] _buttonActions;
-
 		[InputActionTriggered(ActionNames.Menu_Button1, InputStateFilters.PreformedThisFrame)]
 		[InputActionTriggered(ActionNames.Menu_Button2, InputStateFilters.PreformedThisFrame)]
 		[InputActionTriggered(ActionNames.Menu_Button3, InputStateFilters.PreformedThisFrame)]
@@ -25,21 +23,19 @@ namespace Pnak
 		private void Toggle(bool value)
 		{
 			if (value)
-			{
-				GameManager.Instance.SetControllerConfig(ControllerConfig.Menu);
-			}
-			else GameManager.Instance.SetControllerConfig(ControllerConfig.Gameplay);
+				GameInput.Instance.SetInputMap(InputMap.Menu);
+			else GameInput.Instance.SetInputMap(InputMap.Gameplay);
 			gameObject.SetActive(value);
 		}
 
 		private void Start()
 		{
-			UnityEngine.Events.UnityAction[] menuButtons = new UnityEngine.Events.UnityAction[]
+			InputEmulation.EmulateDelegate[] menuButtons = new InputEmulation.EmulateDelegate[]
 			{
-				() => InputEmulation.EmulateButton(ActionNames.Menu_Button1),
-				() => InputEmulation.EmulateButton(ActionNames.Menu_Button2),
-				() => InputEmulation.EmulateButton(ActionNames.Menu_Button3),
-				() => InputEmulation.EmulateButton(ActionNames.Menu_Button4),
+				InputEmulation.CreateEmulateButtonDelegate(ActionNames.Menu_Button1),
+				InputEmulation.CreateEmulateButtonDelegate(ActionNames.Menu_Button2),
+				InputEmulation.CreateEmulateButtonDelegate(ActionNames.Menu_Button3),
+				InputEmulation.CreateEmulateButtonDelegate(ActionNames.Menu_Button4),
 			};
 
 			for (int i = 0; i < GameManager.Instance.Characters.Length; i++)
@@ -50,16 +46,15 @@ namespace Pnak
 				characterSelectUI.SetData(character);
 
 				var button = characterOption.GetComponent<UnityEngine.UI.Button>();
-				GameManager.ButtonAction index = (GameManager.ButtonAction)(GameManager.ButtonAction.MenuButton_1 + i);
-				button.onClick.AddListener(menuButtons[i]);
+				button.onClick.AddListener(menuButtons[i].Invoke);
 			}
 
-			InputCallbackSystem.RegisterInputCallbacks(this);
+			InputCallbackSystem.SetupInputCallbacks(this);
 		}
 
 		private void OnDestroy()
 		{
-			InputCallbackSystem.UnregisterInputCallbacks(this);
+			InputCallbackSystem.CleanupInputCallbacks(this);
 		}
 
 	}

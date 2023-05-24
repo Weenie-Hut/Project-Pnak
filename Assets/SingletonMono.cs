@@ -89,6 +89,11 @@ namespace Pnak
 		{
 			if (Instance == this)
 				Instance = null;
+
+			if (_DontDestroyOnLoad)
+			{
+				System.Diagnostics.Debug.Assert(ApplicationWantsToQuit.IsQuitting, GetType().Name + " is set to not destroy on loads, but was destroyed when the application was not quitting. The " + GetType().Name + " should never be destroyed or 'DontDestroyOnLoad' should be set to false.");
+			}
 		}
 	}
 }

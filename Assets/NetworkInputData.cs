@@ -1,24 +1,20 @@
+using System;
 using Fusion;
 using UnityEngine;
 
 namespace Pnak
 {
-	[System.Flags]
-	public enum ControllerConfig
-	{
-		Gameplay = 1,
-		Menu = 2,
-
-		All = Gameplay | Menu
-	}
-
 	public struct NetworkInputData : INetworkInput
 	{
-		private byte rawData;
-		private byte index;
+#region Data
+		private Vector2 movement;
 		private float _mouseAngle;
+		private byte buttonDownData;
+		private byte buttonPressed;
+		private byte actionMap_and_extraData;
+#endregion
 
-		public Vector2 movement;
+		public Vector2 Movement { get => movement; set => movement = value; }
 
 		public float AimAngle { get => _mouseAngle; set => _mouseAngle = value; }
 		public Vector2 AimDirection
@@ -27,98 +23,79 @@ namespace Pnak
 			set => AimAngle = MathUtil.DirectionToAngle(value);
 		}
 
-		public byte Index { get => index; set => index = value; }
-
-		private bool GetBoolean(byte button)
+		public bool GetButtonDown(byte button)
 		{
-			return (rawData & button) != 0;
+			byte mask = (byte)(1 << button);
+			return (buttonDownData & mask) != 0;
 		}
 
-		private void SetButton(byte button, bool value)
+		public bool GetButtonUp(byte button)
 		{
+			byte mask = (byte)(1 << button);
+			return (buttonDownData & mask) == 0;
+		}
+
+		public bool GetButtonPressed(byte button)
+		{
+			byte mask = (byte)(1 << button);
+			return (buttonPressed & mask) != 0;
+		}
+
+		public void SetButtonDown(byte button, bool value = true)
+		{
+			byte mask = (byte)(1 << button);
+			if (((buttonDownData & mask) != 0) == value)
+				return;
+
 			if (value)
-				rawData |= button;
+			{
+				buttonDownData |= mask;
+				buttonPressed |= mask;
+			}
 			else
-				rawData &= (byte)~(button);
+			{
+				buttonDownData &= (byte)~(mask);
+			}
 		}
 
-		public byte GetData(byte mask, byte shift)
+#region InputMap_and_ExtraData
+		public const byte InputMapMask = 0b1100_0000;
+		public const byte InputMapShift = 6;
+		public Input.InputMap CurrentInputMap
 		{
-			return (byte)((rawData & mask) >> shift);
+			get => (Input.InputMap)MathUtil.GetMaskShift(actionMap_and_extraData, InputMapMask, InputMapShift);
+			set => MathUtil.SetMaskShift(ref actionMap_and_extraData, InputMapMask, InputMapShift, (byte)value);
 		}
 
-		public void SetData(byte mask, byte shift, byte value)
+		public const byte ExtraDataMask = 0b0011_1111;
+		public const byte ExtraDataShift = 0;
+		/// <summary>
+		/// Extra data that can be passed for input, cleared every update. Max value is 63.
+		/// </summary>
+		public byte ExtraData
 		{
-			rawData = (byte)((rawData & ~mask) | ((value << shift) & mask));
+			get => MathUtil.GetMaskShift(actionMap_and_extraData, ExtraDataMask, ExtraDataShift);
+			set => MathUtil.SetMaskShift(ref actionMap_and_extraData, ExtraDataMask, ExtraDataShift, value);
 		}
-		
-		public const byte Button1 = 0b0000_0001;
-		public bool Button1Pressed
-		{
-			get => GetBoolean(Button1);
-			set => SetButton(Button1, value);
-		}
+#endregion
 
-		public const byte Button2 = 0b0000_0010;
-		public bool Button2Pressed
+		public void ClearState()
 		{
-			get => GetBoolean(Button2);
-			set => SetButton(Button2, value);
-		}
-
-		public const byte Button3 = 0b0000_0100;
-		public bool Button3Pressed
-		{
-			get => GetBoolean(Button3);
-			set => SetButton(Button3, value);
+			buttonPressed = 0;
+			ExtraData = 0;
 		}
 
-		public const byte Button4 = 0b0000_1000;
-		public bool Button4Pressed
+		internal string Format()
 		{
-			get => GetBoolean(Button4);
-			set => SetButton(Button4, value);
-		}
+			string s = "NetworkInputData: {\n";
+			s += $"  movement: {movement}\n";
+			s += $"  mouseAngle: {_mouseAngle}\n";
+			s += $"  buttonDownData: {buttonDownData}\n";
+			s += $"  buttonChangedData: {buttonPressed}\n";
+			s += $"  actionMap_and_extraData: {actionMap_and_extraData}\n";
+			s += "}";
 
-		public const byte Button5 = 0b0001_0000;
-		public bool Button5Pressed
-		{
-			get => GetBoolean(Button5);
-			set => SetButton(Button5, value);
-		}
-
-		public const byte Button6 = 0b0010_0000;
-		public bool Button6Pressed
-		{
-			get => GetBoolean(Button6);
-			set => SetButton(Button6, value);
-		}
-
-		public const byte ControllerConfigMask = 0b1100_0000;
-		public const byte ControllerConfigShift = 6;
-		public ControllerConfig ControllerConfig
-		{
-			get => (ControllerConfig)GetData(ControllerConfigMask, ControllerConfigShift);
-			set => SetData(ControllerConfigMask, ControllerConfigShift, (byte)value);
-		}
-
-		public void ClearButtons()
-		{
-			rawData = (byte)(rawData >> ControllerConfigShift << ControllerConfigShift);
-		}
-
-
-		public void LogValues()
-		{
-			Debug.Log("{ " +
-				"Button1: " + Button1Pressed + ", " +
-				"Button2: " + Button2Pressed + ", " +
-				"Button3: " + Button3Pressed + ", " +
-				"Button4: " + Button4Pressed + ", " +
-				"Button5: " + Button5Pressed + ", " +
-				"Button6: " + Button6Pressed + ", " +
-				"ControllerConfig: " + ControllerConfig +
-				" }");
+			return s;
 		}
 	}
 }

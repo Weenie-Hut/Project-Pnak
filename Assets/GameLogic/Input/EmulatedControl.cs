@@ -113,8 +113,8 @@ namespace Pnak.Input
 				throw new ArgumentException(
 					$"The control path yields a control of type {m_Control.GetType().Name} which is not an InputControl with value type {typeof(TValue).Name}", nameof(value));
 
-			////FIXME: this gives us a one-frame lag (use InputState.Change instead?)
-			m_InputEventPtr.time = InputState.currentTime;
+            ////FIXME: this gives us a one-frame lag (use InputState.Change instead?)
+            m_InputEventPtr.time = UnityEngine.InputSystem.LowLevel.InputState.currentTime;
 			control.WriteValueIntoEvent(value, m_InputEventPtr);
 			InputSystem.QueueEvent(m_InputEventPtr);
 		}
@@ -124,8 +124,8 @@ namespace Pnak.Input
 			if (m_Control == null)
 				return;
 
-			////FIXME: this gives us a one-frame lag (use InputState.Change instead?)
-			m_InputEventPtr.time = InputState.currentTime;
+            ////FIXME: this gives us a one-frame lag (use InputState.Change instead?)
+            m_InputEventPtr.time = UnityEngine.InputSystem.LowLevel.InputState.currentTime;
 			m_Control.ResetToDefaultStateInEvent(m_InputEventPtr);
 			InputSystem.QueueEvent(m_InputEventPtr);
 		}

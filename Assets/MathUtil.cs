@@ -24,6 +24,16 @@ namespace Pnak
 			return Mathf.Atan2(value.y, value.x) * Mathf.Rad2Deg;
 		}
 
+		public static byte GetMaskShift(byte data, byte mask, byte shift)
+		{
+			return (byte)((data & mask) >> shift);
+		}
+
+		public static byte SetMaskShift(ref byte data, byte mask, byte shift, byte value)
+		{
+			return data = (byte)((data & ~mask) | ((value << shift) & mask));
+		}
+
 		public struct Half
 		{
 			public const ushort MaxValue = 0x7bff;
