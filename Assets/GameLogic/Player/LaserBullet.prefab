@@ -189,7 +189,7 @@ MonoBehaviour:
   _DamageByPeirce:
   - PhysicalDamage: 0
     MagicalDamage: 0
-    PureDamage: 1.4
+    PureDamage: 2
   CappedPeirce: 0
   IgnoreAfterFirstHit: 0
 --- !u!114 &-949506430533141622
