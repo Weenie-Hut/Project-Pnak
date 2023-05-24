@@ -102,7 +102,7 @@ TextureImporter:
       213: 21300064
     second: HologramStand
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -162,6 +162,7 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 1
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -201,6 +202,18 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Server
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -919,38 +932,38 @@ TextureImporter:
     secondaryTextures: []
     nameFileIdTable:
       BigContainer: 21300014
-      SideTube: 21300046
-      LampHead: 21300048
+      BlueChest: 21300012
       Bulb: 21300006
-      WarningSign: 21300030
+      CablePole: 21300034
+      Chain: 21300024
+      Chest: 21300044
+      Claw: 21300062
+      CurvedTube: 21300008
+      ElectricityBox: 21300022
+      ElectricityWarning: 21300038
+      FloorTile: 21300054
+      FrontTube: 21300058
+      GarageDoor: 21300056
+      HologramStand: 21300064
       Hook: 21300036
+      LampHead: 21300048
+      Machine: 21300060
       Pole: 21300032
       RoundCover: 21300018
-      Warning: 21300028
-      spriteSheetAll1UrpDemo_21: 21300042
-      Water: 21300050
-      TopCover2: 21300004
-      FrontTube: 21300058
-      BlueChest: 21300012
-      YellowBarrel: 21300026
-      TileableTube: 21300052
-      GarageDoor: 21300056
-      FloorTile: 21300054
-      Machine: 21300060
-      Chain: 21300024
-      CurvedTube: 21300008
-      CablePole: 21300034
-      TopCover1: 21300016
-      SmallCover: 21300000
-      Claw: 21300062
-      HologramStand: 21300064
-      WarningStripe: 21300010
-      Chest: 21300044
-      ElectricityWarning: 21300038
-      Sewer2: 21300020
-      ToxicGoo: 21300040
       Sewer1: 21300002
-      ElectricityBox: 21300022
+      Sewer2: 21300020
+      SideTube: 21300046
+      SmallCover: 21300000
+      TileableTube: 21300052
+      TopCover1: 21300016
+      TopCover2: 21300004
+      ToxicGoo: 21300040
+      Warning: 21300028
+      WarningSign: 21300030
+      WarningStripe: 21300010
+      Water: 21300050
+      YellowBarrel: 21300026
+      spriteSheetAll1UrpDemo_21: 21300042
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

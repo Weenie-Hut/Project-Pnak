@@ -8,6 +8,7 @@ namespace Pnak
 	{
 		[SerializeField] private TMPro.TextMeshProUGUI _characterName;
 		[SerializeField] private UnityEngine.UI.Image _characterImage;
+		public UnityEngine.UI.Image buttonIcon;
 
 		public void SetData(CharacterData characterData)
 		{

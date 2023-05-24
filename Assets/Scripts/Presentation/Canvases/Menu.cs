@@ -10,6 +10,7 @@ namespace Pnak
 	{
 		[SerializeField] private RectTransform CharacterOptions;
 		[SerializeField] private GameObject CharacterOptionPrefab;
+		[SerializeField] private DeviceSpriteLib ControllerButtons;
 
 		[InputActionTriggered(ActionNames.Menu_Button1, InputStateFilters.PreformedThisFrame)]
 		[InputActionTriggered(ActionNames.Menu_Button2, InputStateFilters.PreformedThisFrame)]
@@ -38,12 +39,22 @@ namespace Pnak
 				InputEmulation.CreateEmulateButtonDelegate(ActionNames.Menu_Button4),
 			};
 
+			Sprite[] sprites = new Sprite[]
+			{
+				ControllerButtons.PrimaryButton,
+				ControllerButtons.SecondaryButton,
+				ControllerButtons.TertiaryButton,
+				ControllerButtons.QuaternaryButton,
+			};
+
 			for (int i = 0; i < GameManager.Instance.Characters.Length; i++)
 			{
 				CharacterData character = GameManager.Instance.Characters[i];
-				var characterOption = Instantiate(CharacterOptionPrefab, CharacterOptions);
-				var characterSelectUI = characterOption.GetComponent<CharacterSelectUI>();
+				GameObject characterOption = Instantiate(CharacterOptionPrefab, CharacterOptions);
+				CharacterSelectUI characterSelectUI = characterOption.GetComponent<CharacterSelectUI>();
 				characterSelectUI.SetData(character);
+
+				characterSelectUI.buttonIcon.sprite = sprites[i];
 
 				var button = characterOption.GetComponent<UnityEngine.UI.Button>();
 				button.onClick.AddListener(menuButtons[i].Invoke);
