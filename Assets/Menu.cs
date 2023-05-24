@@ -23,10 +23,8 @@ namespace Pnak
 		private void Toggle(bool value)
 		{
 			if (value)
-			{
-				GameManager.Instance.SetInputMap(InputMap.Menu);
-			}
-			else GameManager.Instance.SetInputMap(InputMap.Gameplay);
+				GameInput.Instance.SetInputMap(InputMap.Menu);
+			else GameInput.Instance.SetInputMap(InputMap.Gameplay);
 			gameObject.SetActive(value);
 		}
 

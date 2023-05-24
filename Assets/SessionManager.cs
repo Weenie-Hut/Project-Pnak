@@ -66,7 +66,7 @@ namespace Pnak
 
 		public void OnInput(NetworkRunner runner, NetworkInput input)
 		{
-			input.Set(GameManager.Instance.PullNetworkInput());
+			input.Set(Input.GameInput.Instance.PullNetworkInput());
 		}
 
 		public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }

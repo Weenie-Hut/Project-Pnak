@@ -42,8 +42,6 @@ namespace Pnak
 					if (input.GetButtonPressed(3)) nextType = 3;
 					if (input.GetButtonPressed(4)) nextType = 4;
 
-					UnityEngine.Debug.Log($"Old Type: {CharacterType}, New Type: {nextType}");
-
 					if (nextType != CharacterType)
 					{
 						CharacterType = nextType;
@@ -96,12 +94,16 @@ namespace Pnak
 			float? towerTime = towerDelay.RemainingTime(Runner);
 			LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
 
-			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, GameManager.Instance.InputData.AimAngle);
+			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, Input.GameInput.Instance.InputData.AimAngle);
 		}
 
 		public override void Spawned()
 		{
-			if (!Object.HasInputAuthority) return;
+			if (!Object.HasInputAuthority)
+			{
+				_AimGraphic.gameObject.SetActive(false);
+				return;
+			}
 			
 			if (LocalPlayer != null)
 			{
