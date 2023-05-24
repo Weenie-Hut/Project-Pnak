@@ -3,17 +3,31 @@ using UnityEngine;
 
 namespace Pnak
 {
+	[System.Flags]
 	public enum ControllerConfig
 	{
-		Gameplay = 0,
-		Menu = 1,
+		Gameplay = 1,
+		Menu = 2,
+
+		All = Gameplay | Menu
 	}
 
 	public struct NetworkInputData : INetworkInput
 	{
 		private byte rawData;
+		private byte index;
+		private float _mouseAngle;
 
 		public Vector2 movement;
+
+		public float AimAngle { get => _mouseAngle; set => _mouseAngle = value; }
+		public Vector2 AimDirection
+		{
+			get => MathUtil.AngleToDirection(AimAngle);
+			set => AimAngle = MathUtil.DirectionToAngle(value);
+		}
+
+		public byte Index { get => index; set => index = value; }
 
 		private bool GetBoolean(byte button)
 		{

@@ -4,13 +4,13 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using System.Collections.Generic;
 using System;
-using System.Linq;
+using Pnak.Input;
 
 namespace Pnak
 {
 	public class GameManager : SingletonMono<GameManager>
 	{
-		public enum Buttons
+		public enum ButtonAction
 		{
 			ToggleMenu,
 			MenuButton_1,
@@ -29,18 +29,8 @@ namespace Pnak
 		[Tooltip("The character data to use for each character type. Temporary until we have character prefabs.")]
 		public CharacterData[] Characters;
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-		public class InputActionTriggered : Attribute
-		{
-			public string actionName;
-
-			public InputActionTriggered(string actionName)
-			{
-				this.actionName = actionName;
-			}
-		}
-
 		public NetworkInputData InputData;
+		public Vector2? MousePosition { get; private set; }
 
 		public Camera MainCamera { get; private set; }
 		public PlayerInput PlayerInput { get; private set;}
@@ -58,14 +48,18 @@ namespace Pnak
 
 			MainCamera = Camera.main;
 			DontDestroyOnLoad(MainCamera.gameObject);
+
+
 			SceneLoader = FindObjectOfType<SceneLoader>();
 			PlayerInput = GetComponent<PlayerInput>();
 			EventSystem = GetComponent<EventSystem>();
 			InputSystemUIInputModule = GetComponent<InputSystemUIInputModule>();
 
-			PopulateActionDictionary();
+			InputEmulation.SetActionAsset(PlayerInput.actions);
 
-			PlayerInput.onActionTriggered += context => OnActionTriggered(context);
+			InputCallbackSystem.RegisterInputCallbacks(this, false);
+			PlayerInput.onActionTriggered += InputCallbackSystem.OnActionTriggered;
+
 			PlayerInput.uiInputModule = InputSystemUIInputModule;
 
 			LoadingConfig = ControllerConfig.Menu;
@@ -75,20 +69,33 @@ namespace Pnak
 
 		public void SetControllerConfig(ControllerConfig config)
 		{
-			PlayerInput.SwitchCurrentActionMap(ControllerConfigNames[config]);
+			string actionMapName = ControllerConfigNames[config];
+			if (PlayerInput.currentActionMap.name != actionMapName)
+				PlayerInput.SwitchCurrentActionMap(actionMapName);
+
 			LoadingConfig = config;
 		}
 
 		protected override void OnDestroy()
 		{
 			base.OnDestroy();
-			if (PlayerInput != null)
-				PlayerInput.onActionTriggered -= context => OnActionTriggered(context);
+
+			System.Diagnostics.Debug.Assert(ApplicationWantsToQuit.IsQuitting, "GameManager was destroyed when the application was not quitting. The GameManager should never be destroyed.");
 		}
 
-		public NetworkInputData GetNetworkInput()
+		public NetworkInputData PullNetworkInput()
 		{
+			if (InputData.ControllerConfig != LoadingConfig)
+			{
+				if (InputData.ControllerConfig == ControllerConfig.Gameplay)
+					ClearGameplayInputs();
+			}
+
+			SetDynamicInputData();
+
 			var result = InputData;
+
+			
 
 			InputData.ClearButtons();
 			InputData.ControllerConfig = LoadingConfig;
@@ -96,141 +103,77 @@ namespace Pnak
 			return result;
 		}
 
-		private Dictionary<string, Action<InputAction.CallbackContext>> _actionDictionary = new Dictionary<string, Action<InputAction.CallbackContext>>();
-
-		private void PopulateActionDictionary()
+		public void SetDynamicInputData()
 		{
-			// Gets all "InputActionTriggered" methods in this class
-			var entries = 
-				GetType()
-				.GetMethods(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-				.SelectMany(m =>
-					m.GetCustomAttributes(typeof(InputActionTriggered), false)
-					.Select(a =>
-						new KeyValuePair<string, Action<InputAction.CallbackContext>>(
-							((InputActionTriggered)a).actionName,
-							(Action<InputAction.CallbackContext>)Delegate.CreateDelegate(typeof(Action<InputAction.CallbackContext>), this, m)
-						)
-					)
-				);
-
-			foreach (var entry in entries)
+			// Player Aim
+			if (MousePosition.HasValue && Player.LocalPlayer != null)
 			{
-				if (!_actionDictionary.ContainsKey(entry.Key))
-					_actionDictionary.Add(entry.Key, entry.Value);
-				else
-					_actionDictionary[entry.Key] += entry.Value;
+				InputData.AimDirection = MousePosition.Value - (Vector2)Player.LocalPlayer.transform.position;
+				MousePosition = null;
 			}
 		}
 
-		[InputActionTriggered("Move")]
+		public void ClearGameplayInputs()
+		{
+			InputData.movement = Vector2.zero;
+		}
+
+		[InputActionTriggered(ActionNames.Move)]
 		private void OnMoveTriggered(InputAction.CallbackContext context)
 		{
 			InputData.movement = context.ReadValue<Vector2>();
 		}
 
-		[InputActionTriggered("Shoot")]
+		[InputActionTriggered(ActionNames.ControllerAim)]
+		private void OnControllerAimTriggered(InputAction.CallbackContext context)
+		{
+			InputData.AimDirection = context.ReadValue<Vector2>();
+			MousePosition = null;
+		}
+
+		[InputActionTriggered(ActionNames.MouseAim)]
+		private void OnMouseAimTriggered(InputAction.CallbackContext context)
+		{
+			if (Player.LocalPlayer == null)
+				return;
+
+			MousePosition = MainCamera.ScreenToWorldPoint(context.ReadValue<Vector2>());
+		}
+
+		[InputActionTriggered(ActionNames.Shoot, InputStateFilters.PreformedThisFrame)]
 		private void OnShootTriggered(InputAction.CallbackContext context)
 		{
-			if (!context.ReadValueAsButton()) return;
 			InputData.Button1Pressed = true;
 		}
 
-		[InputActionTriggered("PlaceTower")]
+		[InputActionTriggered(ActionNames.PlaceTower, InputStateFilters.PreformedThisFrame)]
 		private void OnPlaceTowerTriggered(InputAction.CallbackContext context)
 		{
-			if (!context.ReadValueAsButton()) return;
 			InputData.Button2Pressed = true;
 		}
 
-		[InputActionTriggered("MenuButton_1")]
+		[InputActionTriggered(ActionNames.Menu_Button1, InputStateFilters.PreformedThisFrame)]
 		private void OnMenuButton1Triggered(InputAction.CallbackContext context)
 		{
-			if (!context.ReadValueAsButton()) return;
-			UnityEngine.Debug.Log("MenuButton_1 Pressed");
-			InvokeButtonListener(Buttons.MenuButton_1);
 			InputData.Button3Pressed = true;
 		}
 
-		[InputActionTriggered("MenuButton_2")]
+		[InputActionTriggered(ActionNames.Menu_Button2, InputStateFilters.PreformedThisFrame)]
 		private void OnMenuButton2Triggered(InputAction.CallbackContext context)
 		{
-			if (!context.ReadValueAsButton()) return;
-			UnityEngine.Debug.Log("MenuButton_2 Pressed");
-			InvokeButtonListener(Buttons.MenuButton_2);
 			InputData.Button4Pressed = true;
 		}
 
-		[InputActionTriggered("MenuButton_3")]
+		[InputActionTriggered(ActionNames.Menu_Button3, InputStateFilters.PreformedThisFrame)]
 		private void OnMenuButton3Triggered(InputAction.CallbackContext context)
 		{
-			if (!context.ReadValueAsButton()) return;
-			UnityEngine.Debug.Log("MenuButton_3 Pressed");
-			InvokeButtonListener(Buttons.MenuButton_3);
 			InputData.Button5Pressed = true;
 		}
 
-		[InputActionTriggered("MenuButton_4")]
+		[InputActionTriggered(ActionNames.Menu_Button4, InputStateFilters.PreformedThisFrame)]
 		private void OnMenuButton4Triggered(InputAction.CallbackContext context)
 		{
-			if (!context.ReadValueAsButton()) return;
-			UnityEngine.Debug.Log("MenuButton_4 Pressed");
-			InvokeButtonListener(Buttons.MenuButton_4);
 			InputData.Button6Pressed = true;
-		}
-
-		[InputActionTriggered("ToggleMenu")]
-		private void OnToggleMenuTriggered(InputAction.CallbackContext context)
-		{
-			if (!context.ReadValueAsButton()) return;
-			UnityEngine.Debug.Log("ToggleMenu Pressed");
-
-			InputData.movement = Vector2.zero; // Reset movement
-
-			InvokeButtonListener(Buttons.ToggleMenu);
-		}
-
-		private void OnActionTriggered(InputAction.CallbackContext context)
-		{
-			if (_actionDictionary.TryGetValue(context.action.name, out Action<InputAction.CallbackContext> action))
-			{
-				action.Invoke(context);
-			}
-		}
-
-		public Dictionary<Buttons, Action> ButtonActions = new Dictionary<Buttons, Action>();
-
-		public void AddButtonListener(Buttons button, Action action)
-		{
-			if (ButtonActions.ContainsKey(button))
-			{
-				ButtonActions[button] += action;
-			}
-			else
-			{
-				ButtonActions.Add(button, action);
-			}
-		}
-
-		public void RemoveButtonListener(Buttons button, Action action)
-		{
-			if (ButtonActions.ContainsKey(button))
-			{
-				ButtonActions[button] -= action;
-
-				if (ButtonActions[button] == null)
-				{
-					ButtonActions.Remove(button);
-				}
-			}
-		}
-
-		public void InvokeButtonListener(Buttons button)
-		{
-			if (ButtonActions.ContainsKey(button))
-			{
-				ButtonActions[button]?.Invoke();
-			}
 		}
 	}
 }

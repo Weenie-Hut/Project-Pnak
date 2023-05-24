@@ -56,5 +56,11 @@ namespace Pnak
 				if (Vector3.Distance(transform.position, _TargetPosition) < 0.1f)
 					SetNextPosition();
 		}
+
+		[Pnak.Input.InputActionTriggered("Shoot")]
+		public void TestingShoot(UnityEngine.InputSystem.InputAction.CallbackContext context)
+		{
+			UnityEngine.Debug.Log("Shoot");
+		}
 	}
 }

@@ -9,6 +9,8 @@ namespace Pnak
 		[Networked] private TickTimer reloadTime { get; set; }
 
 		[SerializeField] private Projectile _BulletPrefab;
+		[SerializeField] private Collider2D TargetArea;
+		[SerializeField] private LayerMask _LOSBlockMask;
 		[SerializeField] private float _SpawnReloadDelay = 1f;
 		[SerializeField] private float _SpawnInitialReloadDelay = 1f;
 		[Tooltip("How fast in degrees the tower rotates towards enemies")]
@@ -16,6 +18,7 @@ namespace Pnak
 		[SerializeField] private Transform _GunTransform;
 		[SerializeField] private LayerMask _TargetMask;
 		[SerializeField] private SpriteFillBar _ReloadBar;
+		[SerializeField] private int MaxCollisionChecks = 10;
 
 		private float rotationSpeed;
 		private float reloadDelay;
@@ -30,6 +33,9 @@ namespace Pnak
 			reloadDelay = _SpawnReloadDelay;
 			float initialDelay = _SpawnInitialReloadDelay;
 			reloadTime = TickTimer.CreateFromSeconds(Runner, initialDelay);
+
+			colliders = new Collider2D[MaxCollisionChecks];
+			distances = new float[MaxCollisionChecks];
 		}
 
 		public void Init(float rotation)
@@ -73,17 +79,20 @@ namespace Pnak
 			}
 		}
 
-		private Collider2D[] colliders = new Collider2D[20];
-		private float[] distances = new float[20];
+		private Collider2D[] colliders;
+		private float[] distances;
 
 		private Transform GetClosestTarget()
 		{
-			int count = Physics2D.OverlapCircle(transform.position, 100f, new ContactFilter2D {
+			int count = Physics2D.OverlapCollider(TargetArea, new ContactFilter2D {
 				useLayerMask = true,
 				layerMask = _TargetMask
 			}, colliders);
 
-			for (int i = 0; i < 20; i++)
+			if (count < 0 || colliders[0] == null)
+				return null;
+
+			for (int i = 0; i < MaxCollisionChecks; i++)
 			{
 				if (colliders[i] == null) distances[i] = float.MaxValue;
 				else distances[i] = Vector3.Distance(transform.position, colliders[i].transform.position);
@@ -91,10 +100,39 @@ namespace Pnak
 
 			Array.Sort(distances, colliders);
 
-			if (count < 0 || colliders[0] == null)
-				return null;
+			for (int i = 0; i < MaxCollisionChecks; i++)
+			{
+				if (colliders[i] == null) continue;
 
-			return colliders[0].transform;
+				if (_LOSBlockMask != 0)
+				{
+					// If there is a collier on any LOSBlockMask layer from the line between the tower and the target, skip this target
+					RaycastHit2D hit = Physics2D.Linecast(transform.position, colliders[i].transform.position, _LOSBlockMask);
+					if (hit.collider != null) continue;
+				}
+
+				return colliders[i].transform;
+			}
+
+			return null;
 		}
+
+#if UNITY_EDITOR
+		[Header("Editor")]
+		[SerializeField] private bool _InheritLOSFromBullet = true;
+
+		public void OnValidate()
+		{
+			if (_InheritLOSFromBullet && _BulletPrefab != null)
+			{
+				DespawnOnImpact[] impacts = _BulletPrefab.GetComponentsInChildren<DespawnOnImpact>();
+
+				for (int i = 0; i < impacts.Length; i++)
+				{
+					_LOSBlockMask |= impacts[i].ImpactLayers;
+				}
+			}
+		}
+#endif
 	}
 }

@@ -8,6 +8,10 @@ namespace Pnak
 {
 	public class Player : NetworkBehaviour
 	{
+		public static Player LocalPlayer { get; private set; }
+
+		[SerializeField] private Transform _AimGraphic;
+
 		[Tooltip("The character sprite renderer. Temporary until we have character prefabs.")]
 		public SpriteRenderer CharacterRenderer;
 
@@ -26,7 +30,6 @@ namespace Pnak
 		[Networked] private TickTimer reloadDelay { get; set; }
 		[Networked] private TickTimer towerDelay { get; set; }
 
-		private float angle = 0.0f;
 		public override void FixedUpdateNetwork()
 		{
 			if (GetInput(out NetworkInputData input))
@@ -48,17 +51,14 @@ namespace Pnak
 
 				transform.position += (Vector3)movement * Runner.DeltaTime;
 
-				if (movement != Vector2.zero)
-				{
-					angle = Mathf.Atan2(input.movement.y, input.movement.x) * Mathf.Rad2Deg;
-				}
+				float _rotation = input.AimAngle;
 
 				if (reloadDelay.ExpiredOrNotRunning(Runner))
 				{
 					if (input.Button1Pressed)
 					{
 						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
-						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, angle), Object.InputAuthority);
+						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, _rotation), Object.InputAuthority);
 					}
 				}
 
@@ -67,7 +67,6 @@ namespace Pnak
 					if (input.Button2Pressed)
 					{
 						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
-						float _rotation = angle;
 						Runner.Spawn(CurrentCharacterData.TowerPrefab, transform.position, Quaternion.identity, Object.InputAuthority, (runner, o) =>
 						{
 							o.GetComponent<Tower>().Init(_rotation);
@@ -87,32 +86,23 @@ namespace Pnak
 			LevelUI.Instance.ShootReloadBar.Value = reloadTime.HasValue ? (1 - reloadTime.Value / CurrentCharacterData.ReloadTime) : 1.0f;
 			float? towerTime = towerDelay.RemainingTime(Runner);
 			LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
-		}
 
-		// private KeyValuePair<GameManager.Buttons, Action>[] _buttonActions;
-
-		private void Start()
-		{
-			// if (!Object.HasInputAuthority) yield break;
-
-			// _buttonActions = new KeyValuePair<GameManager.Buttons, Action>[] {
-			// };
-
-			// foreach (var buttonAction in _buttonActions)
-			// 	GameManager.Instance.AddButtonListener(buttonAction.Key, buttonAction.Value);
+			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, GameManager.Instance.InputData.AimAngle);
 		}
 
 		public override void Spawned()
 		{
 			if (!Object.HasInputAuthority) return;
+			
+			if (LocalPlayer != null)
+			{
+				Debug.LogError("Multiple local players detected!");
+				return;
+			}
+			LocalPlayer = this;
 
 			GameManager.Instance.SceneLoader.FinishedLoading();
-		}
-
-		private void OnDestroy()
-		{
-			// foreach (var buttonAction in _buttonActions)
-			// 	GameManager.Instance?.RemoveButtonListener(buttonAction.Key, buttonAction.Value);
+			
 		}
 
 		private void SetCharacterType(byte characterType)

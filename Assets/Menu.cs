@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Pnak.Input;
 using UnityEngine.InputSystem;
 
 namespace Pnak
@@ -10,53 +11,35 @@ namespace Pnak
 		[SerializeField] private RectTransform CharacterOptions;
 		[SerializeField] private GameObject CharacterOptionPrefab;
 
-		private KeyValuePair<GameManager.Buttons, Action>[] _buttonActions;
+		private KeyValuePair<GameManager.ButtonAction, Action>[] _buttonActions;
 
-		private void ToggleOff() => Toggle(false);
+		[InputActionTriggered(ActionNames.Menu_Button1, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Menu_Button2, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Menu_Button3, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Menu_Button4, InputStateFilters.PreformedThisFrame)]
+		private void ToggleOff(InputAction.CallbackContext context) => Toggle(false);
+
+		[InputActionTriggered(ActionNames.ToggleMenu, InputStateFilters.PreformedThisFrame)]
+		private void ToggleActive(InputAction.CallbackContext context) => Toggle(!gameObject.activeSelf);
+
 		private void Toggle(bool value)
 		{
 			if (value)
 			{
-				if (GameManager.Instance.InputData.ControllerConfig != ControllerConfig.Menu)
-					GameManager.Instance.SetControllerConfig(ControllerConfig.Menu);
-
+				GameManager.Instance.SetControllerConfig(ControllerConfig.Menu);
 			}
-			else if (GameManager.Instance.InputData.ControllerConfig != ControllerConfig.Gameplay)
-				GameManager.Instance.SetControllerConfig(ControllerConfig.Gameplay);
+			else GameManager.Instance.SetControllerConfig(ControllerConfig.Gameplay);
 			gameObject.SetActive(value);
 		}
 
 		private void Start()
 		{
-			_buttonActions = new KeyValuePair<GameManager.Buttons, Action>[] {
-				new (GameManager.Buttons.MenuButton_1, ToggleOff),
-				new (GameManager.Buttons.MenuButton_2, ToggleOff),
-				new (GameManager.Buttons.MenuButton_3, ToggleOff),
-				new (GameManager.Buttons.MenuButton_4, ToggleOff),
-				new (GameManager.Buttons.ToggleMenu, () => Toggle(!gameObject.activeSelf)),
-			};
-
-			foreach (var buttonAction in _buttonActions)
-				GameManager.Instance.AddButtonListener(buttonAction.Key, buttonAction.Value);
-
 			UnityEngine.Events.UnityAction[] menuButtons = new UnityEngine.Events.UnityAction[]
 			{
-				() => {
-					GameManager.Instance.InvokeButtonListener(GameManager.Buttons.MenuButton_1);
-					GameManager.Instance.InputData.Button3Pressed = true;
-				},
-				() => {
-					GameManager.Instance.InvokeButtonListener(GameManager.Buttons.MenuButton_2);
-					GameManager.Instance.InputData.Button4Pressed = true;
-				},
-				() => {
-					GameManager.Instance.InvokeButtonListener(GameManager.Buttons.MenuButton_3);
-					GameManager.Instance.InputData.Button5Pressed = true;
-				},
-				() => {
-					GameManager.Instance.InvokeButtonListener(GameManager.Buttons.MenuButton_4);
-					GameManager.Instance.InputData.Button6Pressed = true;
-				}
+				() => InputEmulation.EmulateButton(ActionNames.Menu_Button1),
+				() => InputEmulation.EmulateButton(ActionNames.Menu_Button2),
+				() => InputEmulation.EmulateButton(ActionNames.Menu_Button3),
+				() => InputEmulation.EmulateButton(ActionNames.Menu_Button4),
 			};
 
 			for (int i = 0; i < GameManager.Instance.Characters.Length; i++)
@@ -67,15 +50,16 @@ namespace Pnak
 				characterSelectUI.SetData(character);
 
 				var button = characterOption.GetComponent<UnityEngine.UI.Button>();
-				GameManager.Buttons index = (GameManager.Buttons)(GameManager.Buttons.MenuButton_1 + i);
+				GameManager.ButtonAction index = (GameManager.ButtonAction)(GameManager.ButtonAction.MenuButton_1 + i);
 				button.onClick.AddListener(menuButtons[i]);
 			}
+
+			InputCallbackSystem.RegisterInputCallbacks(this);
 		}
 
 		private void OnDestroy()
 		{
-			foreach (var buttonAction in _buttonActions)
-				GameManager.Instance?.RemoveButtonListener(buttonAction.Key, buttonAction.Value);
+			InputCallbackSystem.UnregisterInputCallbacks(this);
 		}
 
 	}

@@ -6,6 +6,7 @@ namespace Pnak
 	public class DespawnOnImpact : Projectile
 	{
 		[SerializeField] private LayerMask _DespawnImpactLayers;
+		public LayerMask ImpactLayers => _DespawnImpactLayers;
 
 		protected override void OnHit(Collider2D collider2D, float? distance)
 		{

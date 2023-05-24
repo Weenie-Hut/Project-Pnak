@@ -58,7 +58,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.45, y: 0.44}
+  m_Size: {x: 45, y: 44}
   m_EdgeRadius: 0
 --- !u!1 &6067962359517261106
 GameObject:
@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  _DefaultMovementSpeed: 2
+  _DefaultMovementSpeed: 200
 --- !u!114 &1542059804515670451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,7 +220,7 @@ Transform:
   m_GameObject: {fileID: 7166100346838797450}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
+  m_LocalScale: {x: 80, y: 80, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3713594754550046953}
@@ -295,7 +295,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 813608205160286497, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.396
+      value: 39.6
       objectReference: {fileID: 0}
     - target: {fileID: 813608205160286497, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_LocalPosition.z

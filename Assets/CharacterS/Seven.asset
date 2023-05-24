@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Seven??
   Sprite: {fileID: 21300040, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
-  Speed: 2.8
+  Speed: 280
   ReloadTime: 2.5
   ProjectilePrefab: {fileID: 1559252364345579475, guid: f154aa82ebfe59d44bce5abca8fd1870, type: 3}
   TowerPlacementTime: 4.5
   TowerPrefab: {fileID: 8095831076234495228, guid: 61652c70d2ce3884ba66c023e49e8322, type: 3}
   UIScale: {x: 229, y: 272.2}
   UIPosition: {x: 0, y: 0}
-  SpriteScale: {x: 1.5, y: 1.5}
+  SpriteScale: {x: 150, y: 150}
   SpritePosition: {x: 0, y: 0}

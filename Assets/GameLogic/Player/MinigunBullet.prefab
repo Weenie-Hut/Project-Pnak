@@ -58,10 +58,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -0.21683836, y: 0.14144987}
-      - {x: -0.13785571, y: -0.00082430243}
-      - {x: -0.22537452, y: -0.13625789}
-      - {x: 0.21944475, y: 0.004660368}
+    - - {x: -23, y: 14}
+      - {x: -13.78557, y: 0}
+      - {x: -23, y: -14}
+      - {x: 21.94448, y: 0}
 --- !u!1 &2513871686737893388
 GameObject:
   m_ObjectHideFlags: 0
@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  SpawnMovementSpeed: 5
+  SpawnMovementSpeed: 500
 --- !u!114 &5270848876961268193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,7 +251,7 @@ Transform:
   m_GameObject: {fileID: 2973621702732448016}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.25, y: 0.25, z: 1}
+  m_LocalScale: {x: 25, y: 25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4824208289284672205}

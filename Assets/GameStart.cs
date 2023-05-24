@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Pnak.Input;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -50,16 +51,12 @@ namespace Pnak
 			_ProgressBar.Value = 1;
 			OnFinishedLoading.Invoke();
 
-			UnityEngine.Debug.Log(GameManager.Instance.InputData.ControllerConfig + " " + GameManager.Instance.PlayerInput.currentActionMap.name);
-
-			GameManager.Instance.AddButtonListener(GameManager.Buttons.MenuButton_1, HostGame);
-			GameManager.Instance.AddButtonListener(GameManager.Buttons.MenuButton_2, JoinGame);
+			InputCallbackSystem.RegisterInputCallbacks(this);
 		}
 
 		private void OnDestroy()
 		{
-			GameManager.Instance?.RemoveButtonListener(GameManager.Buttons.MenuButton_1, HostGame);
-			GameManager.Instance?.RemoveButtonListener(GameManager.Buttons.MenuButton_2, JoinGame);
+			InputCallbackSystem.UnregisterInputCallbacks(this);
 		}
 
 		/// <summary>
@@ -91,6 +88,12 @@ namespace Pnak
 		public void HostGame()
 		{
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.Host);
+		}
+
+		[InputActionTriggered(ActionNames.Menu_Button1, InputStateFilters.PreformedThisFrame)]
+		private void QuickJoin(UnityEngine.InputSystem.InputAction.CallbackContext context)
+		{
+			SessionManager.Instance.StartGame(1, Fusion.GameMode.AutoHostOrClient);
 		}
 
 		public void QuitGame()

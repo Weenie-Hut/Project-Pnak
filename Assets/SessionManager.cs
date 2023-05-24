@@ -37,7 +37,8 @@ namespace Pnak
 			});
 		}
 
-		public int PlayerCount => Instance.NetworkRunner.Simulation.ActivePlayers.Count();
+		public int PlayerCount => NetworkRunner.ActivePlayers.Count();
+		public NetworkObject LocalPlayer => NetworkRunner.GetPlayerObject(NetworkRunner.LocalPlayer);
 
 		[SerializeField] private NetworkPrefabRef _characterPrefab;
 		private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
@@ -46,7 +47,7 @@ namespace Pnak
 		{
 			if (runner.IsServer)
 			{
-				Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3,1,0);
+				Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*200 - 300,0,0);
 				NetworkObject networkPlayerObject = runner.Spawn(_characterPrefab, spawnPosition, Quaternion.identity, player, (_, __) => {
 				});
 				MessageBox.Instance.ShowMessage($"Player {player} has joined the game!");
@@ -65,7 +66,7 @@ namespace Pnak
 
 		public void OnInput(NetworkRunner runner, NetworkInput input)
 		{
-			input.Set(GameManager.Instance.GetNetworkInput());
+			input.Set(GameManager.Instance.PullNetworkInput());
 		}
 
 		public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }

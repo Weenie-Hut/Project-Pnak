@@ -15,7 +15,11 @@ MonoBehaviour:
   Name: '  Loading...'
   Sprite: {fileID: 21300000, guid: 2ea3ea54c499d314f957e0a47dc11c9c, type: 3}
   Speed: 0
+  ReloadTime: 1
+  ProjectilePrefab: {fileID: 0}
+  TowerPlacementTime: 10
+  TowerPrefab: {fileID: 0}
   UIScale: {x: 373, y: 300.7}
   UIPosition: {x: 0, y: 0}
-  SpriteScale: {x: 0.2, y: 0.2}
+  SpriteScale: {x: 20, y: 20}
   SpritePosition: {x: 0, y: 0}
