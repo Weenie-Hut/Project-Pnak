@@ -5,11 +5,10 @@ using UnityEngine.InputSystem.Controls;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-using InputContextAction = System.Action<UnityEngine.InputSystem.InputAction.CallbackContext>;
-using InputCallbackPair = System.Collections.Generic.KeyValuePair<string, System.Action<UnityEngine.InputSystem.InputAction.CallbackContext>>;
-
 namespace Pnak.Input
 {
+	public delegate void InputContextAction(UnityEngine.InputSystem.InputAction.CallbackContext context);
+
 	public enum InputStateFilters {
 		None, Performed, Started, Canceled,
 		PreformedThisFrame, ReleasedThisFrame,
@@ -22,94 +21,105 @@ namespace Pnak.Input
 		public string actionName;
 		public InputStateFilters stateFilter;
 
+		// TODO: Add filter support for controller config?
 		public InputActionTriggered(string actionName, InputStateFilters stateFilter = InputStateFilters.None)
 		{
 			this.actionName = actionName;
 			this.stateFilter = stateFilter;
 		}
 
-		private static InputContextAction NoneFilter(InputContextAction callback) =>
-			callback;
-
-		private static InputContextAction PerformedFilter(InputContextAction callback) =>
-			context => { if (context.performed) callback(context); };
-
-		private static InputContextAction StartedFilter(InputContextAction callback) =>
-			context => { if (context.started) callback(context); };
-		
-		private static InputContextAction CanceledFilter(InputContextAction callback) =>
-			context => { if (context.canceled) callback(context); };
-
-		private static InputContextAction PreformedThisFrameFilter(InputContextAction callback) => context =>
+		private static bool PerformedFilter(InputAction.CallbackContext context) => context.performed;
+		private static bool StartedFilter(InputAction.CallbackContext context) => context.started;
+		private static bool CanceledFilter(InputAction.CallbackContext context) => context.canceled;
+		private static bool PreformedThisFrameFilter(InputAction.CallbackContext context)
 		{
-			if (context.performed && context.control is ButtonControl button && button.wasPressedThisFrame) callback(context);
-		};
-
-		private static InputContextAction ReleasedThisFrameFilter(InputContextAction callback) =>
-			context => { if (context.control is ButtonControl button && button.wasReleasedThisFrame) callback(context); };
-
-		private static InputContextAction FloatChangedFilter(InputContextAction callback)
+			if (context.control is ButtonControl button)
+				return context.performed && button.wasPressedThisFrame;
+			Debug.LogWarning($"InputActionTriggered attribute with state filter {InputStateFilters.PreformedThisFrame} was used on an action that is not a button.");
+			return false;
+		}
+		private static bool ReleasedThisFrameFilter(InputAction.CallbackContext context)
+		{
+			if (context.control is ButtonControl button)
+				return context.canceled && button.wasReleasedThisFrame;
+			Debug.LogWarning($"InputActionTriggered attribute with state filter {InputStateFilters.ReleasedThisFrame} was used on an action that is not a button.");
+			return false;
+		}
+		private static Predicate<InputAction.CallbackContext> CreateFloatChangedFilter()
 		{
 			float lastValue = float.NaN;
 			return context =>
 			{
-				if (context.control is AxisControl axis && axis.ReadValue() != lastValue)
+				if (context.control is AxisControl axis)
 				{
-					lastValue = axis.ReadValue();
-					callback(context);
+					float value = axis.ReadValue();
+					if (value != lastValue)
+					{
+						lastValue = value;
+						return true;
+					}
+					return false;
 				}
+				Debug.LogWarning($"InputActionTriggered attribute with state filter {InputStateFilters.FloatChanged} was used on an action that is not an axis.");
+				return false;
 			};
 		}
-
-		private static InputContextAction Vector2ChangedFilter(InputContextAction callback)
+		private static Predicate<InputAction.CallbackContext> CreateVector2ChangedFilter()
 		{
-			Vector2 lastValue = new Vector2(float.NaN, float.NaN);
+			Vector2 lastValue = Vector2.zero;
 			return context =>
 			{
-				if (context.control is Vector2Control vector && vector.ReadValue() != lastValue)
+				if (context.control is Vector2Control vector)
 				{
-					lastValue = vector.ReadValue();
-					callback(context);
+					Vector2 value = vector.ReadValue();
+					if (value != lastValue)
+					{
+						lastValue = value;
+						return true;
+					}
+					return false;
 				}
+				Debug.LogWarning($"InputActionTriggered attribute with state filter {InputStateFilters.Vector2Changed} was used on an action that is not a vector2.");
+				return false;
 			};
 		}
-
-		private static InputContextAction Vector3ChangedFilter(InputContextAction callback)
+		private static Predicate<InputAction.CallbackContext> CreateVector3ChangedFilter()
 		{
-			Vector3 lastValue = new Vector3(float.NaN, float.NaN, float.NaN);
+			Vector3 lastValue = Vector3.zero;
 			return context =>
 			{
-				if (context.control is Vector3Control vector && vector.ReadValue() != lastValue)
+				if (context.control is Vector3Control vector)
 				{
-					lastValue = vector.ReadValue();
-					callback(context);
+					Vector3 value = vector.ReadValue();
+					if (value != lastValue)
+					{
+						lastValue = value;
+						return true;
+					}
+					return false;
 				}
+				Debug.LogWarning($"InputActionTriggered attribute with state filter {InputStateFilters.Vector3Changed} was used on an action that is not a vector3.");
+				return false;
 			};
 		}
 
-		public InputContextAction FilteredCallback(InputContextAction callback)
+		public Predicate<InputAction.CallbackContext> GetFilteredCallback()
 		{
 			switch (stateFilter)
 			{
-				case InputStateFilters.None: return NoneFilter(callback);
-				case InputStateFilters.Performed: return PerformedFilter(callback);
-				case InputStateFilters.Started: return StartedFilter(callback);
-				case InputStateFilters.Canceled: return CanceledFilter(callback);
-				case InputStateFilters.PreformedThisFrame: return PreformedThisFrameFilter(callback);
-				case InputStateFilters.ReleasedThisFrame: return ReleasedThisFrameFilter(callback);
-				case InputStateFilters.FloatChanged: return FloatChangedFilter(callback);
-				case InputStateFilters.Vector2Changed: return Vector2ChangedFilter(callback);
-				case InputStateFilters.Vector3Changed: return Vector3ChangedFilter(callback);
+				case InputStateFilters.None: return null;
+				case InputStateFilters.Performed: return PerformedFilter;
+				case InputStateFilters.Started: return StartedFilter;
+				case InputStateFilters.Canceled: return CanceledFilter;
+				case InputStateFilters.PreformedThisFrame: return PreformedThisFrameFilter;
+				case InputStateFilters.ReleasedThisFrame: return ReleasedThisFrameFilter;
+				case InputStateFilters.FloatChanged: return CreateFloatChangedFilter();
+				case InputStateFilters.Vector2Changed: return CreateVector2ChangedFilter();
+				case InputStateFilters.Vector3Changed: return CreateVector3ChangedFilter();
 				default:
-					Debug.LogError($"Unknown state filter {stateFilter}");
-					return NoneFilter(callback);
+					UnityEngine.Debug.LogError($"Unknown InputStateFilter: {stateFilter}");
+					return null;
 			}
-		}
-
-		public InputCallbackPair CreateInputPair(System.Reflection.MethodInfo m, object obj)
-		{
-			InputContextAction callback = (InputContextAction)Delegate.CreateDelegate(typeof(InputContextAction), obj, m);
-			return new InputCallbackPair(actionName, FilteredCallback(callback));
 		}
 	}
 }

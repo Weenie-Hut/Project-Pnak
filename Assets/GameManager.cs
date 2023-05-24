@@ -20,12 +20,6 @@ namespace Pnak
 			Shoot,
 		}
 
-		public readonly static Dictionary<ControllerConfig, string> ControllerConfigNames = new Dictionary<ControllerConfig, string>()
-		{
-			{ ControllerConfig.Gameplay, "Gameplay" },
-			{ ControllerConfig.Menu, "Menu" },
-		};
-
 		[Tooltip("The character data to use for each character type. Temporary until we have character prefabs.")]
 		public CharacterData[] Characters;
 
@@ -38,7 +32,7 @@ namespace Pnak
 		public SceneLoader SceneLoader { get; private set; }
 		public InputSystemUIInputModule InputSystemUIInputModule { get; private set; }
 
-		public ControllerConfig LoadingConfig { get; private set; }
+		public InputMap LoadingInputMap { get; private set; }
 
 		protected override void Awake()
 		{
@@ -57,23 +51,24 @@ namespace Pnak
 
 			InputEmulation.SetActionAsset(PlayerInput.actions);
 
-			InputCallbackSystem.RegisterInputCallbacks(this, false);
+			InputCallbackSystem.SetupInputCallbacks(this, false);
 			PlayerInput.onActionTriggered += InputCallbackSystem.OnActionTriggered;
 
 			PlayerInput.uiInputModule = InputSystemUIInputModule;
 
-			LoadingConfig = ControllerConfig.Menu;
-			PlayerInput.SwitchCurrentActionMap(ControllerConfigNames[LoadingConfig]);
-			InputData.ControllerConfig = LoadingConfig;
+			LoadingInputMap = InputMap.Menu;
+			PlayerInput.SwitchCurrentActionMap(LoadingInputMap.Name());
+			InputData.CurrentInputMap = LoadingInputMap;
 		}
 
-		public void SetControllerConfig(ControllerConfig config)
+		public void SetInputMap(InputMap config)
 		{
-			string actionMapName = ControllerConfigNames[config];
-			if (PlayerInput.currentActionMap.name != actionMapName)
-				PlayerInput.SwitchCurrentActionMap(actionMapName);
 
-			LoadingConfig = config;
+			if (LoadingInputMap == config) return;
+
+			LoadingInputMap = config;
+			PlayerInput.SwitchCurrentActionMap(LoadingInputMap.Name());
+
 		}
 
 		protected override void OnDestroy()
@@ -85,20 +80,12 @@ namespace Pnak
 
 		public NetworkInputData PullNetworkInput()
 		{
-			if (InputData.ControllerConfig != LoadingConfig)
-			{
-				if (InputData.ControllerConfig == ControllerConfig.Gameplay)
-					ClearGameplayInputs();
-			}
-
 			SetDynamicInputData();
 
 			var result = InputData;
 
-			
-
-			InputData.ClearButtons();
-			InputData.ControllerConfig = LoadingConfig;
+			InputData.ClearState();
+			InputData.CurrentInputMap = LoadingInputMap;
 
 			return result;
 		}
@@ -109,19 +96,13 @@ namespace Pnak
 			if (MousePosition.HasValue && Player.LocalPlayer != null)
 			{
 				InputData.AimDirection = MousePosition.Value - (Vector2)Player.LocalPlayer.transform.position;
-				MousePosition = null;
 			}
-		}
-
-		public void ClearGameplayInputs()
-		{
-			InputData.movement = Vector2.zero;
 		}
 
 		[InputActionTriggered(ActionNames.Move)]
 		private void OnMoveTriggered(InputAction.CallbackContext context)
 		{
-			InputData.movement = context.ReadValue<Vector2>();
+			InputData.Movement = context.ReadValue<Vector2>();
 		}
 
 		[InputActionTriggered(ActionNames.ControllerAim)]
@@ -140,40 +121,40 @@ namespace Pnak
 			MousePosition = MainCamera.ScreenToWorldPoint(context.ReadValue<Vector2>());
 		}
 
-		[InputActionTriggered(ActionNames.Shoot, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Shoot)]
 		private void OnShootTriggered(InputAction.CallbackContext context)
 		{
-			InputData.Button1Pressed = true;
+			InputData.SetButtonDown(1, context.ReadValueAsButton());
 		}
 
-		[InputActionTriggered(ActionNames.PlaceTower, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.PlaceTower)]
 		private void OnPlaceTowerTriggered(InputAction.CallbackContext context)
 		{
-			InputData.Button2Pressed = true;
+			InputData.SetButtonDown(2, context.ReadValueAsButton());
 		}
 
-		[InputActionTriggered(ActionNames.Menu_Button1, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Menu_Button1)]
 		private void OnMenuButton1Triggered(InputAction.CallbackContext context)
 		{
-			InputData.Button3Pressed = true;
+			InputData.SetButtonDown(1, context.ReadValueAsButton());
 		}
 
-		[InputActionTriggered(ActionNames.Menu_Button2, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Menu_Button2)]
 		private void OnMenuButton2Triggered(InputAction.CallbackContext context)
 		{
-			InputData.Button4Pressed = true;
+			InputData.SetButtonDown(2, context.ReadValueAsButton());
 		}
 
-		[InputActionTriggered(ActionNames.Menu_Button3, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Menu_Button3)]
 		private void OnMenuButton3Triggered(InputAction.CallbackContext context)
 		{
-			InputData.Button5Pressed = true;
+			InputData.SetButtonDown(3, context.ReadValueAsButton());
 		}
 
-		[InputActionTriggered(ActionNames.Menu_Button4, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Menu_Button4)]
 		private void OnMenuButton4Triggered(InputAction.CallbackContext context)
 		{
-			InputData.Button6Pressed = true;
+			InputData.SetButtonDown(4, context.ReadValueAsButton());
 		}
 	}
 }

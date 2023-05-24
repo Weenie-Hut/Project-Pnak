@@ -198,7 +198,7 @@
                     "id": "2e4d728a-ba91-4bcf-8205-00684b8127c1",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "StickDeadzone",
                     "groups": "",
                     "action": "ControllerAim",
                     "isComposite": false,

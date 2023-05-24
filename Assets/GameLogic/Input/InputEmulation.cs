@@ -41,5 +41,23 @@ namespace Pnak.Input
 			action.SendValueToControl(1f);
 			action.SendValueToControl(0f);
 		}
+
+		public delegate void EmulateDelegate();
+
+		public static EmulateDelegate CreateEmulateDelegate<T>(string actionName, T value) where T : struct
+		{
+			EmulatedAction action = GetEmulatedAction(actionName);
+			return () => action.SendValueToControl(value);
+		}
+
+		public static EmulateDelegate CreateEmulateButtonDelegate(string actionName)
+		{
+			EmulatedAction action = GetEmulatedAction(actionName);
+			return () =>
+			{
+				action.SendValueToControl(1f);
+				action.SendValueToControl(0f);
+			};
+		}
 	}
 }

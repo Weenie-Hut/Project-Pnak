@@ -48,8 +48,6 @@ namespace Pnak
 			// TODO: Add armor and resistances
 			_Health -= amount.PureDamage + amount.PhysicalDamage + amount.MagicalDamage;
 
-			UnityEngine.Debug.Log($"Health: {_Health}, Damage: {{ Pure: {amount.PureDamage}, Physical: {amount.PhysicalDamage}, Magical: {amount.MagicalDamage} }}");
-
 			if (_Health <= float.Epsilon)
 			{
 				OnDeath?.Invoke(this);
