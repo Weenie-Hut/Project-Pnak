@@ -34,7 +34,7 @@ namespace Pnak
 
 		protected override void OnHit(Collider2D collider2D, float? distance)
 		{
-			DamageAmount damage = _DamageByPeirce[_PeirceRemaining - 1];
+			DamageAmount damage = _DamageByPeirce[_PeirceRemaining - 1] * _DamageModifier;
 			if (!IgnoreAfterFirstHit)
 				damage *= Runner.DeltaTime;
 			if (!CollisionProcessor.ApplyDamage(collider2D, damage))

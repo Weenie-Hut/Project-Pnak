@@ -390,8 +390,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  _SpawnLifetime: 15
-  _SpawnMaxLifetime: 15
+  _SpawnLifetime: 30
+  _SpawnMaxLifetime: 30
   _DespawnOnExpire: 1
 --- !u!114 &-8782826589957364407
 MonoBehaviour:

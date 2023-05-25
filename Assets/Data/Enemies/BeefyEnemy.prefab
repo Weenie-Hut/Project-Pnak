@@ -178,8 +178,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  _SpawnHealth: 26
-  _SpawnMaxHealth: 26
+  _SpawnHealth: 50
+  _SpawnMaxHealth: 50
   _DespawnOnDeath: 1
 --- !u!114 &7627164711614338827
 MonoBehaviour:

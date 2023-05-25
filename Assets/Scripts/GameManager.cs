@@ -55,7 +55,7 @@ namespace Pnak
 			if (!CanAfford(cost, interactable))
 				return false;
 
-			Player.LocalPlayer.MP_Change -= cost.MP;
+			Player.LocalPlayer.RPC_ChangeMP(-cost.MP);
 			return true;
 		}
 	}

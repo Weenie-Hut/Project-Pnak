@@ -32,7 +32,6 @@ namespace Pnak
 		[Networked] private float _MP { get; set; }
 		public float MPPercent => _MP / CurrentCharacterData.MP_Max;
 		public float MP => _MP;
-		public float MP_Change = 0.0f;
 
 		public override void FixedUpdateNetwork()
 		{
@@ -40,8 +39,7 @@ namespace Pnak
 			{
 				if (!PlayerLoaded) return;
 
-				_MP = Mathf.Clamp(_MP + CurrentCharacterData.MP_RegenerationRate * Runner.DeltaTime + MP_Change, 0.0f, CurrentCharacterData.MP_Max);
-				MP_Change = 0.0f;
+				_MP = Mathf.Clamp(_MP + CurrentCharacterData.MP_RegenerationRate * Runner.DeltaTime, 0.0f, CurrentCharacterData.MP_Max);
 
 				if (input.CurrentInputMap == Input.InputMap.Menu) return;
 
@@ -105,9 +103,15 @@ namespace Pnak
 			}
 			LocalPlayer = this;
 
+			SetCharacterTypeVisuals();
+
 			GameManager.Instance.SceneLoader.FinishedLoading();
 			
 		}
+
+		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+		public void RPC_ChangeMP(float change) => _MP += change;
+
 
 		[Rpc(RpcSources.All, RpcTargets.All)]
 		public void RPC_SetCharacterType(byte characterType) => SetCharacterType(characterType);
@@ -125,6 +129,11 @@ namespace Pnak
 			towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
 			_MP = Mathf.Min(_MP, CurrentCharacterData.MP_Max);
 
+			SetCharacterTypeVisuals();
+		}
+
+		private void SetCharacterTypeVisuals()
+		{
 			CharacterRenderer.sprite = CurrentCharacterData.Sprite;
 			CharacterText.text = CurrentCharacterData.Name;
 			CharacterRenderer.transform.localScale = (Vector3)CurrentCharacterData.SpriteScale;
