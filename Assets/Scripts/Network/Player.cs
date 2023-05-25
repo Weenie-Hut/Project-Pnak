@@ -21,7 +21,7 @@ namespace Pnak
 		public CharacterData LoadingData;
 
 
-		[Networked(OnChanged = nameof(OnCharacterTypeChanged))]
+		[Networked]
 		public byte CharacterType { get; private set; }
 
 		public bool PlayerLoaded => CharacterType != 0;
@@ -29,31 +29,21 @@ namespace Pnak
 
 		[Networked] private TickTimer reloadDelay { get; set; }
 		[Networked] private TickTimer towerDelay { get; set; }
+		[Networked] private float _MP { get; set; }
+		public float MPPercent => _MP / CurrentCharacterData.MP_Max;
+		public float MP => _MP;
+		public float MP_Change = 0.0f;
 
 		public override void FixedUpdateNetwork()
 		{
 			if (GetInput(out NetworkInputData input))
 			{
-				if (input.CurrentInputMap == Input.InputMap.Menu)
-				{
-					byte nextType = CharacterType;
-					if (input.GetButtonPressed(1)) nextType = 1;
-					if (input.GetButtonPressed(2)) nextType = 2;
-					if (input.GetButtonPressed(3)) nextType = 3;
-					if (input.GetButtonPressed(4)) nextType = 4;
-
-					if (nextType != CharacterType)
-					{
-						CharacterType = nextType;
-						
-						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
-						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
-					}
-
-					return;
-				}
-
 				if (!PlayerLoaded) return;
+
+				_MP = Mathf.Clamp(_MP + CurrentCharacterData.MP_RegenerationRate * Runner.DeltaTime + MP_Change, 0.0f, CurrentCharacterData.MP_Max);
+				MP_Change = 0.0f;
+
+				if (input.CurrentInputMap == Input.InputMap.Menu) return;
 
 				Vector2 movement = input.Movement * CurrentCharacterData.Speed;
 				transform.position += (Vector3)movement * Runner.DeltaTime;
@@ -94,6 +84,7 @@ namespace Pnak
 				LevelUI.Instance.ShootReloadBar.Value = reloadTime.HasValue ? (1 - reloadTime.Value / CurrentCharacterData.ReloadTime) : 1.0f;
 				float? towerTime = towerDelay.RemainingTime(Runner);
 				LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
+				LevelUI.Instance.MPBar.Value = MPPercent;
 			}
 
 			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, Input.GameInput.Instance.InputData.AimAngle);
@@ -118,17 +109,21 @@ namespace Pnak
 			
 		}
 
+		[Rpc(RpcSources.All, RpcTargets.All)]
+		public void RPC_SetCharacterType(byte characterType) => SetCharacterType(characterType);
+
 		private void SetCharacterType(byte characterType)
 		{
 			UnityEngine.Debug.Log("Setting character type to " + characterType);
+			if (Object?.HasStateAuthority ?? false)
+			{
+				MessageBox.Instance.RPC_ShowMessage("Player changed character to " + CurrentCharacterData.Name + "!");
+			}
+
 			CharacterType = characterType;
-		}
-
-		public static void OnCharacterTypeChanged(Changed<Player> changed) => changed.Behaviour.ChangeCharacterSprite();
-
-		private void ChangeCharacterSprite()
-		{
-			MessageBox.Instance.RPC_ShowMessage("Player changed character to " + CurrentCharacterData.Name + "!");
+			reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
+			towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
+			_MP = Mathf.Min(_MP, CurrentCharacterData.MP_Max);
 
 			CharacterRenderer.sprite = CurrentCharacterData.Sprite;
 			CharacterText.text = CurrentCharacterData.Name;

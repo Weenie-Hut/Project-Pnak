@@ -24,16 +24,21 @@ namespace Pnak.Input
 			}
 		}
 
+		public delegate void LateActionTriggeredDelegate(InputAction.CallbackContext context);
+		public static event LateActionTriggeredDelegate OnLateActionTriggered;
+
 		public static void OnActionTriggered(InputAction.CallbackContext context)
 		{
 			if (_actionDictionary.TryGetValue(context.action.name, out List<RegisterData> actions))
 			{
-				foreach (var entry in actions)
+				foreach (var entry in actions.ToArray())
 				{
 					if (entry.filter == null || entry.filter(context))
 						entry.action(context);
 				}
 			}
+
+			OnLateActionTriggered?.Invoke(context);
 		}
 
 		private static Dictionary<string, List<RegisterData>> _actionDictionary = new Dictionary<string, List<RegisterData>>();
@@ -203,7 +208,7 @@ namespace Pnak.Input
 			return true;
 		}
 
-		public static Func<object, RegisterData>[] CreateClassInputFactory(Type type)
+		private static Func<object, RegisterData>[] CreateClassInputFactory(Type type)
 		{
 			Func<object, RegisterData>[] result =
 				type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)

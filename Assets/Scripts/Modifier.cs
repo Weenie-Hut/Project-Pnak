@@ -24,6 +24,7 @@ namespace Pnak
 		Timeout,
 	}
 
+	[System.Serializable]
 	public struct Modifier : INetworkStruct
 	{
 		public ModifierTarget type;

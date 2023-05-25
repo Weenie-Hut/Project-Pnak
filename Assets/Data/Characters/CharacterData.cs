@@ -11,6 +11,8 @@ namespace Pnak
 		public Sprite Sprite;
 		public float Speed = 1f;
 		public float ReloadTime = 1f;
+		public float MP_Max = 60f;
+		public float MP_RegenerationRate = 1f;
 		public Projectile ProjectilePrefab;
 		public float TowerPlacementTime = 10f;
 		public Tower TowerPrefab;

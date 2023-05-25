@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Pnak
 {
+	[RequireComponent(typeof(ModifierContainer))]
 	public class Tower : NetworkBehaviour
 	{
 		[Networked] private TickTimer reloadTime { get; set; }
@@ -19,6 +20,9 @@ namespace Pnak
 		[SerializeField] private LayerMask _TargetMask;
 		[SerializeField] private SpriteFillBar _ReloadBar;
 		[SerializeField] private int MaxCollisionChecks = 10;
+		[SerializeField] private RadialOptionSO[] InteractionOptions;
+
+		public ModifierContainer ModifierContainer { get; private set; }
 
 		[Networked] private float rotationSpeed { get; set; }
 		[Networked] private float reloadDelay { get; set; }
@@ -39,11 +43,9 @@ namespace Pnak
 
 			if (Object.HasStateAuthority)
 			{
-				if (TryGetComponent<ModifierContainer>(out ModifierContainer mod))
-				{
-					mod.OnModifierAdded += OnModifierAdded;
-					mod.OnModifierRemoved += OnModifierRemoved;
-				}
+				ModifierContainer = GetComponent<ModifierContainer>();
+				ModifierContainer.OnModifierAdded += OnModifierAdded;
+				ModifierContainer.OnModifierRemoved += OnModifierRemoved;
 			}
 
 			Interactable.OnAnyInteract += OnAnyInteract;
@@ -59,15 +61,7 @@ namespace Pnak
 		{
 			if (interactable.gameObject != gameObject) return;
 
-			if (TryGetComponent<ModifierContainer>(out ModifierContainer mod))
-			{
-				mod.RPC_AddModifier(new Modifier {
-					type = ModifierTarget.Reload,
-					value = 0.5f,
-					expirationType = ExpirationType.None,
-					applyType = ApplyType.Multiply
-				});
-			}
+			RadialMenu.Instance.Show(InteractionOptions, interactable);
 		}
 
 		private void OnModifierAdded(Modifier modifier)
@@ -98,7 +92,6 @@ namespace Pnak
 				reloadDelay = modifier.RemoveValue(reloadDelay);
 			}
 		}
-
 
 		public void Init(float rotation)
 		{
@@ -135,7 +128,10 @@ namespace Pnak
 			// Shoot
 			if (reloadTime.ExpiredOrNotRunning(Runner))
 			{
-				Runner.Spawn(_BulletPrefab, transform.position, Quaternion.Euler(0, 0, Rotation), Object.InputAuthority);
+				Runner.Spawn(_BulletPrefab, transform.position, Quaternion.Euler(0, 0, Rotation), null, (_, bullet) =>
+				{
+					bullet.GetComponent<Projectile>().Initialize(ModifierContainer);
+				});
 
 				reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
 			}

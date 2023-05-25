@@ -20,6 +20,8 @@ namespace Pnak
 			CollisionProcessor.OnCollision += OnHit;
 		}
 
+		public abstract void Initialize(ModifierContainer modifiers);
+
 		protected void Despawn()
 		{
 			Runner.Despawn(Object);

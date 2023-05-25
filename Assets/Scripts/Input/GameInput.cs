@@ -11,7 +11,7 @@ namespace Pnak.Input
 	public class GameInput : SingletonMono<GameInput>
 	{
 		public NetworkInputData InputData;
-		public Vector2? MousePosition { get; private set; }
+		public Vector2? MouseScreenPosition { get; private set; }
 		public PlayerInput PlayerInput { get; private set; }
 
 		public InputSystemUIInputModule InputSystemUIInputModule { get; private set; }
@@ -41,7 +41,7 @@ namespace Pnak.Input
 
 		public NetworkInputData PullNetworkInput()
 		{
-			SetDynamicInputData();
+			SetDynamicInputData(InputData.CurrentInputMap);
 
 			var result = InputData;
 
@@ -51,12 +51,20 @@ namespace Pnak.Input
 			return result;
 		}
 
-		public void SetDynamicInputData()
+		public void SetDynamicInputData(InputMap useMap)
 		{
 			// Player Aim
-			if (MousePosition.HasValue && Player.LocalPlayer != null)
+			if (MouseScreenPosition.HasValue)
 			{
-				InputData.AimDirection = MousePosition.Value - (Vector2)Player.LocalPlayer.transform.position;
+				if (useMap == InputMap.Gameplay && Player.LocalPlayer != null)
+				{
+					Vector2 mouseWorld = GameManager.Instance.MainCamera.ScreenToWorldPoint(MouseScreenPosition.Value);
+					InputData.AimDirection = mouseWorld - (Vector2)Player.LocalPlayer.transform.position;
+				}
+				else if (useMap == InputMap.Menu)
+				{
+					InputData.AimDirection = MouseScreenPosition.Value - new Vector2(Screen.width / 2f, Screen.height / 2f);
+				}
 			}
 		}
 
@@ -65,6 +73,16 @@ namespace Pnak.Input
 			if (LoadingInputMap == config) return;
 
 			LoadingInputMap = config;
+
+			// This makes sure that the action map does not change before all actions have been triggered.
+			UnityEngine.Debug.Log("SetInputMap: " + config.Name());
+			InputCallbackSystem.OnLateActionTriggered += LateUpdateMap;
+		}
+
+		private void LateUpdateMap(InputAction.CallbackContext context)
+		{
+			UnityEngine.Debug.Log("LateUpdateMap: " + LoadingInputMap.Name());
+			InputCallbackSystem.OnLateActionTriggered -= LateUpdateMap;
 			PlayerInput.SwitchCurrentActionMap(LoadingInputMap.Name());
 		}
 
@@ -78,16 +96,16 @@ namespace Pnak.Input
 		private void OnControllerAimTriggered(InputAction.CallbackContext context)
 		{
 			InputData.AimDirection = context.ReadValue<Vector2>();
-			MousePosition = null;
+			MouseScreenPosition = null;
 		}
 
-		[InputActionTriggered(ActionNames.MouseAim)]
+		[InputActionTriggered(ActionNames.MousePosition)]
 		private void OnMouseAimTriggered(InputAction.CallbackContext context)
 		{
 			if (Player.LocalPlayer == null)
 				return;
 
-			MousePosition = GameManager.Instance.MainCamera.ScreenToWorldPoint(context.ReadValue<Vector2>());
+			MouseScreenPosition = context.ReadValue<Vector2>();
 		}
 
 		[InputActionTriggered(ActionNames.Shoot)]
@@ -100,30 +118,6 @@ namespace Pnak.Input
 		private void OnPlaceTowerTriggered(InputAction.CallbackContext context)
 		{
 			InputData.SetButtonDown(2, context.ReadValueAsButton());
-		}
-
-		[InputActionTriggered(ActionNames.Menu_Button1)]
-		private void OnMenuButton1Triggered(InputAction.CallbackContext context)
-		{
-			InputData.SetButtonDown(1, context.ReadValueAsButton());
-		}
-
-		[InputActionTriggered(ActionNames.Menu_Button2)]
-		private void OnMenuButton2Triggered(InputAction.CallbackContext context)
-		{
-			InputData.SetButtonDown(2, context.ReadValueAsButton());
-		}
-
-		[InputActionTriggered(ActionNames.Menu_Button3)]
-		private void OnMenuButton3Triggered(InputAction.CallbackContext context)
-		{
-			InputData.SetButtonDown(3, context.ReadValueAsButton());
-		}
-
-		[InputActionTriggered(ActionNames.Menu_Button4)]
-		private void OnMenuButton4Triggered(InputAction.CallbackContext context)
-		{
-			InputData.SetButtonDown(4, context.ReadValueAsButton());
 		}
 	}
 }

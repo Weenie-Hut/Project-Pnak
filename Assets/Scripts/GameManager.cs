@@ -25,5 +25,38 @@ namespace Pnak
 
 			SceneLoader = FindObjectOfType<SceneLoader>();
 		}
+
+		internal bool CanAfford(Cost cost, Interactable interactable)
+		{
+			if (Player.LocalPlayer == null)
+			{
+				UnityEngine.Debug.LogWarning("Cannot afford cost because there is no local player.");
+				return false;
+			}
+
+			if (cost.HP != 0)
+			{
+				UnityEngine.Debug.LogWarning("HP costs are not yet implemented.");
+			}
+
+			if (cost.MP > Player.LocalPlayer.MP)
+				return false;
+
+			if (cost.Money != 0)
+			{
+				UnityEngine.Debug.LogWarning("Money costs are not yet implemented.");
+			}
+
+			return true;
+		}
+
+		internal bool Charge(Cost cost, Interactable interactable)
+		{
+			if (!CanAfford(cost, interactable))
+				return false;
+
+			Player.LocalPlayer.MP_Change -= cost.MP;
+			return true;
+		}
 	}
 }

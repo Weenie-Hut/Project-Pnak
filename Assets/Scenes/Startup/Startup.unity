@@ -775,6 +775,7 @@ MonoBehaviour:
   - {fileID: 4413507493206898244, guid: d5bbcac44f48383488836134648c42dc, type: 3}
   - {fileID: 4963591070500781632, guid: a33788d22bd031141bd4aa528460868a, type: 3}
   - {fileID: 1537299035151848747, guid: d6e2642fd757f294f8ad1fc90aadd52b, type: 3}
+  - {fileID: 2377719245710433425, guid: 14ba65471ad254d438ebf94fa6884468, type: 3}
   _ProgressBar: {fileID: 595174186}
   OnFinishedLoading:
     m_PersistentCalls:

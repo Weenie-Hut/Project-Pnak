@@ -373,6 +373,9 @@ MonoBehaviour:
     m_Bits: 64
   _ReloadBar: {fileID: 8676252409511859197}
   MaxCollisionChecks: 10
+  InteractionOptions:
+  - {fileID: 11400000, guid: 2ff4ef53c8cb4ec46a2023d60a96cb5b, type: 2}
+  - {fileID: 11400000, guid: 9d11032f9e2d8e947b24682b2de0e41d, type: 2}
   _InheritLOSFromBullet: 1
 --- !u!114 &4256950308788126747
 MonoBehaviour:

@@ -13,6 +13,7 @@ namespace Pnak
 		[SerializeField] private bool IgnoreAfterFirstHit = true;
 
 		[Networked] private int _PeirceRemaining { get; set; }
+		[Networked] private float _DamageModifier { get; set; }
 		public int PeirceRemaining => _PeirceRemaining;
 
 		public override void Spawned()
@@ -20,6 +21,15 @@ namespace Pnak
 			base.Spawned();
 
 			_PeirceRemaining = _DamageByPeirce.Length;
+		}
+
+		public override void Initialize(ModifierContainer modifiers)
+		{
+			foreach (var mod in modifiers.GetModifiersOfType(ModifierTarget.Damage))
+			{
+				_DamageModifier = 1;
+				_DamageModifier = mod.ApplyValue(_DamageModifier);
+			}
 		}
 
 		protected override void OnHit(Collider2D collider2D, float? distance)

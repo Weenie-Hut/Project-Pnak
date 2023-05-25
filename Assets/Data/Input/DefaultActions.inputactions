@@ -57,7 +57,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "MouseAim",
+                    "name": "MousePosition",
                     "type": "PassThrough",
                     "id": "bfed0cc1-5722-4d6d-a8a5-72c2b6eb04e4",
                     "expectedControlType": "Vector2",
@@ -226,7 +226,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MouseAim",
+                    "action": "MousePosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -237,7 +237,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MouseAim",
+                    "action": "MousePosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -248,7 +248,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MouseAim",
+                    "action": "MousePosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -290,40 +290,40 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MenuButton_1",
+                    "name": "Back",
                     "type": "Button",
-                    "id": "4e7fadeb-9291-4c92-bd38-2bbfc063e212",
+                    "id": "c933c608-d39c-4c5a-84d7-d76b0b6896a3",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MenuButton_2",
+                    "name": "Confirm",
                     "type": "Button",
-                    "id": "eefe0d89-d2ab-4d60-8b90-7ee89e5f7187",
+                    "id": "f878adb1-10b4-4971-a3a6-b91d114011f9",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MenuButton_3",
-                    "type": "Button",
-                    "id": "ded92f19-46b9-4f2f-b43e-f7dde7e400b5",
-                    "expectedControlType": "Button",
+                    "name": "ControllerAim",
+                    "type": "PassThrough",
+                    "id": "7bbf3b76-8e13-4a85-b292-88eee8208dc5",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
-                    "name": "MenuButton_4",
-                    "type": "Button",
-                    "id": "6ecb2253-5fce-43ad-9940-1dd15303c12b",
-                    "expectedControlType": "Button",
+                    "name": "MousePosition",
+                    "type": "PassThrough",
+                    "id": "cd75ec08-eed3-4a52-9adc-2095d4c8cff4",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -351,89 +351,100 @@
                 },
                 {
                     "name": "",
-                    "id": "49b137a8-7d89-4559-9a83-23d02bbac01a",
-                    "path": "<Keyboard>/1",
+                    "id": "3bd6fc85-487c-4ec2-a8cd-1688477d1e78",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MenuButton_1",
+                    "action": "ToggleMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "7bfdc00e-da56-46ef-b593-a17a123431d3",
-                    "path": "<Gamepad>/buttonSouth",
+                    "id": "43a9af75-79a5-4e5e-acdc-252cdbd44c89",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MenuButton_1",
+                    "action": "Back",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "e365d9d8-271c-496a-9448-3054f23b5624",
-                    "path": "<Keyboard>/2",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MenuButton_2",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7960a1b3-b822-421d-bed4-fe7c2bee666e",
-                    "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MenuButton_2",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "31326f62-4fdb-4011-9d67-1f783db0c5cb",
-                    "path": "<Keyboard>/3",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MenuButton_3",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8e92e9c4-3756-4b27-b5e8-c6809c2ec4f2",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MenuButton_3",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "f7d78785-5039-4d62-859b-87b9b47a88cb",
-                    "path": "<Keyboard>/4",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MenuButton_4",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d598d5ce-106a-4c21-92ad-19c7e978c3f6",
+                    "id": "10136c1a-9e52-477f-b7ad-4ccaf6d503ee",
                     "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MenuButton_4",
+                    "action": "Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ed9fa02b-f696-4eb8-aa2f-dce62ce035d0",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "678d617d-1e39-4821-b3e4-17237a9f6c8c",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b28e76fe-64ec-4222-aa3b-152e4377eba1",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "StickDeadzone",
+                    "groups": "",
+                    "action": "ControllerAim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4a9212b6-b121-4890-8a4b-cfd3d0283853",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MousePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1f601197-c2fb-4e5d-8fb8-263df23bdce5",
+                    "path": "<Pen>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MousePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "278ed67c-9319-42d5-84da-568938958ed7",
+                    "path": "<Touchscreen>/touch*/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MousePosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

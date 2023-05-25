@@ -20,12 +20,14 @@ namespace Pnak.Input
 	{
 		public string actionName;
 		public InputStateFilters stateFilter;
+		public InputMap inputMapFilter;
 
 		// TODO: Add filter support for controller config?
-		public InputActionTriggered(string actionName, InputStateFilters stateFilter = InputStateFilters.None)
+		public InputActionTriggered(string actionName, InputStateFilters stateFilter = InputStateFilters.None, InputMap inputMapFilter = InputMap.None)
 		{
 			this.actionName = actionName;
 			this.stateFilter = stateFilter;
+			this.inputMapFilter = inputMapFilter;
 		}
 
 		private static bool PerformedFilter(InputAction.CallbackContext context) => context.performed;
@@ -103,7 +105,7 @@ namespace Pnak.Input
 			};
 		}
 
-		public Predicate<InputAction.CallbackContext> GetFilteredCallback()
+		private Predicate<InputAction.CallbackContext> GetStateFilterCallback()
 		{
 			switch (stateFilter)
 			{
@@ -120,6 +122,23 @@ namespace Pnak.Input
 					UnityEngine.Debug.LogError($"Unknown InputStateFilter: {stateFilter}");
 					return null;
 			}
+		}
+
+		public Predicate<InputAction.CallbackContext> GetFilteredCallback()
+		{
+			var stateFilterCallback = GetStateFilterCallback();
+
+			if (inputMapFilter == InputMap.None)
+				return stateFilterCallback;
+
+			if (stateFilterCallback == null)
+			{
+				return context => context.action.actionMap.name == inputMapFilter.Name();
+			}
+			else return context => {
+				UnityEngine.Debug.Log("context.action.actionMap.name: " + context.action.actionMap.name + " inputMapFilter.Name(): " + inputMapFilter.Name() + " stateFilterCallback(context): " + stateFilterCallback(context) + " context.action.actionMap.name == inputMapFilter.Name(): " + (context.action.actionMap.name == inputMapFilter.Name()));
+				return stateFilterCallback(context) && context.action.actionMap.name == inputMapFilter.Name();
+			};
 		}
 	}
 }

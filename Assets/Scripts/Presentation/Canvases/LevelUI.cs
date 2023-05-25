@@ -7,5 +7,6 @@ namespace Pnak
 	{
 		[SerializeField] public UIFillBar ShootReloadBar;
 		[SerializeField] public UIFillBar TowerReloadBar;
+		[SerializeField] public UIFillBar MPBar;
 	}
 }

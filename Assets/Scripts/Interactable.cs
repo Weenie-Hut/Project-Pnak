@@ -93,7 +93,7 @@ namespace Pnak
 				Vector2 difference = interactable.transform.position - playerPosition;
 				float angle = MathUtil.DirectionToAngle(difference);
 				float distance = difference.magnitude;
-				float degrees = Mathf.DeltaAngle(angle, lookAngle);
+				float degrees = Mathf.Abs(Mathf.DeltaAngle(angle, lookAngle));
 
 				float rank = distance * (1 + degrees / 15f);
 

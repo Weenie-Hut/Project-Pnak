@@ -54,11 +54,6 @@ namespace Pnak
 			InputCallbackSystem.SetupInputCallbacks(this);
 		}
 
-		private void OnDestroy()
-		{
-			InputCallbackSystem.CleanupInputCallbacks(this);
-		}
-
 		/// <summary>
 		/// The time of the last update.
 		/// </summary>
@@ -82,18 +77,20 @@ namespace Pnak
 
 		public void JoinGame()
 		{
+			InputCallbackSystem.CleanupInputCallbacks(this);
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.Client);
 		}
 
 		public void HostGame()
 		{
+			InputCallbackSystem.CleanupInputCallbacks(this);
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.Host);
 		}
 
-		[InputActionTriggered(ActionNames.Menu_Button1, InputStateFilters.PreformedThisFrame)]
+		[InputActionTriggered(ActionNames.Confirm, InputStateFilters.PreformedThisFrame)]
 		private void QuickJoin(UnityEngine.InputSystem.InputAction.CallbackContext context)
 		{
-			UnityEngine.Debug.Log("Quick Join");
+			InputCallbackSystem.CleanupInputCallbacks(this);
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.AutoHostOrClient);
 		}
 
