@@ -22,7 +22,7 @@ namespace Pnak
 			get => showIfDeviceNotPresent ? !deviceExists : deviceExists;
 		}
 
-		private void Start()
+		private void Awake()
 		{
 			deviceExists = ShouldShow(deviceType);
 			gameObject.SetActive(Showing);
@@ -37,7 +37,7 @@ namespace Pnak
 
 		private void OnDeviceChange(InputDevice device, InputDeviceChange change)
 		{
-			if (!Showing)
+			if (!deviceExists)
 			{
 				if (ShouldShowForDevice(device, deviceType))
 				{

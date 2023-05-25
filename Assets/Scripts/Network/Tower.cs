@@ -20,8 +20,8 @@ namespace Pnak
 		[SerializeField] private SpriteFillBar _ReloadBar;
 		[SerializeField] private int MaxCollisionChecks = 10;
 
-		private float rotationSpeed;
-		private float reloadDelay;
+		[Networked] private float rotationSpeed { get; set; }
+		[Networked] private float reloadDelay { get; set; }
 
 		[Networked] private float Rotation { get; set; }
 
@@ -36,7 +36,69 @@ namespace Pnak
 
 			colliders = new Collider2D[MaxCollisionChecks];
 			distances = new float[MaxCollisionChecks];
+
+			if (Object.HasStateAuthority)
+			{
+				if (TryGetComponent<ModifierContainer>(out ModifierContainer mod))
+				{
+					mod.OnModifierAdded += OnModifierAdded;
+					mod.OnModifierRemoved += OnModifierRemoved;
+				}
+			}
+
+			Interactable.OnAnyInteract += OnAnyInteract;
 		}
+
+		private void OnDestroy()
+		{
+			Interactable.OnAnyInteract -= OnAnyInteract;
+		}
+
+
+		private void OnAnyInteract(Interactable interactable)
+		{
+			if (interactable.gameObject != gameObject) return;
+
+			if (TryGetComponent<ModifierContainer>(out ModifierContainer mod))
+			{
+				mod.RPC_AddModifier(new Modifier {
+					type = ModifierTarget.Reload,
+					value = 0.5f,
+					expirationType = ExpirationType.None,
+					applyType = ApplyType.Multiply
+				});
+			}
+		}
+
+		private void OnModifierAdded(Modifier modifier)
+		{
+			if (modifier.type == ModifierTarget.Reload)
+			{
+				float previous = reloadDelay;
+
+				reloadDelay = modifier.ApplyValue(reloadDelay);
+				
+				float? remainingTime = reloadTime.RemainingTime(Runner);
+
+				if (remainingTime.HasValue)
+				{
+					// If the reload time is less than the previous reload time, then we need to adjust the timer
+					if (reloadDelay < previous)
+					{
+						reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay * remainingTime.Value / previous);
+					}
+				}
+			}
+		}
+
+		private void OnModifierRemoved(Modifier modifier)
+		{
+			if (modifier.type == ModifierTarget.Reload)
+			{
+				reloadDelay = modifier.RemoveValue(reloadDelay);
+			}
+		}
+
 
 		public void Init(float rotation)
 		{

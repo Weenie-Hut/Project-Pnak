@@ -10,6 +10,8 @@ namespace Pnak
 			return new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
 		}
 
+		
+
 		public static float DirectionToAngle(Vector2 value)
 		{
 			if (value.x == 0f)

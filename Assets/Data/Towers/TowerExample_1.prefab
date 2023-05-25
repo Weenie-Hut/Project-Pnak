@@ -104,7 +104,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -125,7 +125,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: -5177388603050735206, guid: cc35afd292fc349128b36a291fb3a165, type: 3}
   m_Color: {r: 0.33091152, g: 0.5471698, b: 0.30713776, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -265,7 +265,9 @@ GameObject:
   - component: {fileID: -8490948727475308021}
   - component: {fileID: 8095831076234495228}
   - component: {fileID: 4256950308788126747}
+  - component: {fileID: -5777899278664434637}
   - component: {fileID: 8849502059222146450}
+  - component: {fileID: 452068845345564637}
   m_Layer: 0
   m_Name: TowerExample_1
   m_TagString: Untagged
@@ -314,6 +316,7 @@ MonoBehaviour:
   - {fileID: -8490948727475308021}
   - {fileID: 8095831076234495228}
   - {fileID: 4256950308788126747}
+  - {fileID: -5777899278664434637}
   SimulationBehaviours: []
 --- !u!114 &-8490948727475308021
 MonoBehaviour:
@@ -387,6 +390,19 @@ MonoBehaviour:
   _SpawnLifetime: 21.5
   _SpawnMaxLifetime: 21.5
   _DespawnOnExpire: 1
+--- !u!114 &-5777899278664434637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8095831076234495231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2031ee33a5f6994abe8f8cb6ff093af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
 --- !u!114 &8849502059222146450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,6 +416,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _FillBar: {fileID: 2196272155905738352}
+--- !u!114 &452068845345564637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8095831076234495231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92bf275cdddc53844bb3637f9c38aa34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsInteractable: 1
+  InteractionRadius: 100
+  OnEnterRange:
+    m_PersistentCalls:
+      m_Calls: []
+  OnExitRange:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInteract:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &4237724863682835918
 PrefabInstance:
   m_ObjectHideFlags: 0

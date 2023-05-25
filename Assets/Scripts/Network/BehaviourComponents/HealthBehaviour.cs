@@ -16,6 +16,8 @@ namespace Pnak
 		public Action<HealthBehaviour> OnDeath;
 		public Action<HealthBehaviour> OnHealthChanged;
 
+		private bool _hasSpawned = false;
+
 		[Networked(OnChanged = nameof(_OnHealthChanged))] private float _Health { get; set; }
 		public float Health => _Health;
 		[Networked(OnChanged = nameof(_OnHealthChanged))] private float _MaxHealth { get; set; }
@@ -36,6 +38,8 @@ namespace Pnak
 
 			if (_DespawnOnDeath)
 				OnDeath += NetworkExtensions.DespawnSelf;
+
+			_hasSpawned = true;
 		}
 
 		/// <summary>
@@ -45,6 +49,8 @@ namespace Pnak
 		/// <returns>True if the object is dead.</returns>
 		public bool AddDamage(DamageAmount amount)
 		{
+			if (!_hasSpawned) return false;
+
 			// TODO: Add armor and resistances
 			_Health -= amount.PureDamage + amount.PhysicalDamage + amount.MagicalDamage;
 
@@ -67,6 +73,8 @@ namespace Pnak
 		/// <returns>True if the object is at max health.</returns>
 		public bool AddHealth(float amount)
 		{
+			if (!_hasSpawned) return false;
+			
 			_Health += amount;
 			if (_Health > _MaxHealth)
 			{

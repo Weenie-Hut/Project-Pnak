@@ -12,5 +12,6 @@ namespace Pnak.Input
 		public const string Menu_Button4 = "MenuButton_4";
 		public const string ControllerAim = "ControllerAim";
 		public const string MouseAim = "MouseAim";
+		public const string Interact = "Interact";
 	}
 }

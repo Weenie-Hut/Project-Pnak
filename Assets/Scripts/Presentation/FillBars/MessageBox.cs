@@ -20,11 +20,11 @@ namespace Pnak
 			base.Awake();
 			_Messages = new List<TMPro.TextMeshProUGUI>();
 
-			ShowMessage("Welcome to Pnak!");
+			RPC_ShowMessage("Welcome to Pnak!");
 		}
 
 		[Rpc(RpcSources.All, RpcTargets.All)]
-		public void ShowMessage(string message, RpcInfo info = default)
+		public void RPC_ShowMessage(string message, RpcInfo info = default)
 		{
 			if (!SessionManager.Exists ||
 				SessionManager.Instance?.NetworkRunner?.Simulation == null ||

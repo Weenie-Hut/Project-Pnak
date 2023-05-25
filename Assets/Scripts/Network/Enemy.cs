@@ -39,7 +39,11 @@ namespace Pnak
 			base.Spawned();
 
 			_MovementSpeed = _DefaultMovementSpeed;
-			SetNextPosition();
+
+			if (path != null)
+			{
+				SetNextPosition();
+			}
 		}
 
 		public void Init(Transform path)

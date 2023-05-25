@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Reflection;
 
 namespace Pnak.Input
 {
@@ -107,11 +108,16 @@ namespace Pnak.Input
 		{
 			foreach (var entry in actions)
 			{
-				if (!_actionDictionary.ContainsKey(entry.actionName))
-					_actionDictionary.Add(entry.actionName, new List<RegisterData>());
-
-				_actionDictionary[entry.actionName].Add(entry);
+				_RegisterCallback(entry);
 			}
+		}
+
+		private static void _RegisterCallback(RegisterData entry)
+		{
+			if (!_actionDictionary.ContainsKey(entry.actionName))
+				_actionDictionary.Add(entry.actionName, new List<RegisterData>());
+
+			_actionDictionary[entry.actionName].Add(entry);
 		}
 		
 		private static void _UnregisterCallbacks(object obj, RegisterData[] actions)
@@ -200,7 +206,7 @@ namespace Pnak.Input
 		public static Func<object, RegisterData>[] CreateClassInputFactory(Type type)
 		{
 			Func<object, RegisterData>[] result =
-				type.GetMethods(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+				type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
 				.SelectMany(m =>
 					m.GetCustomAttributes(typeof(InputActionTriggered), true)
 					.Select(a => { 
@@ -224,5 +230,28 @@ namespace Pnak.Input
 
 			return result;
 		}
+
+
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+		private static void _Initialize()
+		{
+			// Find all InputActionTriggered attributes on static methods in all classes.
+			foreach (Type type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()))
+			{
+				foreach (MethodInfo method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+				{
+					InputActionTriggered attribute = method.GetCustomAttribute<InputActionTriggered>();
+					if (attribute != null)
+					{
+						_RegisterCallback(new RegisterData(
+							attribute.actionName,
+							attribute.GetFilteredCallback(),
+							(InputContextAction)Delegate.CreateDelegate(typeof(InputContextAction), method)
+						));
+					}
+				}
+			}
+		}
+
 	}
 }

@@ -60,7 +60,7 @@ namespace Pnak
 			int random = Random.Range(0, _SpawnPath.GetChild(0).childCount);
 			Vector3 spawnPos = _SpawnPath.GetChild(0).GetChild(random).position;
 
-			Runner.Spawn(_SpawnPattern[_SpawnIndex].enemy, spawnPos, transform.rotation, Object.InputAuthority, (runner, o) =>
+			Runner.Spawn(_SpawnPattern[_SpawnIndex].enemy, spawnPos, transform.rotation, null, (runner, o) =>
 			{
 				var enemy = o.GetComponent<Enemy>();
 				enemy.Init(_SpawnPath);

@@ -83,16 +83,18 @@ namespace Pnak
 			}
 		}
 
-		private void Update()
+		public override void Render()
 		{
 			if (!PlayerLoaded) return;
 			if (!Object.HasInputAuthority) return;
-			if (!LevelUI.Exists) return;
 
-			float? reloadTime = reloadDelay.RemainingTime(Runner);
-			LevelUI.Instance.ShootReloadBar.Value = reloadTime.HasValue ? (1 - reloadTime.Value / CurrentCharacterData.ReloadTime) : 1.0f;
-			float? towerTime = towerDelay.RemainingTime(Runner);
-			LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
+			if (LevelUI.Exists)
+			{
+				float? reloadTime = reloadDelay.RemainingTime(Runner);
+				LevelUI.Instance.ShootReloadBar.Value = reloadTime.HasValue ? (1 - reloadTime.Value / CurrentCharacterData.ReloadTime) : 1.0f;
+				float? towerTime = towerDelay.RemainingTime(Runner);
+				LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
+			}
 
 			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, Input.GameInput.Instance.InputData.AimAngle);
 		}
@@ -126,7 +128,7 @@ namespace Pnak
 
 		private void ChangeCharacterSprite()
 		{
-			MessageBox.Instance.ShowMessage("Player changed character to " + CurrentCharacterData.Name + "!");
+			MessageBox.Instance.RPC_ShowMessage("Player changed character to " + CurrentCharacterData.Name + "!");
 
 			CharacterRenderer.sprite = CurrentCharacterData.Sprite;
 			CharacterText.text = CurrentCharacterData.Name;

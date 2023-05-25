@@ -212,6 +212,7 @@ MonoBehaviour:
   _MessageContainer: {fileID: 6834230534574284517}
   _MessagePrefab: {fileID: 295175724707750394, guid: fbceae7978df27f4ea9042030a0a45a0, type: 3}
   _MaxMessages: 50
+  _MessageLifetime: 16
 --- !u!1 &7180866273321792747
 GameObject:
   m_ObjectHideFlags: 0
