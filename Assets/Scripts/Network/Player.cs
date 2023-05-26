@@ -53,7 +53,9 @@ namespace Pnak
 					if (input.GetButtonDown(1))
 					{
 						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
-						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, _rotation), Object.InputAuthority);
+						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, _rotation), null, (_, bullet) => {
+							bullet.GetComponent<Projectile>().Initialize();
+						});
 					}
 				}
 
@@ -79,10 +81,13 @@ namespace Pnak
 			if (LevelUI.Exists)
 			{
 				float? reloadTime = reloadDelay.RemainingTime(Runner);
-				LevelUI.Instance.ShootReloadBar.Value = reloadTime.HasValue ? (1 - reloadTime.Value / CurrentCharacterData.ReloadTime) : 1.0f;
+				LevelUI.Instance.ShootReloadBar.RawValueRange = new Vector2(0.0f, CurrentCharacterData.ReloadTime);
+				LevelUI.Instance.ShootReloadBar.NormalizedValue = reloadTime.HasValue ? (1 - reloadTime.Value / CurrentCharacterData.ReloadTime) : 1.0f;
 				float? towerTime = towerDelay.RemainingTime(Runner);
-				LevelUI.Instance.TowerReloadBar.Value = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
-				LevelUI.Instance.MPBar.Value = MPPercent;
+				LevelUI.Instance.TowerReloadBar.RawValueRange = new Vector2(0.0f, CurrentCharacterData.TowerPlacementTime);
+				LevelUI.Instance.TowerReloadBar.NormalizedValue = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
+				LevelUI.Instance.MPBar.RawValueRange = new Vector2(0.0f, CurrentCharacterData.MP_Max);
+				LevelUI.Instance.MPBar.NormalizedValue = MPPercent;
 			}
 
 			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, Input.GameInput.Instance.InputData.AimAngle);

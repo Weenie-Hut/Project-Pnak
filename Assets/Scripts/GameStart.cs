@@ -22,6 +22,7 @@ namespace Pnak
 		{
 			_progressSteps = _CreateOnStart.Length + 1;
 			_currentProgressStep = 0;
+			_ProgressBar.RawValueRange = new Vector2(0, _progressSteps);
 
 			UpdateSteps();
 		}
@@ -29,7 +30,7 @@ namespace Pnak
 		private void UpdateSteps(int inc = 1)
 		{
 			_currentProgressStep += inc;
-			_ProgressBar.Value = (float)_currentProgressStep / _progressSteps;
+			_ProgressBar.NormalizedValue = (float)_currentProgressStep / _progressSteps;
 		}
 
 		private IEnumerator Start()
@@ -48,7 +49,7 @@ namespace Pnak
 				}
 			}
 
-			_ProgressBar.Value = 1;
+			_ProgressBar.NormalizedValue = 1;
 			OnFinishedLoading.Invoke();
 
 			InputCallbackSystem.SetupInputCallbacks(this);

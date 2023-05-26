@@ -25,9 +25,14 @@ namespace Pnak
 		public ModifierContainer ModifierContainer { get; private set; }
 
 		[Networked] private float rotationSpeed { get; set; }
-		[Networked] private float reloadDelay { get; set; }
+		[Networked(OnChanged=nameof(OnReloadChanged))] private float reloadDelay { get; set; }
 
 		[Networked] private float Rotation { get; set; }
+
+		private void Awake()
+		{
+			_ReloadBar.RawValueRange.x = 0f;
+		}
 
 		public override void Spawned()
 		{
@@ -102,7 +107,7 @@ namespace Pnak
 		{
 			float? temp;
 			if ((temp = reloadTime.RemainingTime(Runner)).HasValue)
-				_ReloadBar.Value = 1 - temp.Value / reloadDelay;
+				_ReloadBar.NormalizedValue = 1 - temp.Value / reloadDelay;
 
 			_GunTransform.rotation = Quaternion.Euler(0, 0, Rotation);
 		}
@@ -135,6 +140,11 @@ namespace Pnak
 
 				reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
 			}
+		}
+
+		private static void OnReloadChanged(Changed<Tower> changed)
+		{
+			changed.Behaviour._ReloadBar.RawValueRange.y = changed.Behaviour.reloadDelay;
 		}
 
 		private Collider2D[] colliders;

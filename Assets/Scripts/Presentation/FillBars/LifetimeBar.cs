@@ -5,7 +5,7 @@ namespace Pnak
 	[RequireComponent(typeof(LifetimeBehaviour))]
 	public class LifetimeBar : MonoBehaviour
 	{
-		[SerializeField] private SpriteFillBar _FillBar;
+		[SerializeField] private FillBar _FillBar;
 		public LifetimeBehaviour LifetimeBehaviour { get; private set; }
 
 		private void Awake()
@@ -13,9 +13,15 @@ namespace Pnak
 			LifetimeBehaviour = GetComponent<LifetimeBehaviour>();
 		}
 
+		private void Start()
+		{
+			_FillBar.RawValueRange.x = 0;
+		}
+
 		private void Update()
 		{
-			_FillBar.Value = LifetimeBehaviour.Lifetime / LifetimeBehaviour.MaxLifetime;
+			_FillBar.RawValueRange.y = LifetimeBehaviour.MaxLifetime;
+			_FillBar.NormalizedValue = LifetimeBehaviour.Lifetime / LifetimeBehaviour.MaxLifetime;
 		}
 	}
 }

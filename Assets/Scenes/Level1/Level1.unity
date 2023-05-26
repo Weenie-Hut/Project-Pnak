@@ -1201,9 +1201,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a518ec225b2229b418b91637ccab3496, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fillAmount: 0.296
+  _normalizedValue: 0.24
+  RawValueRange: {x: 0, y: 1}
+  Format: 0
   TextFormat: 'Tower: {0:P0}'
-  FillBar: {fileID: 866311652}
+  Foreground: {fileID: 866311652}
   Text: {fileID: 534099682}
 --- !u!1 &88266006
 GameObject:
@@ -3453,7 +3455,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.194, y: 1}
+  m_AnchorMax: {x: 0.24, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4654,9 +4656,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a518ec225b2229b418b91637ccab3496, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fillAmount: 0.296
-  TextFormat: 'MP: {0:P0}'
-  FillBar: {fileID: 609542071}
+  _normalizedValue: 0
+  RawValueRange: {x: 0, y: 60}
+  Format: 1
+  TextFormat: 'MP: {0:F1}'
+  Foreground: {fileID: 609542071}
   Text: {fileID: 1925712084}
 --- !u!1 &448365198
 GameObject:
@@ -5220,7 +5224,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Tower: 30 %'
+  m_text: 'Tower: 24 %'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
@@ -5715,7 +5719,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.296, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -7811,7 +7815,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.296, y: 1}
+  m_AnchorMax: {x: 0.24, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -8496,7 +8500,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Reload: 19 %'
+  m_text: 'Reload: 24 %'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
@@ -11566,9 +11570,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a518ec225b2229b418b91637ccab3496, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fillAmount: 0.194
+  _normalizedValue: 0.24
+  RawValueRange: {x: 0, y: 1}
+  Format: 0
   TextFormat: 'Reload: {0:P0}'
-  FillBar: {fileID: 325436754}
+  Foreground: {fileID: 325436754}
   Text: {fileID: 906841016}
 --- !u!1 &1175883104
 GameObject:
@@ -18777,7 +18783,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'MP: 30 %'
+  m_text: 'MP: 0.0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}

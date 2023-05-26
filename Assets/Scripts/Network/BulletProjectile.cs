@@ -25,9 +25,11 @@ namespace Pnak
 
 		public override void Initialize(ModifierContainer modifiers)
 		{
+			_DamageModifier = 1;
+			if (modifiers == null) return;
+
 			foreach (var mod in modifiers.GetModifiersOfType(ModifierTarget.Damage))
 			{
-				_DamageModifier = 1;
 				_DamageModifier = mod.ApplyValue(_DamageModifier);
 			}
 		}

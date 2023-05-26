@@ -20,7 +20,7 @@ namespace Pnak
 			CollisionProcessor.OnCollision += OnHit;
 		}
 
-		public abstract void Initialize(ModifierContainer modifiers);
+		public abstract void Initialize(ModifierContainer modifiers = null);
 
 		protected void Despawn()
 		{

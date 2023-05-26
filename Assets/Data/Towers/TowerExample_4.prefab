@@ -507,7 +507,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3164896556596590422, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_text
-      value: 22.1 %
+      value: 21.0 %
       objectReference: {fileID: 0}
     - target: {fileID: 4802897509883258419, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: _fillAmount
@@ -515,7 +515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6491512649407197220, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.221
+      value: 0.21
       objectReference: {fileID: 0}
     - target: {fileID: 7387978435738716670, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_Color.g
