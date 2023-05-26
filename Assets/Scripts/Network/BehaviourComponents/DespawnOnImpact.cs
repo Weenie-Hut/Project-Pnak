@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public class DespawnOnImpact : Projectile
+	public class DespawnOnImpact : Munition
 	{
 		[SerializeField] private LayerMask _DespawnImpactLayers;
 		public LayerMask ImpactLayers => _DespawnImpactLayers;

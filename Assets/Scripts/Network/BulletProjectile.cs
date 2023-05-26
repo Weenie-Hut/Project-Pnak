@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public class BulletProjectile : Projectile
+	public class BulletProjectile : Munition
 	{
 		[Tooltip("Damage dealt to each target hit, in order.")]
 		[SerializeField] private DamageAmount[] _DamageByPeirce = new DamageAmount[] { new DamageAmount { PureDamage = 1f } };

@@ -54,7 +54,7 @@ namespace Pnak
 					{
 						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
 						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, _rotation), null, (_, bullet) => {
-							bullet.GetComponent<Projectile>().Initialize();
+							bullet.GetComponent<Munition>().Initialize();
 						});
 					}
 				}

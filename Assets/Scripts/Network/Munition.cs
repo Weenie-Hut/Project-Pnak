@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Pnak
 {
 	[RequireComponent(typeof(CollisionProcessor))]
-	public abstract class Projectile : NetworkBehaviour
+	public abstract class Munition : NetworkBehaviour
 	{
 		public CollisionProcessor CollisionProcessor { get; private set; }
 

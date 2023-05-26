@@ -13,7 +13,7 @@ namespace Pnak
 		public float ReloadTime = 1f;
 		public float MP_Max = 60f;
 		public float MP_RegenerationRate = 1f;
-		public Projectile ProjectilePrefab;
+		public Munition ProjectilePrefab;
 		public float TowerPlacementTime = 10f;
 		public Tower TowerPrefab;
 		public Vector2 UIScale;

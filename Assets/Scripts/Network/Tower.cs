@@ -9,7 +9,7 @@ namespace Pnak
 	{
 		[Networked] private TickTimer reloadTime { get; set; }
 
-		[SerializeField] private Projectile _BulletPrefab;
+		[SerializeField] private Munition _BulletPrefab;
 		[SerializeField] private Collider2D TargetArea;
 		[SerializeField] private LayerMask _LOSBlockMask;
 		[SerializeField] private float _SpawnReloadDelay = 1f;
@@ -135,7 +135,7 @@ namespace Pnak
 			{
 				Runner.Spawn(_BulletPrefab, transform.position, Quaternion.Euler(0, 0, Rotation), null, (_, bullet) =>
 				{
-					bullet.GetComponent<Projectile>().Initialize(ModifierContainer);
+					bullet.GetComponent<Munition>().Initialize(ModifierContainer);
 				});
 
 				reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
