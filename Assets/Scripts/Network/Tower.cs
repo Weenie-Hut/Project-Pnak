@@ -1,6 +1,8 @@
 using System;
 using Fusion;
+using Pnak.Input;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Pnak
 {
@@ -56,9 +58,18 @@ namespace Pnak
 			Interactable.OnAnyInteract += OnAnyInteract;
 		}
 
-		private void OnDestroy()
+		public override void Despawned(NetworkRunner runner, bool hasState)
 		{
 			Interactable.OnAnyInteract -= OnAnyInteract;
+			if (Object.HasInputAuthority)
+				Player.LocalPlayer.RPC_UnsetPilot(Object);
+		}
+
+		[InputActionTriggered(ActionNames.Interact)]
+		public void OnInteract(InputAction.CallbackContext context)
+		{
+			if (Object.HasInputAuthority)
+				Player.LocalPlayer.RPC_UnsetPilot(Object);
 		}
 
 
@@ -114,6 +125,29 @@ namespace Pnak
 
 		public override void FixedUpdateNetwork()
 		{
+			if (GetInput(out NetworkInputData input))
+			{
+				float targetRotation = input.AimAngle;
+				float deltaAngle = Mathf.DeltaAngle(Rotation, targetRotation);
+				float _rotationSpeed = this.rotationSpeed * Runner.DeltaTime;
+				Rotation = Rotation + Mathf.Clamp(deltaAngle, -_rotationSpeed, _rotationSpeed);
+
+				if (reloadTime.ExpiredOrNotRunning(Runner))
+				{
+					if (input.GetButtonPressed(1))
+					{
+						Runner.Spawn(_BulletPrefab, transform.position, Quaternion.Euler(0, 0, Rotation), null, (_, bullet) =>
+						{
+							bullet.GetComponent<Munition>().Initialize(ModifierContainer);
+						});
+
+						reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
+					}
+				}
+
+				return;
+			}
+
 			// Find closest enemy
 			Transform closestEnemy = GetClosestTarget();
 

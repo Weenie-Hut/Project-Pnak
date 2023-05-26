@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
+using Pnak.Input;
 using UnityEngine;
 
 namespace Pnak
@@ -30,6 +31,7 @@ namespace Pnak
 		[Networked] private TickTimer reloadDelay { get; set; }
 		[Networked] private TickTimer towerDelay { get; set; }
 		[Networked] private float _MP { get; set; }
+		[Networked] private bool _Piloting { get; set; }
 		public float MPPercent => _MP / CurrentCharacterData.MP_Max;
 		public float MP => _MP;
 
@@ -42,6 +44,7 @@ namespace Pnak
 				_MP = Mathf.Clamp(_MP + CurrentCharacterData.MP_RegenerationRate * Runner.DeltaTime, 0.0f, CurrentCharacterData.MP_Max);
 
 				if (input.CurrentInputMap == Input.InputMap.Menu) return;
+				if (_Piloting) return;
 
 				Vector2 movement = input.Movement * CurrentCharacterData.Speed;
 				transform.position += (Vector3)movement * Runner.DeltaTime;
@@ -64,7 +67,7 @@ namespace Pnak
 					if (input.GetButtonPressed(2))
 					{
 						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
-						Runner.Spawn(CurrentCharacterData.TowerPrefab, transform.position, Quaternion.identity, Object.InputAuthority, (runner, o) =>
+						Runner.Spawn(CurrentCharacterData.TowerPrefab, transform.position, Quaternion.identity, null, (runner, o) =>
 						{
 							o.GetComponent<Tower>().Init(_rotation);
 						});
@@ -109,9 +112,9 @@ namespace Pnak
 			LocalPlayer = this;
 
 			SetCharacterTypeVisuals();
+			SetPilotVisuals();
 
 			GameManager.Instance.SceneLoader.FinishedLoading();
-			
 		}
 
 		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -165,6 +168,32 @@ namespace Pnak
 					CharacterText.text = LoadingData.Name;
 			}
 		}
+
+		[Rpc(RpcSources.All, RpcTargets.All)]
+		public void RPC_SetPilot(NetworkObject tower, PlayerRef playerRef)
+		{
+			tower.AssignInputAuthority(playerRef);
+			transform.position = tower.transform.position;
+			_Piloting = true;
+
+			SetPilotVisuals();
+		}
+
+		[Rpc(RpcSources.All, RpcTargets.All)]
+		public void RPC_UnsetPilot(NetworkObject tower)
+		{
+			_Piloting = false;
+			tower.RemoveInputAuthority();
+
+			SetPilotVisuals();
+		}
+
+		private void SetPilotVisuals()
+		{
+			CharacterRenderer.gameObject.SetActive(!_Piloting);
+		}
+
+
 #endif
 	}
 }

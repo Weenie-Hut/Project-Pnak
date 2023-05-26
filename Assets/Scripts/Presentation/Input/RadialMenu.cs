@@ -150,6 +150,8 @@ namespace Pnak
 				return;
 
 			RadialOptionSO option = currentOptions[optionIndex];
+			if (!option.IsSelectable(interactable)) return;
+
 			option.OnSelect(interactable);
 
 			if (hoveredOption != -1)
