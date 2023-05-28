@@ -83,19 +83,19 @@ namespace Pnak
 				{
 					if (input.GetButtonPressed(3))
 					{
-						BehaviourModifierData data = BehaviourModifier.CreateData();
-						BehaviourModifierManager.Instance.AddModifier(ref data, BehaviourModifier, BehaviourPrefab);
+						LiteNetworkedData data = BehaviourModifier.CreateData();
+						LiteNetworkManager.AddModifier(ref data, BehaviourModifier, BehaviourPrefab);
 
 						data.ScriptType = PositionAndScaleMod.ScriptIndex;
 						data.PositionAndScale.Position = transform.position;
 						data.PositionAndScale.RotationAngle = _rotation;
 
-						BehaviourModifierManager.Instance.AddModifier(ref data);
+						LiteNetworkManager.AddModifier(ref data);
 
 						data.ScriptType = KinematicMoveMod.ScriptIndex;
 						data.KinematicMove.Velocity = 10f;
 
-						BehaviourModifierManager.Instance.AddModifier(ref data);
+						LiteNetworkManager.AddModifier(ref data);
 					}
 				}
 			}

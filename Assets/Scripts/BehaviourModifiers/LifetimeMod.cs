@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public partial struct BehaviourModifierData
+	public partial struct LiteNetworkedData
 	{
 		public struct LifetimeData : INetworkStruct
 		{
@@ -19,7 +19,7 @@ namespace Pnak
 	}
 
 	[CreateAssetMenu(fileName = "Lifetime", menuName = "BehaviourModifier/Lifetime")]
-	public class LifetimeMod : BehaviourModifier
+	public class LifetimeMod : LiteNetworkMod
 	{
 		// TODO: Calculate the position of the bar based on the size of the target (SpriteRenderer.bounds.size.y)?
 		// TODO: Pool the fillbar prefabs
@@ -27,12 +27,12 @@ namespace Pnak
 		[SerializeField] private float defaultSeconds = 5;
 		[SerializeField] private float defaultDisplayPosition = 35f;
 
-		public BehaviourModifierData CreateData(float seconds = float.NaN, float displayPosition = float.NaN)
+		public LiteNetworkedData CreateData(float seconds = float.NaN, float displayPosition = float.NaN)
 		{
 			if (float.IsNaN(seconds)) seconds = defaultSeconds;
 			if (float.IsNaN(displayPosition)) displayPosition = defaultDisplayPosition;
 
-			BehaviourModifierData result = default;
+			LiteNetworkedData result = default;
 			result.ScriptType = ScriptIndex;
 			result.Lifetime.startTick = SessionManager.Instance.NetworkRunner.Tick;
 			result.Lifetime.endTick = result.Lifetime.startTick + (int)(seconds / SessionManager.Instance.NetworkRunner.DeltaTime);
@@ -41,7 +41,7 @@ namespace Pnak
 			return result;
 		}
 
-		public override void Initialize(NetworkObjectContext networkContext, in BehaviourModifierData data, out object context)
+		public override void Initialize(LiteNetworkObject networkContext, in LiteNetworkedData data, out object context)
 		{
 			base.Initialize(networkContext, data, out context); // Set context if early return
 
@@ -56,7 +56,7 @@ namespace Pnak
 			context = Instantiate(lifetimeBarPrefab.gameObject, networkContext.Target.transform).GetComponent<FillBar>();
 		}
 
-		public override void OnRender(object context, in BehaviourModifierData data)
+		public override void OnRender(object context, in LiteNetworkedData data)
 		{
 			if (!(context is FillBar fillBar)) return;
 			if (data.Lifetime.displayPosition == float.NaN)
@@ -77,17 +77,17 @@ namespace Pnak
 			fillBar.NormalizedValue = (currentTick - data.Lifetime.startTick) / (data.Lifetime.endTick - data.Lifetime.startTick);
 		}
 
-		public override void OnFixedUpdate(object rContext, ref BehaviourModifierData data)
+		public override void OnFixedUpdate(object rContext, ref LiteNetworkedData data)
 		{
 			float currentTick = SessionManager.Instance.NetworkRunner.Tick;
 
 			if (currentTick > data.Lifetime.endTick)
 			{
-				BehaviourModifierManager.Instance.QueueDeleteTargetObject(data.TargetIndex);
+				LiteNetworkManager.QueueDeleteLiteObject(data.TargetIndex);
 			}
 		}
 
-		public override void OnInvalidatedRender(object context, in BehaviourModifierData data)
+		public override void OnInvalidatedRender(object context, in LiteNetworkedData data)
 		{
 			if (!(context is FillBar fillBar)) return;
 			Destroy(fillBar.gameObject);

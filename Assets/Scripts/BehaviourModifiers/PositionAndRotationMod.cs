@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public partial struct BehaviourModifierData
+	public partial struct LiteNetworkedData
 	{
 		public struct PositionAndScaleData : INetworkStruct
 		{
@@ -31,11 +31,11 @@ namespace Pnak
 	}
 
 	[CreateAssetMenu(fileName = "PositionAndScale", menuName = "BehaviourModifier/PositionAndScale")]
-	public class PositionAndRotationMod : BehaviourModifier
+	public class PositionAndRotationMod : LiteNetworkMod
 	{
-		public override void OnRender(object context, in BehaviourModifierData data)
+		public override void OnRender(object context, in LiteNetworkedData data)
 		{
-			if (!(context is NetworkObjectContext netContext)) return;
+			if (!(context is LiteNetworkObject netContext)) return;
 
 
 			netContext.Target.transform.SetPositionAndRotation(

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Pnak
 {
 	[StructLayout(LayoutKind.Explicit)]
-	public partial struct BehaviourModifierData : INetworkStruct
+	public partial struct LiteNetworkedData : INetworkStruct
 	{
 		public const int CustomDataOffset = 4;
 
@@ -57,35 +57,32 @@ namespace Pnak
 		// Custom data
 	}
 
-	public abstract class BehaviourModifier : ScriptableObject
+	public abstract class LiteNetworkMod : ScriptableObject
 	{
-		protected static BehaviourModifierData GetModifierData(int index) => BehaviourModifierManager.Instance.GetModifierData(index);
-		protected static void SetModifierData(int index, in BehaviourModifierData data) => BehaviourModifierManager.Instance.SetModifierData(index, data);
-
 		private int scriptIndex = -1;
 		public int ScriptIndex => scriptIndex == -1 ?
-			scriptIndex = BehaviourModifierManager.Instance.GetScriptIndex(this) :
+			scriptIndex = LiteNetworkManager.GetScriptIndex(this) :
 			scriptIndex;
 
-		public virtual void Initialize(NetworkObjectContext target, in BehaviourModifierData data, out object context)
+		public virtual void Initialize(LiteNetworkObject target, in LiteNetworkedData data, out object context)
 		{
 			context = target;
 		}
 		
-		public virtual void OnFixedUpdate(object rContext, ref BehaviourModifierData data)
+		public virtual void OnFixedUpdate(object rContext, ref LiteNetworkedData data)
 		{
 		}
 		
-		public virtual void OnInvalidatedUpdate(object rContext, ref BehaviourModifierData data)
+		public virtual void OnInvalidatedUpdate(object rContext, ref LiteNetworkedData data)
 		{
 			data.Invalidate();
 		}
 
-		public virtual void OnRender(object context, in BehaviourModifierData data)
+		public virtual void OnRender(object context, in LiteNetworkedData data)
 		{
 		}
 
-		public virtual void OnInvalidatedRender(object context, in BehaviourModifierData data)
+		public virtual void OnInvalidatedRender(object context, in LiteNetworkedData data)
 		{
 		}
 
