@@ -21,6 +21,11 @@ namespace Pnak
 
 		public CharacterData LoadingData;
 
+		public LifetimeMod BehaviourModifier;
+		public PositionAndRotationMod PositionAndScaleMod;
+		public KinematicMoveMod KinematicMoveMod;
+		public GameObject BehaviourPrefab;
+
 
 		[Networked]
 		public byte CharacterType { get; private set; }
@@ -71,6 +76,26 @@ namespace Pnak
 						{
 							o.GetComponent<Tower>().Init(_rotation);
 						});
+					}
+				}
+
+				if (Runner.Simulation.IsForward)
+				{
+					if (input.GetButtonPressed(3))
+					{
+						BehaviourModifierData data = BehaviourModifier.CreateData();
+						BehaviourModifierManager.Instance.AddModifier(ref data, BehaviourModifier, BehaviourPrefab);
+
+						data.ScriptType = PositionAndScaleMod.ScriptIndex;
+						data.PositionAndScale.Position = transform.position;
+						data.PositionAndScale.RotationAngle = _rotation;
+
+						BehaviourModifierManager.Instance.AddModifier(ref data);
+
+						data.ScriptType = KinematicMoveMod.ScriptIndex;
+						data.KinematicMove.Velocity = 10f;
+
+						BehaviourModifierManager.Instance.AddModifier(ref data);
 					}
 				}
 			}
@@ -148,6 +173,35 @@ namespace Pnak
 			CharacterRenderer.transform.localPosition = (Vector3)CurrentCharacterData.SpritePosition;
 		}
 
+		[Rpc(RpcSources.All, RpcTargets.All)]
+		public void RPC_SetPilot(NetworkId towerId, PlayerRef playerRef)
+		{
+			if (Runner.TryFindObject(towerId, out NetworkObject tower))
+			{
+				tower.AssignInputAuthority(playerRef);
+				transform.position = tower.transform.position;
+				
+			}
+			
+			_Piloting = true;
+			SetPilotVisuals();
+		}
+
+		[Rpc(RpcSources.All, RpcTargets.All)]
+		public void RPC_UnsetPilot(NetworkId tower)
+		{
+			if (Runner.TryFindObject(tower, out NetworkObject towerObj))
+				towerObj.RemoveInputAuthority();
+
+			_Piloting = false;
+			SetPilotVisuals();
+		}
+
+		private void SetPilotVisuals()
+		{
+			CharacterRenderer.gameObject.SetActive(!_Piloting);
+		}
+
 #if UNITY_EDITOR
 		/// <summary>
 		/// Sets the character information so it doesn't need to be loaded on create. Also useful for previewing.
@@ -168,32 +222,6 @@ namespace Pnak
 					CharacterText.text = LoadingData.Name;
 			}
 		}
-
-		[Rpc(RpcSources.All, RpcTargets.All)]
-		public void RPC_SetPilot(NetworkObject tower, PlayerRef playerRef)
-		{
-			tower.AssignInputAuthority(playerRef);
-			transform.position = tower.transform.position;
-			_Piloting = true;
-
-			SetPilotVisuals();
-		}
-
-		[Rpc(RpcSources.All, RpcTargets.All)]
-		public void RPC_UnsetPilot(NetworkObject tower)
-		{
-			_Piloting = false;
-			tower.RemoveInputAuthority();
-
-			SetPilotVisuals();
-		}
-
-		private void SetPilotVisuals()
-		{
-			CharacterRenderer.gameObject.SetActive(!_Piloting);
-		}
-
-
 #endif
 	}
 }

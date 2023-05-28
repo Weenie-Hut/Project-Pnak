@@ -62,14 +62,14 @@ namespace Pnak
 		{
 			Interactable.OnAnyInteract -= OnAnyInteract;
 			if (Object.HasInputAuthority)
-				Player.LocalPlayer.RPC_UnsetPilot(Object);
+				Player.LocalPlayer.RPC_UnsetPilot(Object.Id);
 		}
 
 		[InputActionTriggered(ActionNames.Interact)]
 		public void OnInteract(InputAction.CallbackContext context)
 		{
 			if (Object.HasInputAuthority)
-				Player.LocalPlayer.RPC_UnsetPilot(Object);
+				Player.LocalPlayer.RPC_UnsetPilot(Object.Id);
 		}
 
 

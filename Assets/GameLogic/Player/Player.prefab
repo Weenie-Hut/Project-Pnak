@@ -277,6 +277,10 @@ MonoBehaviour:
   CharacterRenderer: {fileID: 7518179125537910990}
   CharacterText: {fileID: 6668936615884505547}
   LoadingData: {fileID: 11400000, guid: af71ebc8eb272ff48b3581ea7fc89d45, type: 2}
+  BehaviourModifier: {fileID: 11400000, guid: b0aed57d9a86aa543acf57780c488c03, type: 2}
+  PositionAndScaleMod: {fileID: 11400000, guid: d3ebc72f4ecfb624fa452060b14573a0, type: 2}
+  KinematicMoveMod: {fileID: 11400000, guid: 06b5e72dd0d6ca746a5edded803dcd9b, type: 2}
+  BehaviourPrefab: {fileID: 6067962359517261106, guid: 82b8d78e4b1d91247bd0a7b7d4c8467e, type: 3}
   _CharacterType: 0
 --- !u!1 &6171953303633001884
 GameObject:

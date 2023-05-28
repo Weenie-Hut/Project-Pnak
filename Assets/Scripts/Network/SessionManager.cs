@@ -4,7 +4,6 @@ using System.Linq;
 using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Pnak
 {

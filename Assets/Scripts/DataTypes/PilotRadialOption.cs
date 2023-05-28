@@ -14,7 +14,7 @@ namespace Pnak
 			}
 
 			Tower tower = interactable.GetComponent<Tower>();
-			Player.LocalPlayer.RPC_SetPilot(tower.Object, SessionManager.Instance.NetworkRunner.LocalPlayer);
+			Player.LocalPlayer.RPC_SetPilot(tower.Object.Id, SessionManager.Instance.NetworkRunner.LocalPlayer);
 
 		}
 

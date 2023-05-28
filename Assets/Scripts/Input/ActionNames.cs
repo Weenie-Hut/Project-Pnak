@@ -11,5 +11,6 @@ namespace Pnak.Input
 		public const string ControllerAim = "ControllerAim";
 		public const string MousePosition = "MousePosition";
 		public const string Interact = "Interact";
+		public const string Testing = "Testing";
 	}
 }

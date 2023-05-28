@@ -119,5 +119,11 @@ namespace Pnak.Input
 		{
 			InputData.SetButtonDown(2, context.ReadValueAsButton());
 		}
+
+		[InputActionTriggered(ActionNames.Testing)]
+		private void OnTestingTriggered(InputAction.CallbackContext context)
+		{
+			InputData.SetButtonDown(3, context.ReadValueAsButton());
+		}
 	}
 }
