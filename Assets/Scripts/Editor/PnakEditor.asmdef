@@ -1,0 +1,18 @@
+{
+    "name": "PnakEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:76e58230c6f41924c8c51fc1a146aa77"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

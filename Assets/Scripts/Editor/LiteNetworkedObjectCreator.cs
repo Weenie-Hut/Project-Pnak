@@ -31,7 +31,7 @@ namespace PnakEditor
 
 			foreach (Type type in types)
 			{
-				if (type.IsValueType && type.IsSerializable && type.GetInterfaces().Contains(typeof(INetworkStruct)))
+				if (type.IsValueType && type.IsSerializable)
 				{
 					if (!type.FullName.StartsWith("Pnak.LiteNetworkedData+")) continue;
 

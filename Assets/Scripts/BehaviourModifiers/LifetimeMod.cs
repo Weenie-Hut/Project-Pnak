@@ -7,12 +7,18 @@ namespace Pnak
 	public partial struct LiteNetworkedData
 	{
 		[System.Serializable]
-		public struct LifetimeData : INetworkStruct
+		public struct LifetimeData
 		{
 			[HideInInspector]
 			public int startTick;
 			public float seconds;
 			public Vector3 displayLocalPosition;
+
+			public bool DisplayValid
+			{
+				get => !(float.IsNaN(displayLocalPosition.x) || float.IsNaN(displayLocalPosition.y) || float.IsNaN(displayLocalPosition.z));
+				set => displayLocalPosition = value ? Vector3.zero : new Vector3(float.NaN, float.NaN, float.NaN);
+			}
 		}
 
 
@@ -53,8 +59,7 @@ namespace Pnak
 		{
 			base.SetRuntime(ref data);
 
-			if (lifetimeBarPrefab == null)
-				data.Lifetime.displayLocalPosition = Vector3.negativeInfinity;
+			if (lifetimeBarPrefab == null) data.Lifetime.DisplayValid = false;
 			data.Lifetime.startTick = SessionManager.Instance.NetworkRunner.Tick;
 		}
 
@@ -63,11 +68,11 @@ namespace Pnak
 			var _context = new LifetimeContext { NetworkContext = networkContext };
 			context = _context;
 
-			if (data.Lifetime.displayLocalPosition == Vector3.negativeInfinity) return;
+			if (!data.Lifetime.DisplayValid) return;
 
 			if (lifetimeBarPrefab == null)
 			{
-				UnityEngine.Debug.LogWarning("LifetimeMod: Target does not have a FillBar prefab but display was enabled. Data: " + data.ToString());
+				UnityEngine.Debug.LogWarning("LifetimeMod: Target does not have a FillBar prefab but display was enabled. LocalPosition: " + data.Lifetime.displayLocalPosition + ". Data: " + data.ToString());
 				return;
 			}
 
@@ -90,7 +95,7 @@ namespace Pnak
 
 			if (lifetimeContext.FillBar == null) return;
 
-			if (data.Lifetime.displayLocalPosition == Vector3.negativeInfinity)
+			if (!data.Lifetime.DisplayValid)
 			{
 				UnityEngine.Debug.LogWarning("LifetimeMod: context display exists but display is false. Destroying display.");
 				Destroy(lifetimeContext.NetworkContext.Target);

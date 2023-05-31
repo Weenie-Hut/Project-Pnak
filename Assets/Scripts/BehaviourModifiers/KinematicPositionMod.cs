@@ -7,7 +7,7 @@ namespace Pnak
 	public partial struct LiteNetworkedData
 	{
 		[System.Serializable]
-		public struct KinematicPositionData : INetworkStruct
+		public struct KinematicPositionData
 		{
 			[HideInInspector]
 			public Vector2 SpawnPosition;
@@ -27,6 +27,12 @@ namespace Pnak
 	public class KinematicPositionMod : TransformMod
 	{
 		public override System.Type DataType => typeof(LiteNetworkedData.KinematicPositionData);
+
+		public override void Initialize(LiteNetworkObject target, in LiteNetworkedData data, out object context)
+		{
+			base.Initialize(target, in data, out context);
+			OnRender(context, data);
+		}
 
 		public override void SetTransformData(ref LiteNetworkedData data, TransformData transformData)
 		{
@@ -77,8 +83,6 @@ namespace Pnak
 			else {
 				transformDirection = MathUtil.DirectionToAngle(data.KinematicMove.Velocity);
 			}
-
-			
 
 			networkObject.Target.transform.SetPositionAndRotation(
 				currentPosition,

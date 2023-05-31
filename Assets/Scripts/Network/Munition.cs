@@ -18,7 +18,7 @@ namespace Pnak
 		{
 			if (CollisionProcessor.ColliderCount == 0) return;
 
-			for (int i = 0; i < CollisionProcessor.ColliderCount; i++)
+			for (int i = 0; i < CollisionProcessor.ColliderCount && !Controller.QueuedForDestroy; i++)
 			{
 				OnHit(CollisionProcessor.Colliders[i], CollisionProcessor.Distances?[i]);
 			}

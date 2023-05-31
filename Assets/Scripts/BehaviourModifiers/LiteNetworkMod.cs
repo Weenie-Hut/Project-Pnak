@@ -26,7 +26,7 @@ namespace Pnak
 	}
 
 	[StructLayout(LayoutKind.Explicit)]
-	public partial struct LiteNetworkedData : INetworkStruct
+	public partial struct LiteNetworkedData
 	{
 		public const int CustomDataOffset = 4;
 		public const int CustomDataSize = 28;

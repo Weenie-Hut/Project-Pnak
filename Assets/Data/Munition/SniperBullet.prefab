@@ -153,9 +153,15 @@ MonoBehaviour:
   DamageByPeirce:
   - PhysicalDamage: 0
     MagicalDamage: 0
-    PureDamage: 1
+    PureDamage: 2.5
+  - PhysicalDamage: 0
+    MagicalDamage: 0
+    PureDamage: 2
+  - PhysicalDamage: 0
+    MagicalDamage: 0
+    PureDamage: 1.5
   CappedPeirce: 1
-  Peirce: 1
+  Peirce: 3
   IgnoreAfterFirstHit: 1
 --- !u!114 &-2771670484422843685
 MonoBehaviour:

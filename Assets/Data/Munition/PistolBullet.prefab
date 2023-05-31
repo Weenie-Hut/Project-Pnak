@@ -100,9 +100,12 @@ MonoBehaviour:
   DefaultMods:
   - scriptType: 2
     CustomData: 00000000000000000000fa4300000000000000000000000000000000
-  prefabIndex: -1
-  hasStateBehaviour: 1
-  StateRunnerMod: {fileID: 0}
+  stateBehaviours:
+  - {fileID: 5270848876961268193}
+  - {fileID: 1559252364345579475}
+  - {fileID: -2771670484422843685}
+  prefabIndex: 2
+  StateRunnerMod: {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
 --- !u!114 &5270848876961268193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,7 +140,7 @@ MonoBehaviour:
   DamageByPeirce:
   - PhysicalDamage: 0
     MagicalDamage: 0
-    PureDamage: 1
+    PureDamage: 2.5
   CappedPeirce: 1
   Peirce: 1
   IgnoreAfterFirstHit: 1

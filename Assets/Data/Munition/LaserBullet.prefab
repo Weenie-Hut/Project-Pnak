@@ -111,9 +111,7 @@ MonoBehaviour:
   - scriptType: 3
     CustomData: 00000000000000000000000000000000000000000000000000000000
   - scriptType: 4
-    CustomData: 000000000000a040000080ff000080ff000080ff0000000000000000
-  - scriptType: 1
-    CustomData: 00000000000000000000000000000000000000000000000000000000
+    CustomData: 000000009a99993f0000c0ff0000c0ff0000c0ff0000000000000000
   stateBehaviours:
   - {fileID: 5270848876961268193}
   - {fileID: 1559252364345579475}
@@ -154,7 +152,7 @@ MonoBehaviour:
   DamageByPeirce:
   - PhysicalDamage: 0
     MagicalDamage: 0
-    PureDamage: 1
+    PureDamage: 3
   CappedPeirce: 0
   Peirce: 1
   IgnoreAfterFirstHit: 0
@@ -175,7 +173,7 @@ MonoBehaviour:
     m_Bits: 256
   MaxUnits: 1920
   ScalePerUnit: 0.0222
-  ScaleAxis: 0
+  ScaleAxis: 1
 --- !u!1 &2973621702732448016
 GameObject:
   m_ObjectHideFlags: 0

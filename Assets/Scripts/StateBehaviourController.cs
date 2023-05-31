@@ -32,12 +32,17 @@ namespace Pnak
 		[SerializeField, ReadOnly] private StateBehaviour[] stateBehaviours;
 
 		public bool QueuedForDestroy { get; private set; }
-		public void QueueForDestroy() => QueuedForDestroy = true;
+		public void QueueForDestroy()
+		{
+			QueuedForDestroy = true;
+		}
 
 		private delegate void UpdateNetworkData(ref LiteNetworkedData data);
 		private event UpdateNetworkData updateNetworkData = null;
 		public void FixedUpdateNetwork(ref LiteNetworkedData data)
 		{
+			System.Diagnostics.Debug.Assert(QueuedForDestroy == false);
+
 			foreach (StateBehaviour state in stateBehaviours)
 			{
 				state.FixedUpdateNetwork();
@@ -47,6 +52,11 @@ namespace Pnak
 			{
 				updateNetworkData(ref data);
 				updateNetworkData = null;
+			}
+
+			if (QueuedForDestroy)
+			{
+				LiteNetworkManager.QueueDeleteLiteObject(data.TargetIndex);
 			}
 		}
 

@@ -15,4 +15,4 @@ MonoBehaviour:
   scriptIndex: 3
   lifetimeBarPrefab: {fileID: 0}
   defaultSeconds: 5
-  defaultDisplayPosition: {x: -Infinity, y: -Infinity, z: -Infinity}
+  defaultDisplayPosition: {x: NaN, y: NaN, z: NaN}

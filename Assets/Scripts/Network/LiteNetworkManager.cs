@@ -7,16 +7,37 @@ namespace Pnak
 {
 	public class LiteNetworkManager : NetworkBehaviour
 	{
+		private struct LiteDataBuffer : INetworkStruct
+		{
+			public unsafe fixed byte CustomData[LiteNetworkedData.CustomDataSize + LiteNetworkedData.CustomDataOffset];
+
+			public static implicit operator LiteNetworkedData(LiteDataBuffer buffer)
+			{
+				unsafe
+				{
+					return *(LiteNetworkedData*)(&buffer);
+				};
+			}
+
+			public static implicit operator LiteDataBuffer(LiteNetworkedData data)
+			{
+				unsafe
+				{
+					return *(LiteDataBuffer*)(&data);
+				};
+			}
+		}
+
 		private static LiteNetworkManager self;
 
-		public const int LiteModCapacity = 96;
+		public const int LiteModCapacity = 256;
 		[SerializeField] private LiteNetworkModScripts _liteNetworkModScripts;
 		[SerializeField] private StateBehaviourController[] LiteNetworkPrefabs;
 
 		public LiteNetworkMod[] ModScripts => _liteNetworkModScripts?.Mods ?? new LiteNetworkMod[0];
 
 		[Networked, Capacity(LiteModCapacity)]
-		private NetworkArray<LiteNetworkedData> LiteModData { get; }
+		private NetworkArray<LiteDataBuffer> LiteModData { get; }
 		/// <summary>
 		/// The highest index in ModifiersData that is currently in use.
 		/// Used as a hint to avoid iterating over the entire array (performance).
@@ -100,14 +121,16 @@ namespace Pnak
 		{
 			StateBehaviourController prefab = self.LiteNetworkPrefabs[prefabIndex];
 
+			if (transform.Scale == Vector2.zero)
+				transform.Scale = prefab.transform.localScale;
+
 			LiteNetworkedData[] modifiersData = prefab.GetDefaultMods(ref transform);
+			int lastModifierAddress = -1;
 
 			for (int i = 0; i < modifiersData.Length; i++)
 			{
 				modifiersData[i].TargetIndex = targetIndex;
 				modifiersData[i].PrefabIndex = prefabIndex;
-
-				UnityEngine.Debug.Log($"Adding default modifier {modifiersData[i].ToString()} to {targetIndex}");
 
 				LiteNetworkMod script = self.ModScripts[modifiersData[i].ScriptType];
 
@@ -116,16 +139,18 @@ namespace Pnak
 				if (script is TransformMod transformModifier)
 					transformModifier.SetTransformData(ref modifiersData[i], transform);
 
-				AddModifier(in modifiersData[i]);
+				lastModifierAddress = self.ReserveFreeModifierIndex(modifiersData[i].ScriptType, modifiersData[i].TargetIndex, lastModifierAddress);
+				PlaceModifier(lastModifierAddress, in modifiersData[i]);
 			}
 		}
 
-		private int ReserveFreeModifierIndex(int scriptIndex, int targetIndex)
+		private int ReserveFreeModifierIndex(int scriptIndex, int targetIndex, int mustBeAfter = -1)
 		{
-			for (int i = 0; i < LiteModCapacity; i++)
+			for (int i = mustBeAfter + 1; i < LiteModCapacity; i++)
 			{
-				if (LiteModData[i].IsValid) continue;
-				if (LiteModData[i].ScriptType == scriptIndex && LiteModData[i].TargetIndex == targetIndex)
+				LiteNetworkedData data = LiteModData[i];
+				if (data.IsValid) continue;
+				if (data.ScriptType == scriptIndex && data.TargetIndex == targetIndex)
 					continue;
 
 				if (i >= liteModUsingCapacity)
@@ -134,6 +159,7 @@ namespace Pnak
 				return i;
 			}
 
+			Debug.LogWarning("BehaviourModifierManager.ReserveFreeModifierIndex: No free modifier index found, expanding capacity");
 			return -1;
 		}
 
@@ -173,7 +199,7 @@ namespace Pnak
 				System.Diagnostics.Debug.Assert(data.PrefabIndex < LiteNetworkPrefabs.Length, "BehaviourModifierManager.ReplaceModifier: data.prefabIndex is out of range");
 				System.Diagnostics.Debug.Assert(data.TargetIndex < LiteModCapacity, "BehaviourModifierManager.ReplaceModifier: parameter data.targetIndex is out of range: Range is [0, " + LiteModCapacity + "), but data.targetIndex is " + data.TargetIndex);
 				System.Diagnostics.Debug.Assert(modifierAddress != -1, "BehaviourModifierManager.AddModifier: ModifierCapacity (" + LiteModCapacity + ") reached. Modifier will not be added.");
-				UnityEngine.Debug.Log("BehaviourModifierManager.PlaceModifier: { address: " + modifierAddress + ", scriptType: " + data.ScriptType + ", prefabIndex: " + data.PrefabIndex + ", targetIndex: " + data.TargetIndex + " }");
+				// UnityEngine.Debug.Log("BehaviourModifierManager.PlaceModifier: { address: " + modifierAddress + ", scriptType: " + data.ScriptType + ", prefabIndex: " + data.PrefabIndex + ", targetIndex: " + data.TargetIndex + " }");
 
 				LiteModData.Set(modifierAddress, data);
 				liteModContexts[modifierAddress] = null;
@@ -231,14 +257,14 @@ namespace Pnak
 
 				foreach (int modifierAddress in liteNetworkObjects[targetIndex].Modifiers)
 				{
-					if (!LiteModData[modifierAddress].IsValid) continue;
-					if (LiteModData[modifierAddress].TargetIndex != targetIndex) continue;
-
 					LiteNetworkedData data = LiteModData[modifierAddress];
-					ModScripts[LiteModData[modifierAddress].ScriptType].OnInvalidatedUpdate(liteModContexts[modifierAddress], ref data);
+					if (!data.IsValid) continue;
+					if (data.TargetIndex != targetIndex) continue;
+
+					ModScripts[data.ScriptType].OnInvalidatedUpdate(liteModContexts[modifierAddress], ref data);
 					LiteModData.Set(modifierAddress, data);
 
-					UnityEngine.Debug.Log("BehaviourModifierManager.Invalidate (update) Modifier due to delete: { address: " + modifierAddress + ", scriptType: " + data.ScriptType + ", prefabIndex: " + data.PrefabIndex + ", targetIndex: " + data.TargetIndex + " }");
+					// UnityEngine.Debug.Log("BehaviourModifierManager.Invalidate (update) Modifier due to delete: { address: " + modifierAddress + ", scriptType: " + data.ScriptType + ", prefabIndex: " + data.PrefabIndex + ", targetIndex: " + data.TargetIndex + " }");
 
 				}
 			}
@@ -252,20 +278,38 @@ namespace Pnak
 			{
 				LiteNetworkedData current = LiteModData[modifierAddress];
 				LiteNetworkedData previous = liteModDataCopy[modifierAddress];
-				if (liteModContexts[modifierAddress] != null) // Checks if the modifier was previously rendered
+				if (previous.IsValid)
 				{
-					System.Diagnostics.Debug.Assert(previous.IsValid, "BehaviourModifierManager.Render: previous.IsValid is false at the same time as _modifierContexts[modifierAddress] is not null. This should never happen.");
-
 					if (previous.ScriptType != current.ScriptType ||
 						previous.TargetIndex != current.TargetIndex ||
 						!current.IsValid)
 					{
-						ModScripts[previous.ScriptType].OnInvalidatedRender(liteModContexts[modifierAddress], in previous);
-						liteModContexts[modifierAddress] = null;
+						if (previous.TargetIndex < liteNetworkObjects.Count && // If target was created
+							liteNetworkObjects[previous.TargetIndex].IsReserved && // If target still exits
+							liteNetworkObjects[previous.TargetIndex].Modifiers.Remove(modifierAddress)) // If target still has this modifier
+						{
+							ModScripts[previous.ScriptType].OnInvalidatedRender(liteModContexts[modifierAddress], in previous);
+							liteModContexts[modifierAddress] = null;
+						}
+					}
+				}
 
-						liteNetworkObjects[LiteModData[modifierAddress].TargetIndex].Modifiers.Remove(modifierAddress);
+				int targetForAddress = -1;
+				for (int i = 0; i < liteNetworkObjects.Count; i++)
+				{
+					if (liteNetworkObjects[i].IsReserved && liteNetworkObjects[i].Modifiers.Contains(modifierAddress))
+					{
+						targetForAddress = i;
+						break;
+					}
+				}
 
-						UnityEngine.Debug.Log("BehaviourModifierManager.Invalidate (render): { address: " + modifierAddress + ", scriptType: " + previous.ScriptType + ", prefabIndex: " + previous.PrefabIndex + ", targetIndex: " + previous.TargetIndex + " }");
+				if (targetForAddress != -1)
+				{
+					var target = liteNetworkObjects[targetForAddress];
+					if (current.TargetIndex != targetForAddress)
+					{
+						UnityEngine.Debug.LogWarning($"Add: {modifierAddress} -> Previous: {previous.ToString()} ;;;;; Current: {current.ToString()}");
 					}
 				}
 
@@ -275,16 +319,20 @@ namespace Pnak
 			// Note that the objects are returned before executing the normal render because if a modifier was removed and replace with another on the same update, the new modifier could possibly target the same object index but be intended for a different object
 			for (int i = 0; i < liteNetworkObjects.Count; i++)
 			{
+				// UnityEngine.Debug.Log($"Checking {i}: {liteNetworkObjects[i].IsReserved} && {liteNetworkObjects[i].Target == null} && {liteNetworkObjects[i].Modifiers.Count} > 0 ;;;;; {liteNetworkObjects[i].Modifiers.Format()}");
+
 				if (!liteNetworkObjects[i].IsReserved) continue;
 				if (liteNetworkObjects[i].Target == null) continue; // When reserved but has not been rendered yet
 				if (liteNetworkObjects[i].Modifiers.Count > 0) continue;
+
 
 				ReleaseLiteObject(i);
 			}
 
 			for (int modifierAddress = 0; modifierAddress < liteModUsingCapacity; modifierAddress++)
 			{
-				if (!LiteModData[modifierAddress].IsValid) continue;
+				LiteNetworkedData data = LiteModData[modifierAddress];
+				if (!data.IsValid) continue;
 				if (liteModContexts[modifierAddress] == null)
 					InitializeContext(modifierAddress);
 			}

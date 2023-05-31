@@ -6,7 +6,7 @@ namespace Pnak
 {
 	public partial struct LiteNetworkedData
 	{
-		public struct StateRunnerData : INetworkStruct
+		public struct StateRunnerData
 		{
 			public int predictedDestroyTick;
 		}

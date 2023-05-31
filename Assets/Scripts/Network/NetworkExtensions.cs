@@ -1,6 +1,8 @@
 using System.Runtime.InteropServices;
 using System;
 using Fusion;
+using System.Collections;
+using System.Linq;
 
 namespace Pnak
 {
@@ -39,6 +41,38 @@ namespace Pnak
 				str += bytes[i].ToString("X2") + " ";
 			}
 			return str;
+		}
+
+		public static string Format(this IEnumerable array, string separator = ",", string prefix = "[", string suffix = "]")
+		{
+			if (array == null)
+				return "<Format=NULL>";
+
+			try {
+				return prefix + string.Join(separator, array
+					.Cast<object>()
+					.Select(x => x == null ?
+						"NULL" :
+						(x is IEnumerable && !(x is string) ? (x as IEnumerable).Format() : x.ToString()))
+					.ToArray()) + suffix;
+			} catch { }
+
+			return "<Format=invalid>";
+		}
+
+		public static string TrimAndPad(this string value, int length, bool right = false)
+		{
+			if (value.Length > length)
+				value = value.Substring(0, length);
+			else if (value.Length < length)
+			{
+				if (right)
+					value = value.PadRight(length);
+				else
+					value = value.PadLeft(length);
+			}
+
+			return value;
 		}
 	}
 

@@ -9,8 +9,8 @@ namespace Pnak
 		[Flags]
 		public enum Axis
 		{
-			X,
-			Y
+			X = 1 << 0,
+			Y = 1 << 1,
 		}
 
 		[Tooltip("The layer mask to raycast for.")]

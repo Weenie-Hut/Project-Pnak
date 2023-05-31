@@ -7,7 +7,7 @@ namespace Pnak
 	public partial struct LiteNetworkedData
 	{
 		[System.Serializable]
-		public struct StaticTransformData : INetworkStruct
+		public struct StaticTransformData 
 		{
 			[HideInInspector]
 			public Vector3 Position;
@@ -38,9 +38,14 @@ namespace Pnak
 		public override void SetTransformData(ref LiteNetworkedData data, TransformData transformData)
 		{
 			data.Transform.Position = transformData.Position;
-			if (transformData.Scale == Vector2.zero) transformData.Scale = Vector2.one;
-			else data.Transform.Scale = transformData.Scale;
+			data.Transform.Scale = transformData.Scale;
 			data.Transform.RotationAngle = transformData.RotationAngle;
+		}
+
+		public override void Initialize(LiteNetworkObject target, in LiteNetworkedData data, out object context)
+		{
+			base.Initialize(target, in data, out context);
+			OnRender(context, data);
 		}
 
 		public override void OnRender(object context, in LiteNetworkedData data)

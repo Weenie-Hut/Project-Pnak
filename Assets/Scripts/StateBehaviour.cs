@@ -22,6 +22,10 @@ namespace Pnak
 		{
 		}
 
+		// public virtual void Spawned()
+		// {
+		// }
+
 		public virtual void FixedUpdateNetwork()
 		{
 		}

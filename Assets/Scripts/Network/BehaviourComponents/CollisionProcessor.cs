@@ -49,6 +49,7 @@ namespace Pnak
 
 		public override void FixedUpdateNetwork()
 		{
+			Physics2D.SyncTransforms();
 			for (int i = 0; i < ignoredColliders.Count; i++)
 			{
 				if (ignoredColliders[i] == null)
