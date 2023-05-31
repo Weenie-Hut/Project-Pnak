@@ -154,8 +154,8 @@
         "values": []
     },
     "AssembliesToWeave": [
-        "Assembly-CSharp",
-        "Assembly-CSharp-firstpass"
+        "Fusion",
+        "Pnak"
     ],
     "UseSerializableDictionary": true,
     "NullChecksForNetworkedProperties": true,

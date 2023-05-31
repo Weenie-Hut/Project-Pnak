@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
-#if UNITY_EDITOR
-using Fusion.Editor;
-#endif
+// #if UNITY_EDITOR
+// using Fusion.Editor;
+// #endif
 
 [DisallowMultipleComponent]
 [AddComponentMenu("Fusion/Prototyping/Toggle Runner Visibility")]
@@ -80,9 +80,9 @@ public class ToggleRunnerVisibility : Fusion.Behaviour {
     }
 #if UNITY_EDITOR
     // If we have a RunnerVisiblityControlWindow open, it needs to know to refresh.
-    if (RunnerVisibilityControlsWindow.Instance) {
-      RunnerVisibilityControlsWindow.Instance.Repaint();
-    }
+    // if (RunnerVisibilityControlsWindow.Instance) {
+    //   RunnerVisibilityControlsWindow.Instance.Repaint();
+    // }
 #endif
   }
 }

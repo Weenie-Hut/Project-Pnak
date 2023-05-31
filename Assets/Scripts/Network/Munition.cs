@@ -4,33 +4,24 @@ using UnityEngine;
 namespace Pnak
 {
 	[RequireComponent(typeof(CollisionProcessor))]
-	public abstract class Munition : NetworkBehaviour
+	public abstract class Munition : StateBehaviour
 	{
 		public CollisionProcessor CollisionProcessor { get; private set; }
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
 			CollisionProcessor = GetComponent<CollisionProcessor>();
 		}
 
-		public override void Spawned()
+		public override void FixedUpdateNetwork()
 		{
-			base.Spawned();
+			if (CollisionProcessor.ColliderCount == 0) return;
 
-			CollisionProcessor.OnCollision += OnHit;
-		}
-
-		public abstract void Initialize(ModifierContainer modifiers = null);
-
-		protected void Despawn()
-		{
-			Runner.Despawn(Object);
-			RemoveCollisionDetection();
-		}
-
-		protected void RemoveCollisionDetection()
-		{
-			CollisionProcessor.OnCollision -= OnHit;
+			for (int i = 0; i < CollisionProcessor.ColliderCount; i++)
+			{
+				OnHit(CollisionProcessor.Colliders[i], CollisionProcessor.Distances?[i]);
+			}
 		}
 
 		protected abstract void OnHit(Collider2D collider2D, float? distance);

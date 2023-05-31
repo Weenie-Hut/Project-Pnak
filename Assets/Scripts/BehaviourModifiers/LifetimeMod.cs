@@ -6,11 +6,13 @@ namespace Pnak
 {
 	public partial struct LiteNetworkedData
 	{
+		[System.Serializable]
 		public struct LifetimeData : INetworkStruct
 		{
+			[HideInInspector]
 			public int startTick;
-			public int endTick;
-			public float displayPosition;
+			public float seconds;
+			public Vector3 displayLocalPosition;
 		}
 
 
@@ -21,67 +23,93 @@ namespace Pnak
 	[CreateAssetMenu(fileName = "Lifetime", menuName = "BehaviourModifier/Lifetime")]
 	public class LifetimeMod : LiteNetworkMod
 	{
+		public override System.Type DataType => typeof(LiteNetworkedData.LifetimeData);
+
+		public class LifetimeContext
+		{
+			public LiteNetworkObject NetworkContext;
+			public FillBar FillBar;
+		}
+
 		// TODO: Calculate the position of the bar based on the size of the target (SpriteRenderer.bounds.size.y)?
 		// TODO: Pool the fillbar prefabs
 		[SerializeField] private FillBar lifetimeBarPrefab;
 		[SerializeField] private float defaultSeconds = 5;
-		[SerializeField] private float defaultDisplayPosition = 35f;
+		[SerializeField] private Vector3 defaultDisplayPosition = new Vector3(0, 40, 0);
 
-		public LiteNetworkedData CreateData(float seconds = float.NaN, float displayPosition = float.NaN)
+		public override void SetDefaults(ref LiteNetworkedData data) =>
+			SetDefaults(ref data, defaultSeconds, defaultDisplayPosition);
+		public void SetDefaults(ref LiteNetworkedData data, float seconds) =>
+			SetDefaults(ref data, seconds, defaultDisplayPosition);
+		public void SetDefaults(ref LiteNetworkedData data, float seconds, Vector3 displayPosition)
 		{
-			if (float.IsNaN(seconds)) seconds = defaultSeconds;
-			if (float.IsNaN(displayPosition)) displayPosition = defaultDisplayPosition;
+			base.SetDefaults(ref data);
 
-			LiteNetworkedData result = default;
-			result.ScriptType = ScriptIndex;
-			result.Lifetime.startTick = SessionManager.Instance.NetworkRunner.Tick;
-			result.Lifetime.endTick = result.Lifetime.startTick + (int)(seconds / SessionManager.Instance.NetworkRunner.DeltaTime);
-			result.Lifetime.displayPosition = displayPosition;
+			data.Lifetime.seconds = seconds;
+			data.Lifetime.displayLocalPosition = displayPosition;
+		}
 
-			return result;
+		public override void SetRuntime(ref LiteNetworkedData data)
+		{
+			base.SetRuntime(ref data);
+
+			if (lifetimeBarPrefab == null)
+				data.Lifetime.displayLocalPosition = Vector3.negativeInfinity;
+			data.Lifetime.startTick = SessionManager.Instance.NetworkRunner.Tick;
 		}
 
 		public override void Initialize(LiteNetworkObject networkContext, in LiteNetworkedData data, out object context)
 		{
-			base.Initialize(networkContext, data, out context); // Set context if early return
+			var _context = new LifetimeContext { NetworkContext = networkContext };
+			context = _context;
 
-			if (data.Lifetime.displayPosition == float.NaN) return;
+			if (data.Lifetime.displayLocalPosition == Vector3.negativeInfinity) return;
 
 			if (lifetimeBarPrefab == null)
 			{
-				UnityEngine.Debug.LogWarning("LifetimeMod: Target does not have a FillBar prefab but display was enabled.");
+				UnityEngine.Debug.LogWarning("LifetimeMod: Target does not have a FillBar prefab but display was enabled. Data: " + data.ToString());
 				return;
 			}
 
-			context = Instantiate(lifetimeBarPrefab.gameObject, networkContext.Target.transform).GetComponent<FillBar>();
+			_context.FillBar = Instantiate(lifetimeBarPrefab.gameObject, networkContext.Target.transform).GetComponent<FillBar>();
+			_context.FillBar.RawValueRange.x = 0;
 		}
 
 		public override void OnRender(object context, in LiteNetworkedData data)
 		{
-			if (!(context is FillBar fillBar)) return;
-			if (data.Lifetime.displayPosition == float.NaN)
-			{
-				UnityEngine.Debug.LogWarning("LifetimeMod: context display exists but display is false. Destroying display.");
-				Destroy(fillBar.gameObject);
-				return;
-			}
-
-			fillBar.transform.localPosition = new Vector3(0, data.Lifetime.displayPosition, 0);
+			if (!(context is LifetimeContext lifetimeContext)) return;
 
 			float currentTick = SessionManager.Instance.NetworkRunner.Tick;
 			float tickRate = SessionManager.Instance.NetworkRunner.DeltaTime;
+			float endTick = data.Lifetime.startTick + (data.Lifetime.seconds / tickRate);
 
-			fillBar.RawValueRange.x = 0;
-			// End is seconds between start and end ticks
-			fillBar.RawValueRange.y = (data.Lifetime.endTick - data.Lifetime.startTick) * tickRate;
-			fillBar.NormalizedValue = (currentTick - data.Lifetime.startTick) / (data.Lifetime.endTick - data.Lifetime.startTick);
+			if (currentTick >= endTick)
+				lifetimeContext.NetworkContext.Target.SetActive(false);
+			else
+				lifetimeContext.NetworkContext.Target.SetActive(true);
+
+			if (lifetimeContext.FillBar == null) return;
+
+			if (data.Lifetime.displayLocalPosition == Vector3.negativeInfinity)
+			{
+				UnityEngine.Debug.LogWarning("LifetimeMod: context display exists but display is false. Destroying display.");
+				Destroy(lifetimeContext.NetworkContext.Target);
+				return;
+			}
+
+			lifetimeContext.FillBar.transform.localPosition = data.Lifetime.displayLocalPosition;
+
+			lifetimeContext.FillBar.RawValueRange.y = data.Lifetime.seconds;
+			lifetimeContext.FillBar.NormalizedValue = (currentTick - data.Lifetime.startTick) / (endTick - data.Lifetime.startTick);
 		}
 
 		public override void OnFixedUpdate(object rContext, ref LiteNetworkedData data)
 		{
 			float currentTick = SessionManager.Instance.NetworkRunner.Tick;
+			float tickRate = SessionManager.Instance.NetworkRunner.DeltaTime;
+			float endTick = data.Lifetime.startTick + (data.Lifetime.seconds / tickRate);
 
-			if (currentTick > data.Lifetime.endTick)
+			if (currentTick > endTick)
 			{
 				LiteNetworkManager.QueueDeleteLiteObject(data.TargetIndex);
 			}

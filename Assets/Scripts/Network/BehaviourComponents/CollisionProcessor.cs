@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public class CollisionProcessor : NetworkBehaviour
+	public class CollisionProcessor : StateBehaviour
 	{
 		[Tooltip("The collider that will be used to detect collisions.")]
 		[SerializeField] private Collider2D _Collider;
@@ -18,20 +18,18 @@ namespace Pnak
 		[Tooltip("The maximum number of collisions that can be detected. This is used to create the array of colliders that will be passed to the collision events.")]
 		[Min(1)] public int maxCollisions = 10;
 
-		public Action<Collider2D, float?> OnCollision;
-		public Action<Collider2D[], float[]> OnCollisions;
-
-		private Collider2D[] colliders;
-		private float[] distances;
+		public int ColliderCount { get; private set; }
+		public Collider2D[] Colliders { get; private set; }
+		public float[] Distances { get; private set; }
 
 		private List<Collider2D> ignoredColliders = new List<Collider2D>();
 
-		public override void Spawned()
+		protected override void Awake()
 		{
-			base.Spawned();
+			base.Awake();
 
-			colliders = new Collider2D[maxCollisions];
-			if (SortByDistance) distances = new float[maxCollisions];
+			Colliders = new Collider2D[maxCollisions];
+			if (SortByDistance) Distances = new float[maxCollisions];
 		}
 
 		public void IgnoreCollider(Collider2D collider2D)
@@ -51,9 +49,6 @@ namespace Pnak
 
 		public override void FixedUpdateNetwork()
 		{
-			if (OnCollision == null && OnCollisions == null)
-				return;
-
 			for (int i = 0; i < ignoredColliders.Count; i++)
 			{
 				if (ignoredColliders[i] == null)
@@ -61,36 +56,29 @@ namespace Pnak
 				else ignoredColliders[i].enabled = false;
 			}
 
-			int count = Physics2D.OverlapCollider(_Collider, new ContactFilter2D {
+			ColliderCount = Physics2D.OverlapCollider(_Collider, new ContactFilter2D {
 				useLayerMask = true,
 				layerMask = _CollisionMask,
 				useTriggers = false
-			}, colliders);
+			}, Colliders);
 
 			for (int i = 0; i < ignoredColliders.Count; i++)
 				ignoredColliders[i].enabled = true;
 
-			if (count < 0)
+			if (ColliderCount < 0)
 				return;
 
-			if (distances != null && count > 1)
+			if (Distances != null && ColliderCount > 1)
 			{
-				for (int i = 0; i < count; i++)
+				for (int i = 0; i < ColliderCount; i++)
 					if (UseTransformDistance)
-						distances[i] = Vector2.Distance(_Collider.transform.position, colliders[i].transform.position);
+						Distances[i] = Vector2.Distance(_Collider.transform.position, Colliders[i].transform.position);
 					else
-						distances[i] = colliders[i].Distance(_Collider).distance;
+						Distances[i] = Colliders[i].Distance(_Collider).distance;
 
-				Array.Fill(distances, float.MaxValue, count, distances.Length - count);
-				Array.Sort(distances, colliders);
+				Array.Fill(Distances, float.MaxValue, ColliderCount, Distances.Length - ColliderCount);
+				Array.Sort(Distances, Colliders);
 			}
-
-			for (int i = 0; i < count; i++)
-			{
-				OnCollision?.Invoke(colliders[i], distances?[i]);
-			}
-
-			OnCollisions?.Invoke(colliders, distances);
 		}
 
 		public static bool ApplyDamage(Collider2D collider2D, DamageAmount damage)

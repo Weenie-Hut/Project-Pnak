@@ -136,11 +136,9 @@ namespace Pnak
 				{
 					if (input.GetButtonPressed(1))
 					{
-						Runner.Spawn(_BulletPrefab, transform.position, Quaternion.Euler(0, 0, Rotation), null, (_, bullet) =>
-						{
-							bullet.GetComponent<Munition>().Initialize(ModifierContainer);
+						LiteNetworkManager.CreateNetworkObjectContext(_BulletPrefab, new TransformData {
+							Position = transform.position, RotationAngle = Rotation
 						});
-
 						reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
 					}
 				}
@@ -167,11 +165,9 @@ namespace Pnak
 			// Shoot
 			if (reloadTime.ExpiredOrNotRunning(Runner))
 			{
-				Runner.Spawn(_BulletPrefab, transform.position, Quaternion.Euler(0, 0, Rotation), null, (_, bullet) =>
-				{
-					bullet.GetComponent<Munition>().Initialize(ModifierContainer);
+				LiteNetworkManager.CreateNetworkObjectContext(_BulletPrefab, new TransformData {
+					Position = transform.position, RotationAngle = Rotation
 				});
-
 				reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
 			}
 		}

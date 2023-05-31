@@ -71,9 +71,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6328995277521983043}
-  - component: {fileID: 1984285038170924512}
-  - component: {fileID: 2273252125631242694}
-  - component: {fileID: -1179920862828738698}
+  - component: {fileID: 1326432680719098604}
   - component: {fileID: 5270848876961268193}
   - component: {fileID: 1559252364345579475}
   - component: {fileID: -2771670484422843685}
@@ -100,7 +98,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1984285038170924512
+--- !u!114 &1326432680719098604
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -109,67 +107,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 2513871686737893388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Script: {fileID: 11500000, guid: 1febac16e493aa5419e16a12865b2d89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  InterpolationSpace: 0
-  InterpolationTarget: {fileID: 4824208289284672205}
-  InterpolateErrorCorrection: 1
-  InterpolatedErrorCorrectionSettings:
-    MinRate: 3.3
-    MaxRate: 10
-    PosBlendStart: 0.25
-    PosBlendEnd: 1
-    PosMinCorrection: 0.025
-    PosTeleportDistance: 2
-    RotBlendStart: 0.1
-    RotBlendEnd: 0.5
-    RotTeleportRadians: 1.5
-  UseLegacySharedModeInterpolation: 0
-  TargetInterpolationDelay: 0.03
---- !u!114 &2273252125631242694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2513871686737893388}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObjectInterest: 1
-  DefaultInterestGroups: []
-  DestroyWhenStateAuthorityLeaves: 0
-  AllowStateAuthorityOverride: 1
-  AoiPositionSource: {fileID: 0}
-  Flags: 2305
-  NetworkGuid:
-    RawGuidValue: c398c0885225003439acc45b58b8c316
-  NestedObjects: []
-  NetworkedBehaviours:
-  - {fileID: 1984285038170924512}
-  - {fileID: -1179920862828738698}
+  DefaultMods:
+  - scriptType: 2
+    CustomData: 000000000000000000007a4400000000000000000000000000000000
+  stateBehaviours:
   - {fileID: 5270848876961268193}
   - {fileID: 1559252364345579475}
   - {fileID: -2771670484422843685}
-  SimulationBehaviours: []
---- !u!114 &-1179920862828738698
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2513871686737893388}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4d6a6017d063b944976858ae22d51cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  SpawnMovementSpeed: 1000
+  prefabIndex: 3
+  StateRunnerMod: {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
 --- !u!114 &5270848876961268193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,7 +131,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ec43fa111b41e7478d24cf202449fac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
   _Collider: {fileID: 1854844583991640616}
   _CollisionMask:
     serializedVersion: 2
@@ -202,18 +150,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7c41dc6d8c22b46aaba34042b41a73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  _DamageByPeirce:
+  DamageByPeirce:
   - PhysicalDamage: 0
     MagicalDamage: 0
-    PureDamage: 5
-  - PhysicalDamage: 0
-    MagicalDamage: 0
-    PureDamage: 3.5
-  - PhysicalDamage: 0
-    MagicalDamage: 0
-    PureDamage: 3
+    PureDamage: 1
   CappedPeirce: 1
+  Peirce: 1
   IgnoreAfterFirstHit: 1
 --- !u!114 &-2771670484422843685
 MonoBehaviour:
@@ -227,7 +169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92e23f9385be46c48916664f78f1f404, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
   _DespawnImpactLayers:
     serializedVersion: 2
     m_Bits: 256

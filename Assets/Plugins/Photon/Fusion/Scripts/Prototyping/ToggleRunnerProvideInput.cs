@@ -8,7 +8,7 @@ using Fusion.Editor;
 [DisallowMultipleComponent]
 [AddComponentMenu("Fusion/Prototyping/Toggle Runner Provide Input")]
 [ScriptHelp(BackColor = EditorHeaderBackColor.Steel)]
-public class ToggleRunnerProvideInput : Fusion.Behaviour {
+public partial class ToggleRunnerProvideInput : Fusion.Behaviour {
 
   private static ToggleRunnerProvideInput _instance;
 
@@ -68,13 +68,10 @@ public class ToggleRunnerProvideInput : Fusion.Behaviour {
       runner.ProvideInput = enable;
       index++;
     }
-#if UNITY_EDITOR
-    // If we have a RunnerVisiblityControlWindow open, it needs to know to refresh.
-    if (RunnerVisibilityControlsWindow.Instance) {
-      RunnerVisibilityControlsWindow.Instance.Repaint();
-    }
-#endif
+	TryRepaint();
   }
+
+  partial void TryRepaint();
 }
 
 

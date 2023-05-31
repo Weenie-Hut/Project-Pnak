@@ -14640,12 +14640,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  ModifierScripts:
-  - {fileID: 11400000, guid: b0aed57d9a86aa543acf57780c488c03, type: 2}
-  - {fileID: 11400000, guid: 06b5e72dd0d6ca746a5edded803dcd9b, type: 2}
-  - {fileID: 11400000, guid: d3ebc72f4ecfb624fa452060b14573a0, type: 2}
-  PseudoNetworkPrefabs:
-  - {fileID: 6067962359517261106, guid: 82b8d78e4b1d91247bd0a7b7d4c8467e, type: 3}
+  _liteNetworkModScripts: {fileID: 11400000, guid: d993ce76c61d4ce4b8436e6da173098e, type: 2}
+  LiteNetworkPrefabs:
+  - {fileID: 1326432680719098604, guid: f154aa82ebfe59d44bce5abca8fd1870, type: 3}
+  - {fileID: 1326432680719098604, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
+  - {fileID: 1326432680719098604, guid: 5e4b7a5bfbacab74cb70e8dfaa96f695, type: 3}
+  - {fileID: 1326432680719098604, guid: c398c0885225003439acc45b58b8c316, type: 3}
 --- !u!114 &1515639113
 MonoBehaviour:
   m_ObjectHideFlags: 0

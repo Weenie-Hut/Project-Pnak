@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd9a9da73526f5740a821921d18ef183, type: 3}
-  m_Name: KinematicMove
+  m_Script: {fileID: 11500000, guid: aac18cf8eacf10a49874899103b2d448, type: 3}
+  m_Name: StaticTransform
   m_EditorClassIdentifier: 

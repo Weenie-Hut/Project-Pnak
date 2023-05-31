@@ -22,8 +22,8 @@ namespace Pnak
 		public CharacterData LoadingData;
 
 		public LifetimeMod BehaviourModifier;
-		public PositionAndRotationMod PositionAndScaleMod;
-		public KinematicMoveMod KinematicMoveMod;
+		public StaticTransformMod PositionAndScaleMod;
+		public KinematicPositionMod KinematicMoveMod;
 		public GameObject BehaviourPrefab;
 
 
@@ -61,8 +61,9 @@ namespace Pnak
 					if (input.GetButtonDown(1))
 					{
 						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
-						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, _rotation), null, (_, bullet) => {
-							bullet.GetComponent<Munition>().Initialize();
+						LiteNetworkManager.CreateNetworkObjectContext(CurrentCharacterData.ProjectilePrefab, new TransformData {
+							Position = transform.position,
+							RotationAngle = _rotation,
 						});
 					}
 				}
@@ -83,19 +84,20 @@ namespace Pnak
 				{
 					if (input.GetButtonPressed(3))
 					{
-						LiteNetworkedData data = BehaviourModifier.CreateData();
-						LiteNetworkManager.AddModifier(ref data, BehaviourModifier, BehaviourPrefab);
+						LiteNetworkManager.CreateNetworkObjectContext(out LiteNetworkedData data, BehaviourPrefab);
 
-						data.ScriptType = PositionAndScaleMod.ScriptIndex;
-						data.PositionAndScale.Position = transform.position;
-						data.PositionAndScale.RotationAngle = _rotation;
+						BehaviourModifier.SetDefaults(ref data);
+						BehaviourModifier.SetRuntime(ref data);
+						LiteNetworkManager.AddModifier(in data);
 
-						LiteNetworkManager.AddModifier(ref data);
-
-						data.ScriptType = KinematicMoveMod.ScriptIndex;
-						data.KinematicMove.Velocity = 10f;
-
-						LiteNetworkManager.AddModifier(ref data);
+						// KinematicMoveMod.SetDefaults(
+						// 	data: ref data,
+						// 	spawnPosition: transform.position,
+						// 	velocity: input.AimDirection * 15,
+						// 	acceleration: MathUtil.AngleToDirection(_rotation + 90) * 5f
+						// );
+						KinematicMoveMod.SetRuntime(ref data);
+						LiteNetworkManager.AddModifier(in data);
 					}
 				}
 			}
