@@ -74,7 +74,7 @@ namespace PnakEditor
 
 			if (customDataProperty_Drawn != null)
 			{
-				System.Diagnostics.Debug.Assert(customDataProperty_hidden.isFixedBuffer);
+				UnityEngine.Debug.Assert(customDataProperty_hidden.isFixedBuffer);
 				byte[] customData = GetByteBuffer(customDataProperty_hidden);
 				SetAllFromRawData(customDataProperty_Drawn, customData);
 
@@ -113,8 +113,8 @@ namespace PnakEditor
 
 		private static byte[] GetByteBuffer(SerializedProperty fixedByteBuffer)
 		{
-			System.Diagnostics.Debug.Assert(fixedByteBuffer.isFixedBuffer);
-			System.Diagnostics.Debug.Assert(fixedByteBuffer.type.GetTypeCode() == TypeCode.Byte);
+			UnityEngine.Debug.Assert(fixedByteBuffer.isFixedBuffer);
+			UnityEngine.Debug.Assert(fixedByteBuffer.type.GetTypeCode() == TypeCode.Byte);
 
 			int length = fixedByteBuffer.fixedBufferSize;
 			byte[] buffer = new byte[length];
@@ -125,8 +125,8 @@ namespace PnakEditor
 
 		public static void SetByteBuffer(SerializedProperty fixedByteBuffer, byte[] buffer)
 		{
-			System.Diagnostics.Debug.Assert(fixedByteBuffer.isFixedBuffer);
-			System.Diagnostics.Debug.Assert(fixedByteBuffer.type.GetTypeCode() == TypeCode.Byte);
+			UnityEngine.Debug.Assert(fixedByteBuffer.isFixedBuffer);
+			UnityEngine.Debug.Assert(fixedByteBuffer.type.GetTypeCode() == TypeCode.Byte);
 
 			int length = fixedByteBuffer.fixedBufferSize;
 			for (int i = 0; i < length; i++)

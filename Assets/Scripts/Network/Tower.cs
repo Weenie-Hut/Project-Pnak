@@ -125,6 +125,8 @@ namespace Pnak
 
 		public override void FixedUpdateNetwork()
 		{
+			if (!HasStateAuthority) return; // TODO: Predictive spawning for bullets
+
 			if (GetInput(out NetworkInputData input))
 			{
 				float targetRotation = input.AimAngle;

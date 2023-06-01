@@ -13,7 +13,6 @@ namespace PnakEditor
 	{
 		static LiteNetworkedObjectCreator()
 		{
-			Debug.Log("Project Loaded");
 			UnityEditor.AssemblyReloadEvents.afterAssemblyReload += WriteLiteNetworkedSO;
 		}
 

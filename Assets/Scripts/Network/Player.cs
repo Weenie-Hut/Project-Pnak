@@ -27,7 +27,7 @@ namespace Pnak
 		public GameObject BehaviourPrefab;
 
 
-		[Networked]
+		[Networked(OnChanged = nameof(OnCharacterTypeChanged))]
 		public byte CharacterType { get; private set; }
 
 		public bool PlayerLoaded => CharacterType != 0;
@@ -36,12 +36,15 @@ namespace Pnak
 		[Networked] private TickTimer reloadDelay { get; set; }
 		[Networked] private TickTimer towerDelay { get; set; }
 		[Networked] private float _MP { get; set; }
-		[Networked] private bool _Piloting { get; set; }
+		[Networked(OnChanged = nameof(OnPilotChanged))]
+		private bool _Piloting { get; set; }
 		public float MPPercent => _MP / CurrentCharacterData.MP_Max;
 		public float MP => _MP;
 
 		public override void FixedUpdateNetwork()
 		{
+			if (!HasStateAuthority) return;
+
 			if (GetInput(out NetworkInputData input))
 			{
 				if (!PlayerLoaded) return;
@@ -138,9 +141,6 @@ namespace Pnak
 			}
 			LocalPlayer = this;
 
-			SetCharacterTypeVisuals();
-			SetPilotVisuals();
-
 			GameManager.Instance.SceneLoader.FinishedLoading();
 		}
 
@@ -163,10 +163,9 @@ namespace Pnak
 			reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
 			towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
 			_MP = Mathf.Min(_MP, CurrentCharacterData.MP_Max);
-
-			SetCharacterTypeVisuals();
 		}
 
+		public static void OnCharacterTypeChanged(Changed<Player> changed) => changed.Behaviour.SetCharacterTypeVisuals();
 		private void SetCharacterTypeVisuals()
 		{
 			CharacterRenderer.sprite = CurrentCharacterData.Sprite;
@@ -186,7 +185,6 @@ namespace Pnak
 			}
 			
 			_Piloting = true;
-			SetPilotVisuals();
 		}
 
 		[Rpc(RpcSources.All, RpcTargets.All)]
@@ -196,9 +194,9 @@ namespace Pnak
 				towerObj.RemoveInputAuthority();
 
 			_Piloting = false;
-			SetPilotVisuals();
 		}
 
+		public static void OnPilotChanged(Changed<Player> changed) => changed.Behaviour.SetPilotVisuals();
 		private void SetPilotVisuals()
 		{
 			CharacterRenderer.gameObject.SetActive(!_Piloting);

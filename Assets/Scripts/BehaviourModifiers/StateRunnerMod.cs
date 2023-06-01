@@ -34,22 +34,23 @@ namespace Pnak
 
 		public override void Initialize(LiteNetworkObject networkObject, in LiteNetworkedData data, out object context)
 		{
-			if (!SessionManager.Instance.NetworkRunner.IsServer)
+			StateRunnerContext runnerContext = new StateRunnerContext
 			{
-				context = networkObject;
-				return;
+				NetworkObject = networkObject
+			};
+
+			if (SessionManager.Instance.NetworkRunner.IsServer)
+			{
+				runnerContext.controller = networkObject.Target.GetComponent<StateBehaviourController>();
 			}
 
-			context = new StateRunnerContext
-			{
-				NetworkObject = networkObject,
-				controller = networkObject.Target.GetComponent<StateBehaviourController>()
-			};
+			context = runnerContext;
 		}
 
 		public override void OnFixedUpdate(object rContext, ref LiteNetworkedData data)
 		{
 			base.OnFixedUpdate(rContext, ref data);
+			UnityEngine.Debug.Assert(rContext is StateRunnerContext, "rContext is not the correct type: " + rContext.GetType() + " != " + typeof(StateRunnerContext) + ". Object: " + rContext.ToString());
 
 			if (!(rContext is StateRunnerContext context)) return;
 
@@ -59,6 +60,7 @@ namespace Pnak
 		public override void OnRender(object wContext, in LiteNetworkedData data)
 		{
 			base.OnRender(wContext, data);
+			UnityEngine.Debug.Assert(wContext is StateRunnerContext, "wContext is not the correct type: " + wContext.GetType() + " != " + typeof(StateRunnerContext) + ". Object: " + wContext.ToString());
 			if (!(wContext is StateRunnerContext context)) return;
 
 			float currentTick = SessionManager.Instance.NetworkRunner.Tick;

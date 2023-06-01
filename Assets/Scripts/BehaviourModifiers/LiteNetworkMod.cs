@@ -35,7 +35,7 @@ namespace Pnak
 		{
 			get => scriptType - 1;
 			set {
-				System.Diagnostics.Debug.Assert(value >= 0 && value < byte.MaxValue - 1, "BehaviourModifierData.ScriptType: value is out of range. This is either a bug or the size needs to be increased. Expected range: [0, " + (byte.MaxValue - 1) + "], Actual value: " + value.ToString());
+				UnityEngine.Debug.Assert(value >= 0 && value < byte.MaxValue - 1, "BehaviourModifierData.ScriptType: value is out of range. This is either a bug or the size needs to be increased. Expected range: [0, " + (byte.MaxValue - 1) + "], Actual value: " + value.ToString());
 				scriptType = (byte)(value + 1);
 			}
 		}
@@ -44,7 +44,7 @@ namespace Pnak
 		{
 			get => targetIndex - 1;
 			set {
-				System.Diagnostics.Debug.Assert(value >= 0 && value < ushort.MaxValue - 1, "BehaviourModifierData.LocalTargetIndex: value is out of range. This is either a bug or the size needs to be increased. Expected range: [0, " + (ushort.MaxValue - 1) + "], Actual value: " + value.ToString());
+				UnityEngine.Debug.Assert(value >= 0 && value < ushort.MaxValue - 1, "BehaviourModifierData.LocalTargetIndex: value is out of range. This is either a bug or the size needs to be increased. Expected range: [0, " + (ushort.MaxValue - 1) + "], Actual value: " + value.ToString());
 				targetIndex = (ushort)(value + 1);
 			}
 		}
@@ -53,7 +53,7 @@ namespace Pnak
 		{
 			get => prefabIndex - 1;
 			set {
-				System.Diagnostics.Debug.Assert(value >= 0 && value < byte.MaxValue - 1, "BehaviourModifierData.PrefabIndex: value is out of range. This is either a bug or the size needs to be increased. Expected range: [0, " + (byte.MaxValue - 1) + "], Actual value: " + value.ToString());
+				UnityEngine.Debug.Assert(value >= 0 && value < byte.MaxValue - 1, "BehaviourModifierData.PrefabIndex: value is out of range. This is either a bug or the size needs to be increased. Expected range: [0, " + (byte.MaxValue - 1) + "], Actual value: " + value.ToString());
 				prefabIndex = (byte)(value + 1);
 			}
 		}

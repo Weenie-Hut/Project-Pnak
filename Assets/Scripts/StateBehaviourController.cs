@@ -41,7 +41,7 @@ namespace Pnak
 		private event UpdateNetworkData updateNetworkData = null;
 		public void FixedUpdateNetwork(ref LiteNetworkedData data)
 		{
-			System.Diagnostics.Debug.Assert(QueuedForDestroy == false);
+			UnityEngine.Debug.Assert(QueuedForDestroy == false);
 
 			foreach (StateBehaviour state in stateBehaviours)
 			{
