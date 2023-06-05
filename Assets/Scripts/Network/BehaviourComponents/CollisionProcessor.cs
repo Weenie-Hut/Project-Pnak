@@ -7,16 +7,22 @@ namespace Pnak
 {
 	public class CollisionProcessor : StateBehaviour
 	{
-		[Tooltip("The collider that will be used to detect collisions.")]
+		[Tooltip("The collider that will be used to detect collisions."), Required]
 		[SerializeField] private Collider2D _Collider;
+
 		[Tooltip("The layers that the collider will collide with.")]
 		[SerializeField] private LayerMask _CollisionMask;
+
 		[Tooltip("If true, the colliders will be sorted by distance from the transform position. If false, the colliders will be sorted by distance from the collider. This can be forced through other components.")]
 		public bool SortByDistance = false;
+
 		[Tooltip("If SortByDistance is true, this will be used to calculate the distance between the colliders. If true, the distance between the colliders will be calculated using the transform position. If false, the distance between the colliders will be calculated using the collider distance. False is more accurate, but more expensive.")]
-		[SerializeField] private bool UseTransformDistance = false;
+		[SerializeField, HideIf("SortByDistance", true)]
+		private bool UseTransformDistance = false;
+
 		[Tooltip("The maximum number of collisions that can be detected. This is used to create the array of colliders that will be passed to the collision events.")]
-		[Min(1)] public int maxCollisions = 10;
+		[SerializeField, Min(1)]
+		private int maxCollisions = 10;
 
 		public int ColliderCount { get; private set; }
 		public Collider2D[] Colliders { get; private set; }
@@ -82,12 +88,12 @@ namespace Pnak
 			}
 		}
 
-		public static bool ApplyDamage(Collider2D collider2D, DamageAmount damage)
+		public static bool ApplyDamage(Collider2D collider2D, DamageAmount damage, List<StateModifier> runtimeModifiers = null)
 		{
 			IDamageReceiver[] damageReceivers = collider2D.GetComponentsInParent<IDamageReceiver>();
 
 			foreach (IDamageReceiver damageReceiver in damageReceivers)
-				damageReceiver.AddDamage(damage);
+				damageReceiver.AddDamage(damage, runtimeModifiers);
 
 			return damageReceivers.Length > 0;
 		}

@@ -3,6 +3,8 @@ using System;
 using Fusion;
 using System.Collections;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace Pnak
 {
@@ -32,6 +34,28 @@ namespace Pnak
 			}
 
 			return arr;
+		}
+
+		public static T ToStruct<T>(this byte[] arr) where T : struct
+		{
+			T strct = new T();
+
+			int size = Marshal.SizeOf(strct);
+
+			IntPtr ptr = IntPtr.Zero;
+
+			try {
+				ptr = Marshal.AllocHGlobal(size);
+				Marshal.Copy(arr, 0, ptr, size);
+				strct = (T)Marshal.PtrToStructure(ptr, strct.GetType());
+			}
+			finally {
+				if (ptr != IntPtr.Zero) {
+					Marshal.FreeHGlobal(ptr);
+				}
+			}
+
+			return strct;
 		}
 
 		public static string HexString(this byte[] bytes, string name = null)
@@ -74,10 +98,52 @@ namespace Pnak
 
 			return value;
 		}
+
+		/// <summary>
+		/// Returns a formatted string, where the indices, like '{0}' or `{1:P2}`, are set using the order of the id, like '{cost}' or '{amount:F1}'.
+		/// </summary>
+		/// <param name="format">The format string.</param>
+		/// <param name="id">The id</param>
+		/// <param name="args">The arguments to format.</param>
+		/// <returns>Formatted string</returns>
+		/// <example>
+		/// "Cut speed by {speed:P0}, or {speed:F3}m/s".FormatById("speed", 0.513f) == "Cut speed by 51 %, or 0.513m/s"
+		/// </example>
+		public static string FormatById(this string format, string id, params object[] args)
+		{
+			if (format == null)
+				return null;
+
+			if (args == null)
+				return format;
+
+			if (id == null)
+				return string.Format(format, args);
+
+			int count = 0;
+			return Regex.Replace(format, @"(?<!\{)\{(" + id + @")(\:([^\}]+))?\}(?!\})", m =>
+			{
+				object value;
+
+				if (count >= args.Length)
+					value = args.Last();
+				else
+					value = args[count];
+				
+				string arg;
+				try {
+					arg = m.Groups[3].Success ? string.Format("{0:" + m.Groups[3].Value + "}", value) : value.ToString();
+				}
+				catch { arg = "{FORMAT ERROR}"; }
+
+				count++;
+				return arg;
+			});
+		}
 	}
 
 	public interface IDamageReceiver
 	{
-		bool AddDamage(DamageAmount damage);
+		bool AddDamage(DamageAmount damage, List<StateModifier> runtimeModifiers);
 	}
 }

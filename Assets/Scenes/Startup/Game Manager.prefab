@@ -45,8 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _DontDestroyOnLoad: 1
-  Characters:
-  - {fileID: 11400000, guid: 22f96cdb6a2af884485e3f85812321e0, type: 2}
-  - {fileID: 11400000, guid: b55b3ce50ca42ea468c9a88ce8c17e9b, type: 2}
-  - {fileID: 11400000, guid: a143e41c845dcc343b415290749772a8, type: 2}
-  - {fileID: 11400000, guid: e6c7940c0e1d008498ad632de71fb947, type: 2}
+  CharacterOptions:
+  - {fileID: 11400000, guid: b9db6e86fd3678e4399202810c679beb, type: 2}
+  - {fileID: 11400000, guid: 1ea089287e119ff418123e577540a1b2, type: 2}
+  - {fileID: 11400000, guid: f67f4f1867e56d542b7ed9efc943d4dc, type: 2}
+  - {fileID: 11400000, guid: 7379da658fe01bf479cadc41abe41ac8, type: 2}
+  - {fileID: 11400000, guid: cd72effdf2ce14446b1149d2c66eef95, type: 2}

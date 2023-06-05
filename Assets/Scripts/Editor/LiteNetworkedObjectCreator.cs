@@ -110,7 +110,7 @@ namespace PnakEditor
 				writer.WriteLine("}");
 			}
 
-			AssetDatabase.Refresh();
+			EditorApplication.delayCall += AssetDatabase.Refresh;
 		}
 	}
 }

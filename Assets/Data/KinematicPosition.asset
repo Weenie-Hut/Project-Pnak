@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 272cd4cb61b373048bf27168518674bd, type: 3}
   m_Name: KinematicPosition
   m_EditorClassIdentifier: 
+  scriptIndex: 1

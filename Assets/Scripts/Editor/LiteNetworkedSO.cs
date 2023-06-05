@@ -35,8 +35,11 @@ namespace PnakEditor
 			}
 		}
 
+		public LiteNetworkedData.HealthVisualData HealthVisualDataField;
 		public LiteNetworkedData.KinematicPositionData KinematicPositionDataField;
 		public LiteNetworkedData.LifetimeData LifetimeDataField;
+		public LiteNetworkedData.PositionAndChildRotationData PositionAndChildRotationDataField;
+		public LiteNetworkedData.ReloadVisualData ReloadVisualDataField;
 		public LiteNetworkedData.StaticTransformData StaticTransformDataField;
 	}
 }

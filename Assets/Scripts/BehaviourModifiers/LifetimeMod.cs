@@ -11,6 +11,7 @@ namespace Pnak
 		{
 			[HideInInspector]
 			public int startTick;
+			[Suffix("sec")]
 			public float seconds;
 			public Vector3 displayLocalPosition;
 
@@ -39,8 +40,8 @@ namespace Pnak
 
 		// TODO: Calculate the position of the bar based on the size of the target (SpriteRenderer.bounds.size.y)?
 		// TODO: Pool the fillbar prefabs
-		[SerializeField] private FillBar lifetimeBarPrefab;
-		[SerializeField] private float defaultSeconds = 5;
+		[SerializeField, Suffix("Optional")] private FillBar lifetimeBarPrefab;
+		[SerializeField, Suffix("sec")] private float defaultSeconds = 5;
 		[SerializeField] private Vector3 defaultDisplayPosition = new Vector3(0, 40, 0);
 
 		public override void SetDefaults(ref LiteNetworkedData data) =>
@@ -89,9 +90,9 @@ namespace Pnak
 			float endTick = data.Lifetime.startTick + (data.Lifetime.seconds / tickRate);
 
 			if (currentTick >= endTick)
-				lifetimeContext.NetworkContext.Target.SetActive(false);
+				lifetimeContext.NetworkContext.Target.gameObject.SetActive(false);
 			else
-				lifetimeContext.NetworkContext.Target.SetActive(true);
+				lifetimeContext.NetworkContext.Target.gameObject.SetActive(true);
 
 			if (lifetimeContext.FillBar == null) return;
 
@@ -105,7 +106,7 @@ namespace Pnak
 			lifetimeContext.FillBar.transform.localPosition = data.Lifetime.displayLocalPosition;
 
 			lifetimeContext.FillBar.RawValueRange.y = data.Lifetime.seconds;
-			lifetimeContext.FillBar.NormalizedValue = (currentTick - data.Lifetime.startTick) / (endTick - data.Lifetime.startTick);
+			lifetimeContext.FillBar.NormalizedValue = 1 - ((currentTick - data.Lifetime.startTick) / (endTick - data.Lifetime.startTick));
 		}
 
 		public override void OnFixedUpdate(object rContext, ref LiteNetworkedData data)

@@ -11,6 +11,8 @@ namespace Pnak
 	public class SessionManager : SingletonMono<SessionManager>, INetworkRunnerCallbacks
 	{
 		public NetworkRunner NetworkRunner { get; private set; }
+		public static bool IsServer => Instance?.NetworkRunner?.IsServer ?? false;
+		public static PlayerRef LocalPlayer => Instance?.NetworkRunner?.LocalPlayer ?? PlayerRef.None;
 
 		protected override void Awake()
 		{
@@ -37,7 +39,6 @@ namespace Pnak
 		}
 
 		public int PlayerCount => NetworkRunner.ActivePlayers.Count();
-		public NetworkObject LocalPlayer => NetworkRunner.GetPlayerObject(NetworkRunner.LocalPlayer);
 
 		[SerializeField] private NetworkPrefabRef _characterPrefab;
 		private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();

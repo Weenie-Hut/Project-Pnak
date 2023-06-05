@@ -12,9 +12,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b17c046049feaea478dd93f374fc7a96, type: 3}
   m_Name: ModScripts
   m_EditorClassIdentifier: 
+  LiteNetworkPrefabs:
+  - {fileID: 1326432680719098604, guid: c398c0885225003439acc45b58b8c316, type: 3}
+  - {fileID: 1326432680719098604, guid: 5e4b7a5bfbacab74cb70e8dfaa96f695, type: 3}
+  - {fileID: 1326432680719098604, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
+  - {fileID: 1326432680719098604, guid: f154aa82ebfe59d44bce5abca8fd1870, type: 3}
+  - {fileID: 2950924332808593988, guid: 253732307fbb99a4e97bd6f08a82604e, type: 3}
+  - {fileID: 2950924332808593988, guid: a2c58aeaacd6e4d46b50dc8ffb264428, type: 3}
+  - {fileID: 2950924332808593988, guid: 7e2e9614f28a2be4390da596ab568eac, type: 3}
+  - {fileID: 2950924332808593988, guid: 97afa46084325f24da2d47110394737f, type: 3}
+  - {fileID: 4266477908009332186, guid: d31126fc3e1616047a5d0d8a04b152b1, type: 3}
+  - {fileID: 4247482785626617868, guid: 7be125750cec2bc4c86049acfa4a6ea7, type: 3}
+  - {fileID: 2783478001915746328, guid: ae5aecebd29e181449e0380a4fba9599, type: 3}
+  - {fileID: 4288379378802454082, guid: 6f61c845865beb3478ab51b41c9aa041, type: 3}
+  - {fileID: 7156149654026170505, guid: e10a768225b687e4b878c9b324670f9a, type: 3}
+  - {fileID: 5517714010552659370, guid: 961eb932608309542ad60612a0c4694b, type: 3}
+  - {fileID: 1326432680719098604, guid: ebbda6df12f5c714783ddb250fe82dec, type: 3}
+  - {fileID: 6309384282167593476, guid: 35231fac6650e98449f8027ab4fc0849, type: 3}
+  - {fileID: 6309384282167593476, guid: ca729f179e54be74eb8876d556eca7e4, type: 3}
+  - {fileID: 6309384282167593476, guid: ec2ca944f5d08dd4e89fd0ec225d8912, type: 3}
   Mods:
   - {fileID: 11400000, guid: b0aed57d9a86aa543acf57780c488c03, type: 2}
   - {fileID: 11400000, guid: b04c5774bf8428844b84df3f2a8a7e91, type: 2}
   - {fileID: 11400000, guid: 6c80342785daf4241be22800afa1cf21, type: 2}
   - {fileID: 11400000, guid: f8b6cbb59fc055648baba2a5020fadde, type: 2}
   - {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
+  - {fileID: 11400000, guid: d6e786cf2ab19a94998256be582d54e7, type: 2}
+  - {fileID: 11400000, guid: 1e1ff78c85bf2454a82c257c71c40045, type: 2}
+  - {fileID: 11400000, guid: 0d3b39d20f928154fa899d266fb5acad, type: 2}
+  StateModifiers:
+  - {fileID: 11400000, guid: 2a679a7b5fee04e4bb49fab199183437, type: 2}
+  - {fileID: 11400000, guid: 553676a479cb3d44baa673d7e48bf2bb, type: 2}
+  - {fileID: 11400000, guid: fff4216208d4e714db380702b096428f, type: 2}
+  - {fileID: 11400000, guid: 3a124c079ea7839439b2a92df899d26d, type: 2}

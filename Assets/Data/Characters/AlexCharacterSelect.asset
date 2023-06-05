@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed32e04e3b0d4754da084a52119843ac, type: 3}
   m_Name: AlexCharacterSelect
   m_EditorClassIdentifier: 
-  Title: Alex the Destroyer
+  TitleFormat: '{name} the Destroyer'
+  TitlePreview: Alex the Destroyer
+  DescriptionFormat: '{name}'
+  DescriptionPreview: Alex
   Icon: {fileID: 21300002, guid: 07103c52b3aaeca4da8a83361edd059f, type: 3}
-  Description: Pistol with a Laser Tower
-  CharacterData: {fileID: 11400000, guid: b55b3ce50ca42ea468c9a88ce8c17e9b, type: 2}
+  AgentPrefab: {fileID: 1252179291290867463, guid: 7be125750cec2bc4c86049acfa4a6ea7, type: 3}

@@ -6,233 +6,188 @@ using UnityEngine.InputSystem;
 
 namespace Pnak
 {
-	[RequireComponent(typeof(ModifierContainer))]
 	public class Tower : NetworkBehaviour
 	{
-		[Networked] private TickTimer reloadTime { get; set; }
+// 		[Networked] private TickTimer reloadTime { get; set; }
 
-		[SerializeField] private Munition _BulletPrefab;
-		[SerializeField] private Collider2D TargetArea;
-		[SerializeField] private LayerMask _LOSBlockMask;
-		[SerializeField] private float _SpawnReloadDelay = 1f;
-		[SerializeField] private float _SpawnInitialReloadDelay = 1f;
-		[Tooltip("How fast in degrees the tower rotates towards enemies")]
-		[SerializeField] private float _SpawnRotationSpeed = 3f;
-		[SerializeField] private Transform _GunTransform;
-		[SerializeField] private LayerMask _TargetMask;
-		[SerializeField] private SpriteFillBar _ReloadBar;
-		[SerializeField] private int MaxCollisionChecks = 10;
-		[SerializeField] private RadialOptionSO[] InteractionOptions;
-
-		public ModifierContainer ModifierContainer { get; private set; }
-
-		[Networked] private float rotationSpeed { get; set; }
-		[Networked(OnChanged=nameof(OnReloadChanged))] private float reloadDelay { get; set; }
-
-		[Networked] private float Rotation { get; set; }
-
-		private void Awake()
-		{
-			_ReloadBar.RawValueRange.x = 0f;
-		}
-
-		public override void Spawned()
-		{
-			base.Spawned();
-
-			rotationSpeed = _SpawnRotationSpeed;
-			reloadDelay = _SpawnReloadDelay;
-			float initialDelay = _SpawnInitialReloadDelay;
-			reloadTime = TickTimer.CreateFromSeconds(Runner, initialDelay);
-
-			colliders = new Collider2D[MaxCollisionChecks];
-			distances = new float[MaxCollisionChecks];
-
-			if (Object.HasStateAuthority)
-			{
-				ModifierContainer = GetComponent<ModifierContainer>();
-				ModifierContainer.OnModifierAdded += OnModifierAdded;
-				ModifierContainer.OnModifierRemoved += OnModifierRemoved;
-			}
-
-			Interactable.OnAnyInteract += OnAnyInteract;
-		}
-
-		public override void Despawned(NetworkRunner runner, bool hasState)
-		{
-			Interactable.OnAnyInteract -= OnAnyInteract;
-			if (Object.HasInputAuthority)
-				Player.LocalPlayer.RPC_UnsetPilot(Object.Id);
-		}
-
-		[InputActionTriggered(ActionNames.Interact)]
-		public void OnInteract(InputAction.CallbackContext context)
-		{
-			if (Object.HasInputAuthority)
-				Player.LocalPlayer.RPC_UnsetPilot(Object.Id);
-		}
+// 		[SerializeField] private Munition _BulletPrefab;
+// 		[SerializeField] private Collider2D TargetArea;
+// 		[SerializeField] private LayerMask _LOSBlockMask;
+// 		[SerializeField] private float _SpawnReloadDelay = 1f;
+// 		[SerializeField] private float _SpawnInitialReloadDelay = 1f;
+// 		[Tooltip("How fast in degrees the tower rotates towards enemies")]
+// 		[SerializeField] private float _SpawnRotationSpeed = 3f;
+// 		[SerializeField] private Transform _GunTransform;
+// 		[SerializeField] private LayerMask _TargetMask;
+// 		[SerializeField] private SpriteFillBar _ReloadBar;
+// 		[SerializeField] private int MaxCollisionChecks = 10;
+// 		[SerializeField] private RadialOptionSO[] InteractionOptions;
 
 
-		private void OnAnyInteract(Interactable interactable)
-		{
-			if (interactable.gameObject != gameObject) return;
+// 		[Networked] private float rotationSpeed { get; set; }
+// 		[Networked(OnChanged=nameof(OnReloadChanged))] private float reloadDelay { get; set; }
 
-			RadialMenu.Instance.Show(InteractionOptions, interactable);
-		}
+// 		[Networked] private float Rotation { get; set; }
 
-		private void OnModifierAdded(Modifier modifier)
-		{
-			if (modifier.type == ModifierTarget.Reload)
-			{
-				float previous = reloadDelay;
+// 		private void Awake()
+// 		{
+// 			_ReloadBar.RawValueRange.x = 0f;
+// 		}
 
-				reloadDelay = modifier.ApplyValue(reloadDelay);
-				
-				float? remainingTime = reloadTime.RemainingTime(Runner);
+// 		public override void Spawned()
+// 		{
+// 			base.Spawned();
 
-				if (remainingTime.HasValue)
-				{
-					// If the reload time is less than the previous reload time, then we need to adjust the timer
-					if (reloadDelay < previous)
-					{
-						reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay * remainingTime.Value / previous);
-					}
-				}
-			}
-		}
+// 			rotationSpeed = _SpawnRotationSpeed;
+// 			reloadDelay = _SpawnReloadDelay;
+// 			float initialDelay = _SpawnInitialReloadDelay;
+// 			reloadTime = TickTimer.CreateFromSeconds(Runner, initialDelay);
 
-		private void OnModifierRemoved(Modifier modifier)
-		{
-			if (modifier.type == ModifierTarget.Reload)
-			{
-				reloadDelay = modifier.RemoveValue(reloadDelay);
-			}
-		}
+// 			colliders = new Collider2D[MaxCollisionChecks];
+// 			distances = new float[MaxCollisionChecks];
 
-		public void Init(float rotation)
-		{
-			Rotation = rotation;
-		}
+// 			if (Object.HasStateAuthority)
+// 			{
+// 			}
+// 		}
 
-		private void Update()
-		{
-			float? temp;
-			if ((temp = reloadTime.RemainingTime(Runner)).HasValue)
-				_ReloadBar.NormalizedValue = 1 - temp.Value / reloadDelay;
+// 		public override void Despawned(NetworkRunner runner, bool hasState)
+// 		{
+// 			if (Object.HasInputAuthority)
+// 				Player.LocalPlayer.RPC_UnsetPilot(Object.Id);
+// 		}
 
-			_GunTransform.rotation = Quaternion.Euler(0, 0, Rotation);
-		}
+// 		[InputActionTriggered(ActionNames.Interact)]
+// 		public void OnInteract(InputAction.CallbackContext context)
+// 		{
+// 			if (Object.HasInputAuthority)
+// 				Player.LocalPlayer.RPC_UnsetPilot(Object.Id);
+// 		}
 
-		public override void FixedUpdateNetwork()
-		{
-			if (!HasStateAuthority) return; // TODO: Predictive spawning for bullets
+// 		public void Init(float rotation)
+// 		{
+// 			Rotation = rotation;
+// 		}
 
-			if (GetInput(out NetworkInputData input))
-			{
-				float targetRotation = input.AimAngle;
-				float deltaAngle = Mathf.DeltaAngle(Rotation, targetRotation);
-				float _rotationSpeed = this.rotationSpeed * Runner.DeltaTime;
-				Rotation = Rotation + Mathf.Clamp(deltaAngle, -_rotationSpeed, _rotationSpeed);
+// 		private void Update()
+// 		{
+// 			float? temp;
+// 			if ((temp = reloadTime.RemainingTime(Runner)).HasValue)
+// 				_ReloadBar.NormalizedValue = 1 - temp.Value / reloadDelay;
 
-				if (reloadTime.ExpiredOrNotRunning(Runner))
-				{
-					if (input.GetButtonPressed(1))
-					{
-						LiteNetworkManager.CreateNetworkObjectContext(_BulletPrefab, new TransformData {
-							Position = transform.position, RotationAngle = Rotation
-						});
-						reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
-					}
-				}
+// 			_GunTransform.rotation = Quaternion.Euler(0, 0, Rotation);
+// 		}
 
-				return;
-			}
+// 		public override void FixedUpdateNetwork()
+// 		{
+// 			if (!HasStateAuthority) return; // TODO: Predictive spawning for bullets
 
-			// Find closest enemy
-			Transform closestEnemy = GetClosestTarget();
+// 			if (GetInput(out NetworkInputData input))
+// 			{
+// 				float targetRotation = input.AimAngle;
+// 				float deltaAngle = Mathf.DeltaAngle(Rotation, targetRotation);
+// 				float _rotationSpeed = this.rotationSpeed * Runner.DeltaTime;
+// 				Rotation = Rotation + Mathf.Clamp(deltaAngle, -_rotationSpeed, _rotationSpeed);
 
-			// Rotate towards closest enemy
-			if (closestEnemy == null) return;
+// 				if (reloadTime.ExpiredOrNotRunning(Runner))
+// 				{
+// 					if (input.GetButtonPressed(1))
+// 					{
+// 						LiteNetworkManager.CreateNetworkObjectContext(_BulletPrefab, new TransformData {
+// 							Position = transform.position, RotationAngle = Rotation
+// 						});
+// 						reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
+// 					}
+// 				}
 
-			Vector3 direction = closestEnemy.transform.position - transform.position;
-			float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+// 				return;
+// 			}
 
-			float delta = Mathf.DeltaAngle(Rotation, angle);
-			float rotationSpeed = this.rotationSpeed * Runner.DeltaTime;
-			Rotation = Rotation + Mathf.Clamp(delta, -rotationSpeed, rotationSpeed);
+// 			// Find closest enemy
+// 			Transform closestEnemy = GetClosestTarget();
 
-			// If the angle if greater than 30 degrees, don't shoot
-			if (Mathf.Abs(Mathf.DeltaAngle(Rotation, angle)) > 30f) return;
+// 			// Rotate towards closest enemy
+// 			if (closestEnemy == null) return;
 
-			// Shoot
-			if (reloadTime.ExpiredOrNotRunning(Runner))
-			{
-				LiteNetworkManager.CreateNetworkObjectContext(_BulletPrefab, new TransformData {
-					Position = transform.position, RotationAngle = Rotation
-				});
-				reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
-			}
-		}
+// 			Vector3 direction = closestEnemy.transform.position - transform.position;
+// 			float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-		private static void OnReloadChanged(Changed<Tower> changed)
-		{
-			changed.Behaviour._ReloadBar.RawValueRange.y = changed.Behaviour.reloadDelay;
-		}
+// 			float delta = Mathf.DeltaAngle(Rotation, angle);
+// 			float rotationSpeed = this.rotationSpeed * Runner.DeltaTime;
+// 			Rotation = Rotation + Mathf.Clamp(delta, -rotationSpeed, rotationSpeed);
 
-		private Collider2D[] colliders;
-		private float[] distances;
+// 			// If the angle if greater than 30 degrees, don't shoot
+// 			if (Mathf.Abs(Mathf.DeltaAngle(Rotation, angle)) > 30f) return;
 
-		private Transform GetClosestTarget()
-		{
-			int count = Physics2D.OverlapCollider(TargetArea, new ContactFilter2D {
-				useLayerMask = true,
-				layerMask = _TargetMask
-			}, colliders);
+// 			// Shoot
+// 			if (reloadTime.ExpiredOrNotRunning(Runner))
+// 			{
+// 				LiteNetworkManager.CreateNetworkObjectContext(_BulletPrefab, new TransformData {
+// 					Position = transform.position, RotationAngle = Rotation
+// 				});
+// 				reloadTime = TickTimer.CreateFromSeconds(Runner, reloadDelay);
+// 			}
+// 		}
 
-			if (count < 0 || colliders[0] == null)
-				return null;
+// 		private static void OnReloadChanged(Changed<Tower> changed)
+// 		{
+// 			changed.Behaviour._ReloadBar.RawValueRange.y = changed.Behaviour.reloadDelay;
+// 		}
 
-			for (int i = 0; i < MaxCollisionChecks; i++)
-			{
-				if (colliders[i] == null) distances[i] = float.MaxValue;
-				else distances[i] = Vector3.Distance(transform.position, colliders[i].transform.position);
-			}
+// 		private Collider2D[] colliders;
+// 		private float[] distances;
 
-			Array.Sort(distances, colliders);
+// 		private Transform GetClosestTarget()
+// 		{
+// 			int count = Physics2D.OverlapCollider(TargetArea, new ContactFilter2D {
+// 				useLayerMask = true,
+// 				layerMask = _TargetMask
+// 			}, colliders);
 
-			for (int i = 0; i < MaxCollisionChecks; i++)
-			{
-				if (colliders[i] == null) continue;
+// 			if (count < 0 || colliders[0] == null)
+// 				return null;
 
-				if (_LOSBlockMask != 0)
-				{
-					// If there is a collier on any LOSBlockMask layer from the line between the tower and the target, skip this target
-					RaycastHit2D hit = Physics2D.Linecast(transform.position, colliders[i].transform.position, _LOSBlockMask);
-					if (hit.collider != null) continue;
-				}
+// 			for (int i = 0; i < MaxCollisionChecks; i++)
+// 			{
+// 				if (colliders[i] == null) distances[i] = float.MaxValue;
+// 				else distances[i] = Vector3.Distance(transform.position, colliders[i].transform.position);
+// 			}
 
-				return colliders[i].transform;
-			}
+// 			Array.Sort(distances, colliders);
 
-			return null;
-		}
+// 			for (int i = 0; i < MaxCollisionChecks; i++)
+// 			{
+// 				if (colliders[i] == null) continue;
 
-#if UNITY_EDITOR
-		[Header("Editor")]
-		[SerializeField] private bool _InheritLOSFromBullet = true;
+// 				if (_LOSBlockMask != 0)
+// 				{
+// 					// If there is a collier on any LOSBlockMask layer from the line between the tower and the target, skip this target
+// 					RaycastHit2D hit = Physics2D.Linecast(transform.position, colliders[i].transform.position, _LOSBlockMask);
+// 					if (hit.collider != null) continue;
+// 				}
 
-		public void OnValidate()
-		{
-			if (_InheritLOSFromBullet && _BulletPrefab != null)
-			{
-				DespawnOnImpact[] impacts = _BulletPrefab.GetComponentsInChildren<DespawnOnImpact>();
+// 				return colliders[i].transform;
+// 			}
 
-				for (int i = 0; i < impacts.Length; i++)
-				{
-					_LOSBlockMask |= impacts[i].ImpactLayers;
-				}
-			}
-		}
-#endif
+// 			return null;
+// 		}
+
+// #if UNITY_EDITOR
+// 		[Header("Editor")]
+// 		[SerializeField] private bool _InheritLOSFromBullet = true;
+
+// 		public void OnValidate()
+// 		{
+// 			if (_InheritLOSFromBullet && _BulletPrefab != null)
+// 			{
+// 				DespawnOnImpact[] impacts = _BulletPrefab.GetComponentsInChildren<DespawnOnImpact>();
+
+// 				for (int i = 0; i < impacts.Length; i++)
+// 				{
+// 					_LOSBlockMask |= impacts[i].ImpactLayers;
+// 				}
+// 			}
+// 		}
+// #endif
 	}
 }

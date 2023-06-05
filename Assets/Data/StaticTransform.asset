@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aac18cf8eacf10a49874899103b2d448, type: 3}
   m_Name: StaticTransform
   m_EditorClassIdentifier: 
+  scriptIndex: 2

@@ -1,6 +1,7 @@
 using Fusion;
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace Pnak
 {
@@ -11,6 +12,7 @@ namespace Pnak
 		[Tooltip("If true, the projectile will despawn when it hits targets equal to the length of DamageByPeirce. If false, the projectile will keep looping through DamageByPeirce.")]
 		public bool CappedPeirce = true;
 		[Tooltip("The number of targets the projectile can hit before despawning. If CappedPeirce is false, this value is ignored.")]
+		[HideIf(nameof(CappedPeirce), true)]
 		public int Peirce = 1;
 		[Tooltip("If true, the projectile will ignore targets after the first hit. Disable for DoT while colliding effects.")]
 		public bool IgnoreAfterFirstHit = true;
@@ -32,7 +34,7 @@ namespace Pnak
 			if (!IgnoreAfterFirstHit)
 				damage *= Runner.DeltaTime;
 
-			CollisionProcessor.ApplyDamage(collider2D, damage);
+			CollisionProcessor.ApplyDamage(collider2D, damage, Controller.StateModifiers);
 
 			PeirceCount++;
 			if (CappedPeirce)
@@ -51,37 +53,40 @@ namespace Pnak
 			if (IgnoreAfterFirstHit)
 				CollisionProcessor.IgnoreCollider(collider2D);
 		}
-	}
 
-#if UNITY_EDITOR
-	[UnityEditor.CustomEditor(typeof(DamageMunition))]
-	public class DamageMunitionEditor : UnityEditor.Editor
-	{
-		private UnityEditor.SerializedProperty _DamageByPeirce;
-		private UnityEditor.SerializedProperty _CappedPeirce;
-		private UnityEditor.SerializedProperty _Peirce;
-		private UnityEditor.SerializedProperty _IgnoreAfterFirstHit;
-
-		private void OnEnable()
+		internal void IncrementDamage(DamageAmount amount)
 		{
-			_DamageByPeirce = serializedObject.FindProperty("DamageByPeirce");
-			_CappedPeirce = serializedObject.FindProperty("CappedPeirce");
-			_Peirce = serializedObject.FindProperty("Peirce");
-			_IgnoreAfterFirstHit = serializedObject.FindProperty("IgnoreAfterFirstHit");
+			for (int i = 0; i < DamageByPeirce.Count; i++)
+			{
+				DamageByPeirce[i] = DamageByPeirce[i] + amount;
+			}
 		}
 
-		public override void OnInspectorGUI()
+		public void ScaleDamage(DamageAmount amount)
 		{
-			serializedObject.Update();
+			for (int i = 0; i < DamageByPeirce.Count; i++)
+			{
+				DamageByPeirce[i] = DamageByPeirce[i] * amount;
+			}
+		}
 
-			UnityEditor.EditorGUILayout.PropertyField(_DamageByPeirce, true);
-			UnityEditor.EditorGUILayout.PropertyField(_CappedPeirce);
-			if (_CappedPeirce.boolValue)
-				UnityEditor.EditorGUILayout.PropertyField(_Peirce);
-			UnityEditor.EditorGUILayout.PropertyField(_IgnoreAfterFirstHit);
+		public void AddApplyModifiers(List<StateModifierSO> modifiers)
+		{
+			for (int i = 0; i < DamageByPeirce.Count; i++)
+			{
+				DamageByPeirce[i].ApplyModifiers.AddRange(modifiers);
+			}
+		}
 
-			serializedObject.ApplyModifiedProperties();
+		public void RemoveApplyModifiers(List<StateModifierSO> modifiers)
+		{
+			for (int i = 0; i < DamageByPeirce.Count; i++)
+			{
+				for (int j = 0; j < modifiers.Count; j++)
+				{
+					DamageByPeirce[i].ApplyModifiers.Remove(modifiers[j]);
+				}
+			}
 		}
 	}
-#endif
 }

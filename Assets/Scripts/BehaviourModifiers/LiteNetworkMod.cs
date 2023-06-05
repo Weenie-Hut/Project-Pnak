@@ -114,12 +114,14 @@ namespace Pnak
 	{
 		public abstract System.Type DataType { get; }
 
-		[SerializeField, ReadOnly] private int scriptIndex = -1;
-		public int ScriptIndex => scriptIndex;
-
 #if UNITY_EDITOR
-		public void EditorSetScriptIndex(int index) => scriptIndex = index;
+		[Button(nameof(AddToScripts), "Add", nameof(scriptIndex) + "!=-1")]
+		[Button(nameof(RemoveFromScripts), "Rem", nameof(scriptIndex) + "==-1")]
 #endif
+		[SerializeField, ReadOnly]
+		private int scriptIndex = -1;
+
+		public int ScriptIndex => scriptIndex;
 
 		public virtual void SetDefaults(ref LiteNetworkedData data)
 		{
@@ -156,6 +158,20 @@ namespace Pnak
 		{
 		}
 
-		
+#if UNITY_EDITOR
+		public void AddToScripts() => LiteNetworkModScripts.AddMod(this);
+		public void RemoveFromScripts()
+		{
+			LiteNetworkModScripts.RemoveMod(this);
+			scriptIndex = -1;
+		}
+
+		public void EditorSetScriptIndex(int index) => scriptIndex = index;
+
+		private void OnValidate()
+		{
+			scriptIndex = LiteNetworkModScripts.ValidateModIndex(this);
+		}
+#endif
 	}
 }

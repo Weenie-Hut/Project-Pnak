@@ -8,18 +8,16 @@ namespace Pnak
 {
 	public class Menu : MonoBehaviour
 	{
-		[SerializeField] private CharacterTypeRadialOption[] _CharacterOptions;
-
 		[InputActionTriggered(ActionNames.ToggleMenu, InputStateFilters.PreformedThisFrame, InputMap.Gameplay)]
 		private void ToggleMenu(InputAction.CallbackContext context)
 		{
-			RadialMenu.Instance.Show(_CharacterOptions, null);
+			RadialMenu.Instance.Show(GameManager.Instance.CharacterOptions, null);
 		}
 
 		private void Start()
 		{
 			InputCallbackSystem.SetupInputCallbacks(this);
-			RadialMenu.Instance.Show(_CharacterOptions, null);
+			RadialMenu.Instance.Show(GameManager.Instance.CharacterOptions, null);
 		}
 
 		private void OnDestroy()

@@ -14,6 +14,14 @@ namespace Pnak
 			/// The value will be displayed as is (fill bar will still use a normalized value).
 			/// </summary>
 			RawValue,
+			/// <summary>
+			/// The value will be displayed as a fractional value between 0 and 1, but showing the amount remaining instead of the amount filled.
+			/// </summary>
+			InvertedNormalized,
+			/// <summary>
+			/// The value will be displayed as is (fill bar will still use a normalized value), but showing the amount remaining instead of the amount filled.
+			/// </summary>
+			InvertedRawValue,
 		}
 
 		[SerializeField, Range(0, 1)]
@@ -58,7 +66,20 @@ namespace Pnak
 
 		public string FormattedValue
 		{
-			get { return string.Format(TextFormat, Format == FormatType.Normalized ? NormalizedValue : RawValue); }
+			get {
+				switch(Format)
+				{
+					case FormatType.Normalized:
+						return string.Format(TextFormat, NormalizedValue);
+					case FormatType.RawValue:
+						return string.Format(TextFormat, RawValue);
+					case FormatType.InvertedNormalized:
+						return string.Format(TextFormat, 1 - NormalizedValue);
+					case FormatType.InvertedRawValue:
+						return string.Format(TextFormat, RawValueRange.y - RawValue);
+				}
+				return "!!FORMAT TYPE ERROR!!";
+			}
 		}
 
 		public abstract void SyncVisuals();

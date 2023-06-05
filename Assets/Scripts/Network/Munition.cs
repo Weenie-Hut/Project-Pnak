@@ -3,16 +3,10 @@ using UnityEngine;
 
 namespace Pnak
 {
-	[RequireComponent(typeof(CollisionProcessor))]
 	public abstract class Munition : StateBehaviour
 	{
-		public CollisionProcessor CollisionProcessor { get; private set; }
-
-		protected override void Awake()
-		{
-			base.Awake();
-			CollisionProcessor = GetComponent<CollisionProcessor>();
-		}
+		[Attached, SerializeField] private CollisionProcessor _collisionProcessor;
+		public CollisionProcessor CollisionProcessor => _collisionProcessor;
 
 		public override void FixedUpdateNetwork()
 		{
@@ -20,10 +14,14 @@ namespace Pnak
 
 			for (int i = 0; i < CollisionProcessor.ColliderCount && !Controller.QueuedForDestroy; i++)
 			{
+				if (CollisionProcessor.Colliders[i] == null) continue;
 				OnHit(CollisionProcessor.Colliders[i], CollisionProcessor.Distances?[i]);
 			}
 		}
 
-		protected abstract void OnHit(Collider2D collider2D, float? distance);
+		protected virtual void OnHit(Collider2D collider2D, float? distance)
+		{
+			UnityEngine.Debug.LogWarning($"Munition {name} ({GetType().Name}) should either override OnHit(Collider2D, float?) or override FixedUpdateNetwork()");
+		}
 	}
 }

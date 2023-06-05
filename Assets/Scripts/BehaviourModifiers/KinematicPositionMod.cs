@@ -11,9 +11,9 @@ namespace Pnak
 		{
 			[HideInInspector]
 			public Vector2 SpawnPosition;
-			[Tooltip("Units per second, where right (positive x) is the forward direction of the network object on spawn.")]
+			[Tooltip("Units per second, where right (positive x) is the forward direction of the network object on spawn."), Suffix("u/sec")]
 			public Vector2 Velocity;
-			[Tooltip("Units per second squared, where right (positive x) is the forward direction of the network object on spawn.")]
+			[Tooltip("Units per second squared, where right (positive x) is the forward direction of the network object on spawn."), Suffix("u/sec^2")]
 			public Vector2 Acceleration;
 			[HideInInspector]
 			public int SpawnTick;
@@ -39,6 +39,46 @@ namespace Pnak
 			data.KinematicMove.SpawnPosition = transformData.Position;
 			data.KinematicMove.Velocity = MathUtil.RotateVector(data.KinematicMove.Velocity, transformData.RotationAngle);
 			data.KinematicMove.Acceleration = MathUtil.RotateVector(data.KinematicMove.Acceleration, transformData.RotationAngle);
+		}
+
+		public override void UpdateTransform(ref LiteNetworkedData data, TransformData transformData)
+		{
+			// Update the spawn position such that the object is in the correct position at the current tick.
+			float currentTick = SessionManager.Instance.NetworkRunner.Tick;
+			float tickRate = SessionManager.Instance.NetworkRunner.DeltaTime;
+			float ticksPassed = currentTick - data.KinematicMove.SpawnTick;
+			float timePassed = ticksPassed * tickRate;
+
+			Vector2 currentOffset = data.KinematicMove.Velocity * timePassed + 0.5f * data.KinematicMove.Acceleration * timePassed * timePassed;
+
+			data.KinematicMove.SpawnPosition = (Vector2)transformData.Position - currentOffset;
+
+			// float transformDirection;
+			// if (currentTick > data.KinematicMove.SpawnTick + tickRate)
+			// {
+			// 	Vector2 pastPosition = GetPosition(data, timePassed - tickRate);
+			// 	transformDirection = MathUtil.DirectionToAngle((Vector2)transformData.Position - pastPosition);
+			// }
+			// else {
+			// 	transformDirection = MathUtil.DirectionToAngle(data.KinematicMove.Velocity);
+			// }
+
+			// if (transformData.RotationAngle != transformDirection)
+			// {
+			// 	data.KinematicMove.Velocity = MathUtil.RotateVector(data.KinematicMove.Velocity, transformData.RotationAngle - transformDirection);
+			// 	data.KinematicMove.Acceleration = MathUtil.RotateVector(data.KinematicMove.Acceleration, transformData.RotationAngle - transformDirection);
+			// }
+		}
+
+		public override TransformData GetTransformData(object context, in LiteNetworkedData data)
+		{
+			if (!(context is LiteNetworkObject networkObject)) return default;
+
+			return new TransformData
+			{
+				Position = networkObject.Target.transform.position,
+				RotationAngle = networkObject.Target.transform.eulerAngles.z,
+			};
 		}
 
 		public override void SetDefaults(ref LiteNetworkedData data) =>

@@ -27,7 +27,7 @@ namespace Pnak
 		}
 
 		[FieldOffset(CustomDataOffset)]
-		public StaticTransformData Transform;
+		public StaticTransformData StaticTransform;
 	}
 
 	[CreateAssetMenu(fileName = "StaticTransform", menuName = "BehaviourModifier/StaticTransform")]
@@ -37,9 +37,19 @@ namespace Pnak
 
 		public override void SetTransformData(ref LiteNetworkedData data, TransformData transformData)
 		{
-			data.Transform.Position = transformData.Position;
-			data.Transform.Scale = transformData.Scale;
-			data.Transform.RotationAngle = transformData.RotationAngle;
+			data.StaticTransform.Position = transformData.Position;
+			data.StaticTransform.Scale = transformData.Scale;
+			data.StaticTransform.RotationAngle = transformData.RotationAngle;
+		}
+
+		public override TransformData GetTransformData(object context, in LiteNetworkedData data)
+		{
+			return new TransformData
+			{
+				Position = data.StaticTransform.Position,
+				Scale = data.StaticTransform.Scale,
+				RotationAngle = data.StaticTransform.RotationAngle
+			};
 		}
 
 		public override void Initialize(LiteNetworkObject target, in LiteNetworkedData data, out object context)
@@ -52,12 +62,11 @@ namespace Pnak
 		{
 			if (!(context is LiteNetworkObject netContext)) return;
 
-
 			netContext.Target.transform.SetPositionAndRotation(
-				data.Transform.Position,
-				Quaternion.Euler(0, 0, data.Transform.RotationAngle)
+				data.StaticTransform.Position,
+				Quaternion.Euler(0, 0, data.StaticTransform.RotationAngle)
 			);
-			netContext.Target.transform.localScale = data.Transform.Scale;
+			netContext.Target.transform.localScale = new Vector3(data.StaticTransform.Scale.x, data.StaticTransform.Scale.y, 1);
 		}
 	}
 }

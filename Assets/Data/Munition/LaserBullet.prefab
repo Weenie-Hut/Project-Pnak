@@ -116,7 +116,7 @@ MonoBehaviour:
   - {fileID: 5270848876961268193}
   - {fileID: 1559252364345579475}
   - {fileID: -9056244033394439521}
-  prefabIndex: 0
+  prefabIndex: -1
   StateRunnerMod: {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
 --- !u!114 &5270848876961268193
 MonoBehaviour:
@@ -149,10 +149,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7c41dc6d8c22b46aaba34042b41a73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _collisionProcessor: {fileID: 5270848876961268193}
   DamageByPeirce:
   - PhysicalDamage: 0
     MagicalDamage: 0
     PureDamage: 3
+    applyModifiers: []
   CappedPeirce: 0
   Peirce: 1
   IgnoreAfterFirstHit: 0

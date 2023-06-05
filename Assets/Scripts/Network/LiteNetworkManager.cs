@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Fusion;
 using UnityEngine;
 
 namespace Pnak
 {
+	[OrderBefore(typeof(Player))]
 	public class LiteNetworkManager : NetworkBehaviour
 	{
 		private struct LiteDataBuffer : INetworkStruct
@@ -26,18 +28,32 @@ namespace Pnak
 					return *(LiteDataBuffer*)(&data);
 				};
 			}
+
+			public override string ToString()
+			{
+				return ((LiteNetworkedData)this).ToString();
+			}
 		}
 
 		private static LiteNetworkManager self;
 
 		public const int LiteModCapacity = 256;
 		[SerializeField] private LiteNetworkModScripts _liteNetworkModScripts;
-		[SerializeField] private StateBehaviourController[] LiteNetworkPrefabs;
 
-		public LiteNetworkMod[] ModScripts => _liteNetworkModScripts?.Mods ?? new LiteNetworkMod[0];
+		[SerializeField, Attached] private LateNetworkUpdate LateUpdate;
+
+		public LiteNetworkModScripts LiteNetworkModScripts => _liteNetworkModScripts;
+
+		public static LiteNetworkMod[] ModScripts => self.LiteNetworkModScripts.Mods;
+		public static StateModifierSO[] StateModifiers => self.LiteNetworkModScripts.StateModifiers;
+		public static StateBehaviourController[] Prefabs => self.LiteNetworkModScripts.LiteNetworkPrefabs;
 
 		[Networked, Capacity(LiteModCapacity)]
 		private NetworkArray<LiteDataBuffer> LiteModData { get; }
+
+		[Networked, Capacity(10)]
+		private NetworkDictionary<ushort, PlayerRef> InputAuthorities { get; }
+
 		/// <summary>
 		/// The highest index in ModifiersData that is currently in use.
 		/// Used as a hint to avoid iterating over the entire array (performance).
@@ -49,6 +65,7 @@ namespace Pnak
 		// private ReferencePool<GameObject>[] _pseudoNetworkPrefabPools;
 
 		private object[] liteModContexts;
+		public static object GetModContext(int index) => self.liteModContexts[index];
 
 		private List<LiteNetworkObject> liteNetworkObjects;
 
@@ -72,6 +89,8 @@ namespace Pnak
 			if (HasStateAuthority)
 				_deletingLiteObjects = new Queue<int>();
 
+			LateUpdate.OnFixedUpdate += LateFixedNetworkUpdate;
+
 			// _pseudoNetworkPrefabPools = new ReferencePool<GameObject>[LiteNetworkPrefabs.Length];
 			// for (int i = 0; i < LiteNetworkPrefabs.Length; i++)
 			// 	_pseudoNetworkPrefabPools[i] = new GameObjectPool(LiteNetworkPrefabs[i]);
@@ -91,6 +110,31 @@ namespace Pnak
 			self.LiteModData.Set(index, data);
 		}
 
+		public static LiteNetworkObject GetNetworkObject(int index)
+		{
+			if (!self.HasStateAuthority)
+			{
+				UnityEngine.Debug.LogError("GetNetworkObject is not safe on client nodes. Maybe make sure that objects are initialized on clients before this can be called?");
+				return null;
+			}
+
+			return self.liteNetworkObjects[index];
+		}
+
+		public static TransformData? TryGetTransformData(int objIndex)
+			=> TryGetTransformData(GetNetworkObject(objIndex));
+
+		public static TransformData? TryGetTransformData(LiteNetworkObject obj)
+		{
+			foreach (int mod in obj.Modifiers)
+			{
+				LiteNetworkedData data = GetModifierData(mod);
+				if (ModScripts[data.ScriptType] is TransformMod transformMod)
+					return transformMod.GetTransformData(GetModContext(mod), in data);
+			}
+			return null;
+		}
+
 		public static int CreateRawNetworkObjectContext() => self.ReserveFreeNetworkIndex();
 		public static int CreateRawNetworkObjectContext(out LiteNetworkedData data, StateBehaviourController prefab)
 		{
@@ -102,45 +146,101 @@ namespace Pnak
 			return target;
 		}
 
-		public static void CreateNetworkObjectContext(GameObject prefabComp, TransformData transform = default) =>
-			CreateNetworkObjectContext(prefabComp.GetComponent<StateBehaviourController>(), transform);
-		public static void CreateNetworkObjectContext(out LiteNetworkedData data, GameObject prefabComp, TransformData transform = default) =>
-			CreateNetworkObjectContext(out data, prefabComp.GetComponent<StateBehaviourController>(), transform);
-		public static void CreateNetworkObjectContext(Component prefabComp, TransformData transform = default) =>
-			CreateNetworkObjectContext(prefabComp.GetComponent<StateBehaviourController>(), transform);
-		public static void CreateNetworkObjectContext(out LiteNetworkedData data, Component prefabComp, TransformData transform = default) =>
-			CreateNetworkObjectContext(out data, prefabComp.GetComponent<StateBehaviourController>(), transform);
-		public static void CreateNetworkObjectContext(StateBehaviourController prefab, TransformData transform = default) => CreateNetworkObjectContext(out _, prefab, transform);
-		public static void CreateNetworkObjectContext(out LiteNetworkedData data, StateBehaviourController prefab, TransformData transform = default)
+		public class CreateNetworkObjectData
 		{
-			int target = CreateRawNetworkObjectContext(out data, prefab);
-			AddDefaultModifiers(target, prefab.PrefabIndex, transform);
+			public StateBehaviourController Prefab;
+			public TransformData Transform;
+			public System.Action<LiteNetworkObject> AfterInitialize;
+			public bool RunFirstUpdate;
+
+			public CreateNetworkObjectData Set(StateBehaviourController prefab, TransformData transform, System.Action<LiteNetworkObject> afterInitialize, bool runFirstUpdate)
+			{
+				Prefab = prefab;
+				Transform = transform;
+				AfterInitialize = afterInitialize;
+				RunFirstUpdate = runFirstUpdate;
+				return this;
+			}
+
+			public void Clear()
+			{
+				Prefab = null;
+				Transform = default;
+				AfterInitialize = null;
+			}
 		}
 
-		public static void AddDefaultModifiers(int targetIndex, int prefabIndex, TransformData transform)
+		private ClassPool<CreateNetworkObjectData> _createNetworkObjectDataPool = new ClassPool<CreateNetworkObjectData>();
+		private Queue<CreateNetworkObjectData> _createNetworkObjectQueue = new Queue<CreateNetworkObjectData>();
+
+		public static void QueueNewNetworkObject(StateBehaviour prefab, TransformData transform = default, System.Action<LiteNetworkObject> afterInitialize = null, bool runFirstUpdate = true) =>
+			QueueNewNetworkObject(prefab.Controller, transform, afterInitialize, runFirstUpdate);
+		public static void QueueNewNetworkObject(StateBehaviourController prefab, TransformData transform = default, System.Action<LiteNetworkObject> afterInitialize = null, bool runFirstUpdate = true)
 		{
-			StateBehaviourController prefab = self.LiteNetworkPrefabs[prefabIndex];
+			UnityEngine.Debug.Assert(self.HasStateAuthority, "Cannot queue new network objects on a manager without state auth.");
+			// UnityEngine.Debug.Assert(self.Runner.Stage != default, "Cannot queue new network objects when not processing fixed updates.");
 
-			if (transform.Scale == Vector2.zero)
-				transform.Scale = prefab.transform.localScale;
+			self._createNetworkObjectQueue.Enqueue(self._createNetworkObjectDataPool.Get().Set(prefab, transform, afterInitialize, runFirstUpdate));
+		}
 
-			LiteNetworkedData[] modifiersData = prefab.GetDefaultMods(ref transform);
+		public void RunQueueCreate()
+		{
+			while (_createNetworkObjectQueue.Count > 0)
+			{
+				CreateNetworkObjectData data = _createNetworkObjectQueue.Dequeue();
+				int target = self.ReserveFreeNetworkIndex();
+				AddAndInitDefaultModifiers(target, data);
+				
+				data.Clear();
+				_createNetworkObjectDataPool.Return(data);
+			}
+		}
+
+		private List<int> _workingModAddresses = new List<int>();
+		private void AddAndInitDefaultModifiers(int targetIndex, CreateNetworkObjectData data)
+		{
+			UnityEngine.Debug.Assert(data.Prefab.PrefabIndex >= 0, $"Prefab index {data.Prefab.PrefabIndex} ({data.Prefab.gameObject.name}) has not been registered.");
+			UnityEngine.Debug.Assert(Prefabs.Length > data.Prefab.PrefabIndex, $"Prefab index {data.Prefab.PrefabIndex} ({data.Prefab.gameObject.name}) is out of range: {Prefabs.Length}");
+
+			StateBehaviourController prefab = Prefabs[data.Prefab.PrefabIndex];
+
+			if (data.Transform.Scale == Vector2.zero)
+				data.Transform.Scale = prefab.transform.localScale;
+
+			LiteNetworkedData[] modifiersData = prefab.GetDefaultMods(ref data.Transform);
+			_workingModAddresses.Clear();
 			int lastModifierAddress = -1;
 
 			for (int i = 0; i < modifiersData.Length; i++)
 			{
 				modifiersData[i].TargetIndex = targetIndex;
-				modifiersData[i].PrefabIndex = prefabIndex;
+				modifiersData[i].PrefabIndex = data.Prefab.PrefabIndex;
 
-				LiteNetworkMod script = self.ModScripts[modifiersData[i].ScriptType];
+				LiteNetworkMod script = ModScripts[modifiersData[i].ScriptType];
 
 				script.SetRuntime(ref modifiersData[i]);
 
 				if (script is TransformMod transformModifier)
-					transformModifier.SetTransformData(ref modifiersData[i], transform);
+					transformModifier.SetTransformData(ref modifiersData[i], data.Transform);
 
 				lastModifierAddress = self.ReserveFreeModifierIndex(modifiersData[i].ScriptType, modifiersData[i].TargetIndex, lastModifierAddress);
 				PlaceModifier(lastModifierAddress, in modifiersData[i]);
+				self.InitializeContext(lastModifierAddress);
+
+				_workingModAddresses.Add(lastModifierAddress);
+			}
+
+			data.AfterInitialize?.Invoke(liteNetworkObjects[targetIndex]);
+
+			if (data.RunFirstUpdate)
+			{
+				for (int i = 0; i < _workingModAddresses.Count; i++)
+				{
+					int modifierAddress = _workingModAddresses[i];
+					LiteNetworkedData _data = LiteModData[modifierAddress];
+					ModScripts[_data.ScriptType].OnFixedUpdate(liteModContexts[modifierAddress], ref _data);
+					LiteModData.Set(modifierAddress, _data);
+				}
 			}
 		}
 
@@ -174,7 +274,7 @@ namespace Pnak
 				}
 			}
 
-			liteNetworkObjects.Add(new LiteNetworkObject());
+			liteNetworkObjects.Add(new LiteNetworkObject(liteNetworkObjects.Count));
 			liteNetworkObjects[liteNetworkObjects.Count - 1].IsReserved = true;
 			return liteNetworkObjects.Count - 1;
 		}
@@ -196,10 +296,12 @@ namespace Pnak
 			{
 				UnityEngine.Debug.Assert(HasStateAuthority);
 				UnityEngine.Debug.Assert(data.ScriptType < ModScripts.Length, "BehaviourModifierManager.ReplaceModifier: data.scriptType is out of range");
-				UnityEngine.Debug.Assert(data.PrefabIndex < LiteNetworkPrefabs.Length, "BehaviourModifierManager.ReplaceModifier: data.prefabIndex is out of range");
+				UnityEngine.Debug.Assert(data.PrefabIndex < Prefabs.Length, "BehaviourModifierManager.ReplaceModifier: data.prefabIndex is out of range");
 				UnityEngine.Debug.Assert(data.TargetIndex < LiteModCapacity, "BehaviourModifierManager.ReplaceModifier: parameter data.targetIndex is out of range: Range is [0, " + LiteModCapacity + "), but data.targetIndex is " + data.TargetIndex);
 				UnityEngine.Debug.Assert(modifierAddress != -1, "BehaviourModifierManager.AddModifier: ModifierCapacity (" + LiteModCapacity + ") reached. Modifier will not be added.");
 				// UnityEngine.Debug.Log("BehaviourModifierManager.PlaceModifier: { address: " + modifierAddress + ", scriptType: " + data.ScriptType + ", prefabIndex: " + data.PrefabIndex + ", targetIndex: " + data.TargetIndex + " }");
+
+				// UnityEngine.Debug.Log($"Placing at {modifierAddress}: {data},\n Target {liteNetworkObjects[data.TargetIndex].Format()},\nContext: {liteModContexts[modifierAddress]}\n");
 
 				LiteModData.Set(modifierAddress, data);
 				liteModContexts[modifierAddress] = null;
@@ -225,40 +327,28 @@ namespace Pnak
 				Debug.LogWarning("BehaviourModifierManager.FixedUpdateNetwork: " + ModScripts[data.ScriptType].GetType().Name + ".Initialize(" + gameObject + ") returned null context. This will cause the target object to be searched for every FixedUpdateNetwork and render.");
 			}
 
-			UnityEngine.Debug.Assert(target.PrefabIndex == data.PrefabIndex, "BehaviourModifierManager.InitializeContext: PrefabIndex mismatch from target context! target (" + target.PrefabIndex + ") != modifier (" + data.PrefabIndex + "). " + target.ToString() + " :: " + data.ToString());
+			UnityEngine.Debug.Assert(target.PrefabIndex == data.PrefabIndex, "BehaviourModifierManager.InitializeContext: PrefabIndex mismatch from target context! target (" + target.PrefabIndex + ") != modifier (" + data.PrefabIndex + ")\n" + "Target: " + target.Format() + "\n" + data.ToString());
+
+			// UnityEngine.Debug.Log("InitializeContext " + modifierAddress + ": " + data.ToString());
 
 			target.Modifiers.Add(modifierAddress);
 		}
 
-		public override void FixedUpdateNetwork()
+		public void LateFixedNetworkUpdate()
 		{
-			base.FixedUpdateNetwork();
-
 			if (!HasStateAuthority) return;
 
-			if (_deletingLiteObjects.Count > 0)
-			{
-				UnityEngine.Debug.LogError("BehaviourModifierManager.FixedUpdateNetwork: _deletingTargets.Count > 0");
-			}
-
-			for (int modifierAddress = 0; modifierAddress < liteModUsingCapacity; modifierAddress++)
-			{
-				LiteNetworkedData data = LiteModData[modifierAddress];
-				if (!data.IsValid) continue;
-
-				if (liteModContexts[modifierAddress] == null)
-					InitializeContext(modifierAddress);
-
-				ModScripts[data.ScriptType].OnFixedUpdate(liteModContexts[modifierAddress], ref data);
-				LiteModData.Set(modifierAddress, data);
-			}
+			// Recursively calls itself until queue is empty. Makes sure the all objects are created and ran in correct order.
+			RunQueueCreate();
 
 			while (_deletingLiteObjects.Count > 0)
 			{
 				int targetIndex = _deletingLiteObjects.Dequeue();
 
-				foreach (int modifierAddress in liteNetworkObjects[targetIndex].Modifiers)
+				for (int objectModifierIndex = 0; objectModifierIndex < liteNetworkObjects[targetIndex].Modifiers.Count; objectModifierIndex++)
 				{
+					int modifierAddress = liteNetworkObjects[targetIndex].Modifiers[objectModifierIndex];
+
 					LiteNetworkedData data = LiteModData[modifierAddress];
 					if (!data.IsValid) continue;
 					if (data.TargetIndex != targetIndex) continue;
@@ -268,7 +358,45 @@ namespace Pnak
 
 					// UnityEngine.Debug.Log("BehaviourModifierManager.Invalidate (update) Modifier due to delete: { address: " + modifierAddress + ", scriptType: " + data.ScriptType + ", prefabIndex: " + data.PrefabIndex + ", targetIndex: " + data.TargetIndex + " }");
 
+					// If the object was invalidated the same frame that it was initialized, only the state will have context
+					if (!liteModDataCopy[modifierAddress].IsValid)
+					{
+						liteNetworkObjects[data.TargetIndex].Modifiers.RemoveAt(objectModifierIndex);
+						ModScripts[data.ScriptType].OnInvalidatedRender(liteModContexts[modifierAddress], in data);
+						liteModContexts[modifierAddress] = null;
+
+						objectModifierIndex--;
+					}
 				}
+
+				RemoveInputAuthority(targetIndex);
+			}
+		}
+
+		public override void FixedUpdateNetwork()
+		{
+			base.FixedUpdateNetwork();
+
+			if (!HasStateAuthority) return;
+
+			// if (_deletingLiteObjects.Count > 0)
+			// {
+			// 	UnityEngine.Debug.LogError("BehaviourModifierManager.FixedUpdateNetwork: _deletingTargets.Count > 0");
+			// }
+
+			for (int modifierAddress = 0; modifierAddress < liteModUsingCapacity; modifierAddress++)
+			{
+				LiteNetworkedData data = LiteModData[modifierAddress];
+				if (!data.IsValid) continue;
+
+				if (liteModContexts[modifierAddress] == null)
+				{
+					UnityEngine.Debug.LogError("BehaviourModifierManager.FixedUpdateNetwork: liteModContexts[" + modifierAddress + "] is null");
+					InitializeContext(modifierAddress);
+				}
+
+				ModScripts[data.ScriptType].OnFixedUpdate(liteModContexts[modifierAddress], ref data);
+				LiteModData.Set(modifierAddress, data);
 			}
 		}
 
@@ -297,7 +425,7 @@ namespace Pnak
 						}
 					}
 				}
-				else if (liteModContexts[modifierAddress] != null)
+				else if (!HasStateAuthority && liteModContexts[modifierAddress] != null)
 				{
 					UnityEngine.Debug.LogError($"BehaviourModifierManager.Render: liteModContexts[{modifierAddress}] != null -> Previous: {previous.ToString()} ;;;;; Current: {current.ToString()} ;;;;; Context: {liteModContexts[modifierAddress].ToString()}");
 				}
@@ -314,10 +442,10 @@ namespace Pnak
 
 				if (targetForAddress != -1)
 				{
-					var target = liteNetworkObjects[targetForAddress];
 					if (current.TargetIndex != targetForAddress)
 					{
-						UnityEngine.Debug.LogWarning($"Add: {modifierAddress} -> Previous: {previous.ToString()} ;;;;; Current: {current.ToString()}");
+						var target = liteNetworkObjects[targetForAddress];
+						UnityEngine.Debug.LogWarning($"Object {targetForAddress} which contains modifier address {modifierAddress} ({target.Modifiers.Format()}) does not match the current data target -> Previous: {previous.ToString()} ;;;;; Current: {current.ToString()}");
 					}
 				}
 
@@ -335,12 +463,15 @@ namespace Pnak
 				ReleaseLiteObject(i);
 			}
 
-			for (int modifierAddress = 0; modifierAddress < liteModUsingCapacity; modifierAddress++)
+			if (!HasStateAuthority)
 			{
-				LiteNetworkedData data = LiteModData[modifierAddress];
-				if (!data.IsValid) continue;
-				if (liteModContexts[modifierAddress] == null)
-					InitializeContext(modifierAddress);
+				for (int modifierAddress = 0; modifierAddress < liteModUsingCapacity; modifierAddress++)
+				{
+					LiteNetworkedData data = LiteModData[modifierAddress];
+					if (!data.IsValid) continue;
+					if (liteModContexts[modifierAddress] == null)
+						InitializeContext(modifierAddress);
+				}
 			}
 
 			for (int modifierAddress = 0; modifierAddress < liteModUsingCapacity; modifierAddress++)
@@ -364,8 +495,8 @@ namespace Pnak
 			return self._TryGetNetworkContext(index, out target);
 		}
 
-		
 		public static bool NetworkContextIsValid(int index) => TryGetNetworkContext(index, out _);
+
 		public bool _TryGetNetworkContext(int index, out LiteNetworkObject target)
 		{
 			if (index >= liteNetworkObjects.Count)
@@ -410,13 +541,13 @@ namespace Pnak
 			}
 
 			// GameObject target = _pseudoNetworkPrefabPools[prefab].Get();
-			GameObject target = GameObject.Instantiate(LiteNetworkPrefabs[prefab].gameObject);
+			GameObject target = GameObject.Instantiate(Prefabs[prefab].gameObject);
 			Runner.MoveToRunnerScene(target);
 
 			while (liteNetworkObjects.Count <= index)
-				liteNetworkObjects.Add(new LiteNetworkObject());
+				liteNetworkObjects.Add(new LiteNetworkObject(liteNetworkObjects.Count));
 
-			liteNetworkObjects[index].Target = target;
+			liteNetworkObjects[index].Target = target.GetComponent<StateBehaviourController>();
 			liteNetworkObjects[index].PrefabIndex = prefab;
 
 			context = liteNetworkObjects[index];
@@ -427,7 +558,7 @@ namespace Pnak
 		public static bool QueueDeleteLiteObject(int index)
 		{
 			UnityEngine.Debug.Assert(self.HasStateAuthority, "BehaviourModifierManager.QueueDeleteLiteObject: HasStateAuthority is false.");
-			UnityEngine.Debug.Assert(self.Runner.Stage != default, "BehaviourModifierManager.QueueDeleteLiteObject: Runner.Stage is not fixed update");
+			// UnityEngine.Debug.Assert(self.Runner.Stage != default, "BehaviourModifierManager.QueueDeleteLiteObject: Runner.Stage is not fixed update");
 
 			if (IsQueuedForDeletion(index))
 				return false;
@@ -452,7 +583,7 @@ namespace Pnak
 			UnityEngine.Debug.Assert(context.Target != null, "BehaviourModifierManager.DestroyTargetObject: context.Target is null.");
 			UnityEngine.Debug.Assert(context.Modifiers.Count == 0, "BehaviourModifierManager.DestroyTargetObject: context.Modifiers.Count > 0.");
 
-			GameObject.Destroy(context.Target);
+			GameObject.Destroy(context.Target.gameObject);
 			// context.Target.SetActive(false);
 			// _pseudoNetworkPrefabPools[context.PrefabIndex].Return(context.Target);
 			context.Target = null;
@@ -460,20 +591,66 @@ namespace Pnak
 			context.IsReserved = false;
 		}
 
-#if UNITY_EDITOR
-		private void OnValidate()
+		public static void RPC_AddStateMod(int target, ushort type)
 		{
-			StateRunnerMod stateRunnerMod =
-				System.Array.Find(ModScripts, (LiteNetworkMod mod) => mod is StateRunnerMod) as StateRunnerMod;
-			if (stateRunnerMod == null) return;
-
-			for (int i = 0; i < LiteNetworkPrefabs.Length; i++)
-			{
-				if (LiteNetworkPrefabs[i] == null) continue;
-
-				LiteNetworkPrefabs[i].SetHiddenSerializedFields(i, stateRunnerMod);
-			}
+			self.RPC_AddStateMod_(target, type);
 		}
-#endif
+
+		public static void RPC_SetInputAuth(int target, PlayerRef player)
+		{
+			self.RPC_SetInputAuth_(target, player);
+		}
+
+		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+		private void RPC_AddStateMod_(int target, ushort type)
+		{
+			StateModifier modifier = LiteNetworkModScripts.StateModifiers[type].CreateModifier();
+			if (!TryGetNetworkContext(target, out LiteNetworkObject context))
+			{
+				Debug.LogError("BehaviourModifierManager.RPC__AddStateMod: target at index " + target + " does not exist.");
+				return;
+			}
+
+			context.Target.AddStateModifier(modifier);
+		}
+
+		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+		private void RPC_SetInputAuth_(int target, PlayerRef player)
+		{
+			SetInputAuthority(target, player);
+		}
+
+		public static void SetInputAuthority(int target, PlayerRef player)
+		{
+			if (!TryGetNetworkContext(target, out LiteNetworkObject context))
+			{
+				Debug.LogError("BehaviourModifierManager.RPC__SetInputAuth: target at index " + target + " does not exist.");
+				return;
+			}
+
+			if (player == PlayerRef.None)
+			{
+				self.InputAuthorities.Remove((ushort)target);
+				return;
+			}
+
+			self.InputAuthorities.Set((ushort)target, player);
+		}
+
+
+		public static void RemoveInputAuthority(int target)
+		{
+			SetInputAuthority(target, PlayerRef.None);
+		}
+
+		public static PlayerRef GetInputAuth(int target)
+		{
+			if (self.InputAuthorities.TryGet((ushort)target, out PlayerRef player))
+			{
+				return player;
+			}
+
+			return PlayerRef.None;
+		}
 	}
 }

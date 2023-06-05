@@ -5,13 +5,17 @@ using UnityEngine.InputSystem.UI;
 using System.Collections.Generic;
 using System;
 using Pnak.Input;
+using System.Linq;
 
 namespace Pnak
 {
 	public class GameManager : SingletonMono<GameManager>
 	{
 		[Tooltip("The character data to use for each character type. Temporary until we have character prefabs.")]
-		public CharacterData[] Characters;
+		public CharacterTypeRadialOption[] CharacterOptions;
+
+		private PlayerAgent[] _characters;
+		public PlayerAgent[] Characters => _characters ?? (_characters = CharacterOptions.Select(o => o.AgentPrefab).ToArray());
 
 		public Camera MainCamera { get; private set; }
 		public SceneLoader SceneLoader { get; private set; }
@@ -42,10 +46,8 @@ namespace Pnak
 			if (cost.MP > Player.LocalPlayer.MP)
 				return false;
 
-			if (cost.Money != 0)
-			{
-				UnityEngine.Debug.LogWarning("Money costs are not yet implemented.");
-			}
+			if (cost.Money > SpawnerManager.GlobalMoney)
+				return false;
 
 			return true;
 		}
@@ -56,6 +58,7 @@ namespace Pnak
 				return false;
 
 			Player.LocalPlayer.RPC_ChangeMP(-cost.MP);
+			SpawnerManager.RPC_ChangeMoney(-cost.Money);
 			return true;
 		}
 	}

@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe3d2a943ebdba74ba90458612e11f7e, type: 3}
   m_Name: StateRunner
   m_EditorClassIdentifier: 
-  scriptIndex: -1
+  scriptIndex: 4

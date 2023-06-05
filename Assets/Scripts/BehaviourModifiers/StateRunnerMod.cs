@@ -36,12 +36,13 @@ namespace Pnak
 		{
 			StateRunnerContext runnerContext = new StateRunnerContext
 			{
-				NetworkObject = networkObject
+				NetworkObject = networkObject,
+				controller = networkObject.Target.GetComponent<StateBehaviourController>()
 			};
 
-			if (SessionManager.Instance.NetworkRunner.IsServer)
+			if (SessionManager.IsServer)
 			{
-				runnerContext.controller = networkObject.Target.GetComponent<StateBehaviourController>();
+				runnerContext.controller.Initialize(networkObject);
 			}
 
 			context = runnerContext;
@@ -50,9 +51,11 @@ namespace Pnak
 		public override void OnFixedUpdate(object rContext, ref LiteNetworkedData data)
 		{
 			base.OnFixedUpdate(rContext, ref data);
-			UnityEngine.Debug.Assert(rContext is StateRunnerContext, "rContext is not the correct type: " + rContext.GetType() + " != " + typeof(StateRunnerContext) + ". Object: " + rContext.ToString());
-
-			if (!(rContext is StateRunnerContext context)) return;
+			if (!(rContext is StateRunnerContext context))
+			{
+				UnityEngine.Debug.LogError("rContext is not the correct type: " + rContext.GetType() + " != " + typeof(StateRunnerContext) + ". Object: " + rContext.ToString());
+				return;
+			}
 
 			context.controller.FixedUpdateNetwork(ref data);
 		}
@@ -60,15 +63,20 @@ namespace Pnak
 		public override void OnRender(object wContext, in LiteNetworkedData data)
 		{
 			base.OnRender(wContext, data);
-			UnityEngine.Debug.Assert(wContext is StateRunnerContext, "wContext is not the correct type: " + wContext.GetType() + " != " + typeof(StateRunnerContext) + ". Object: " + wContext.ToString());
-			if (!(wContext is StateRunnerContext context)) return;
+			if (!(wContext is StateRunnerContext context))
+			{
+				UnityEngine.Debug.LogError("wContext is not the correct type: " + wContext.GetType() + " != " + typeof(StateRunnerContext) + ". Object: " + wContext.ToString());
+				return;
+			}
 
 			float currentTick = SessionManager.Instance.NetworkRunner.Tick;
 
 			if (currentTick >= data.StateRunner.predictedDestroyTick)
-				context.NetworkObject.Target.SetActive(false);
+				context.NetworkObject.Target.gameObject.SetActive(false);
 			else
-				context.NetworkObject.Target.SetActive(true);
+				context.NetworkObject.Target.gameObject.SetActive(true);
+
+			context.controller.Render();
 		}
 	}
 }

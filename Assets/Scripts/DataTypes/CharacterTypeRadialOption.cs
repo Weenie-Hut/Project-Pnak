@@ -5,7 +5,7 @@ namespace Pnak
 	[CreateAssetMenu(fileName = "RadialOption", menuName = "Pnak/Radial SO/Character Type")]
 	public class CharacterTypeRadialOption : RadialOptionSO
 	{
-		public CharacterData CharacterData;
+		[Required] public PlayerAgent AgentPrefab;
 
 		public override void OnSelect(Interactable _ = null)
 		{
@@ -15,20 +15,30 @@ namespace Pnak
 				return;
 			}
 
-			int characterIndex = System.Array.IndexOf(GameManager.Instance.Characters, CharacterData);
-			Player.LocalPlayer.RPC_SetCharacterType((byte)(characterIndex + 1));
+			int characterIndex = System.Array.IndexOf(GameManager.Instance.Characters, AgentPrefab);
+			Player.LocalPlayer.RPC_ChangePlayerAgent((byte)(characterIndex));
 		}
 
-		private void OnValidate()
+		protected override void OnValidate()
 		{
-			if (CharacterData == null)
+			if (AgentPrefab == null)
 				return;
 
-			if (string.IsNullOrEmpty(Title))
-				Title = CharacterData.Name;
+			if (string.IsNullOrEmpty(TitleFormat))
+				TitleFormat = "{name}";
 
-			if (Icon == null)
-				Icon = CharacterData.Sprite;
+			if (string.IsNullOrEmpty(DescriptionFormat))
+				DescriptionFormat = "{name}";
+
+			base.OnValidate();
+		}
+
+		public override string Format(string format)
+		{
+			return base.Format(format)
+				.Replace("{name}", AgentPrefab.gameObject.name)
+				// .Replace("{description}", CharacterData.Description)
+				;
 		}
 	}
 }

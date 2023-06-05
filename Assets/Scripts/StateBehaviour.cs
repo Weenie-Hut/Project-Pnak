@@ -8,7 +8,7 @@ namespace Pnak
 	{
 		protected NetworkRunner Runner => SessionManager.Instance.NetworkRunner;
 		private StateBehaviourController _controller;
-		protected StateBehaviourController Controller
+		public StateBehaviourController Controller
 		{
 			get {
 				if (_controller == null)
@@ -22,15 +22,43 @@ namespace Pnak
 		{
 		}
 
-		// public virtual void Spawned()
-		// {
-		// }
+		private void OnEnable()
+		{
+			if (SessionManager.IsServer)
+			{
+				Enabled();
+			}
+		}
+
+		protected virtual void Enabled()
+		{
+		}
+
+		private void OnDisable()
+		{
+			if (SessionManager.IsServer)
+			{
+				Disabled();
+			}
+		}
+
+		protected virtual void Disabled()
+		{
+		}
 
 		public virtual void FixedUpdateNetwork()
 		{
 		}
 
 		public virtual void OnDataCreated(LiteNetworkedData[] mods, ref TransformData transform)
+		{
+		}
+
+		public virtual void Initialize()
+		{
+		}
+
+		public virtual void Render()
 		{
 		}
 	}

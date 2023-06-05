@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e3675d15ed361a478177038f65ee9b6, type: 3}
+  m_Name: Flaming Bullets Modifier
+  m_EditorClassIdentifier: 
+  TitleFormat: Flaming Bullets
+  TitlePreview: Flaming Bullets
+  DescriptionFormat: Adds a DoT to targets damage
+  DescriptionPreview: Adds a DoT to targets damage
+  Icon: {fileID: 21300070, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
+  cost:
+    MP: 30
+    HP: 0
+    Money: 0
+  typeIndex: 3
+  BaseData:
+    Damage:
+      PhysicalDamage: 0
+      MagicalDamage: 0.625
+      PureDamage: 0
+      applyModifiers: []
+    h_Duration:
+      StackingType: 3
+      StackId: 0
+      Value: 8
+    h_DamageStacking:
+      StackingType: 3
+      StackId: 0
+    Interval:
+      StackingType: 3
+      StackId: 0
+      Value: 0
+    StartWithInterval: 1
+    s_Duration:
+      StackingType: 3
+      StackId: 0
+      Value: 0
+    s_DamageStacking:
+      StackingType: 4
+      StackId: 0

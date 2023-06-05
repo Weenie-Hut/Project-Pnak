@@ -4,6 +4,15 @@ using UnityEngine;
 
 namespace Pnak
 {
+	public enum NetworkButton
+	{
+		[Tooltip("Usually Right click, Gamepad South, or Right Trigger.")]
+		Primary = 1,
+		[Tooltip("Usually Left click, Gamepad West, or Left Trigger.")]
+		Secondary = 2,
+		Space = 3,
+	}
+
 	public struct NetworkInputData : INetworkInput
 	{
 #region Data

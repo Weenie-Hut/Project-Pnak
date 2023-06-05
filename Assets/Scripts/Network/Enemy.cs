@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public class Enemy : NetworkBehaviour
+	public class Enemy : StateBehaviour
 	{
 		[SerializeField] private float _DefaultMovementSpeed = 1f;
 
-		[Networked] private Vector3 _TargetPosition { get; set; }
+		private Vector3 _TargetPosition { get; set; }
 		public Vector3 TargetPosition => _TargetPosition;
-		[Networked] private float _MovementSpeed { get; set; }
+		private float _MovementSpeed { get; set; }
 		public float MovementSpeed => _MovementSpeed;
 		private byte PathIndex = 1;
 		private Transform path;
@@ -19,7 +19,7 @@ namespace Pnak
 		{
 			if (PathIndex >= path.childCount)
 			{
-				Runner.Despawn(Object);
+				Controller.QueueForDestroy();
 				return;
 			}
 
@@ -28,17 +28,20 @@ namespace Pnak
 
 			if (PathIndex >= path.childCount)
 			{
-				Runner.Despawn(Object);
+				Controller.QueueForDestroy();
 			}
 
 			PathIndex++;
 		}
 
-		public override void Spawned()
+		public override void Initialize()
 		{
-			base.Spawned();
-
 			_MovementSpeed = _DefaultMovementSpeed;
+		}
+
+		public void Init(Transform path)
+		{
+			this.path = path;
 
 			if (path != null)
 			{
@@ -46,25 +49,23 @@ namespace Pnak
 			}
 		}
 
-		public void Init(Transform path)
-		{
-			this.path = path;
-		}
-
 		public override void FixedUpdateNetwork()
 		{
+			if (path == null)
+			{
+				UnityEngine.Debug.LogError("Path is null!  This object must be initialized with custom values using the callback.");
+				return;
+			}
+
 			float movement = _MovementSpeed * Runner.DeltaTime;
-			transform.position = Vector3.MoveTowards(transform.position, _TargetPosition, movement);
 
-			if (path != null)
-				if (Vector3.Distance(transform.position, _TargetPosition) < 0.1f)
-					SetNextPosition();
-		}
+			TransformData transformData = Controller.TransformData;
+			transformData.Position = Vector3.MoveTowards(transformData.Position, _TargetPosition, movement);
 
-		[Pnak.Input.InputActionTriggered("Shoot")]
-		public void TestingShoot(UnityEngine.InputSystem.InputAction.CallbackContext context)
-		{
-			UnityEngine.Debug.Log("Shoot");
+			if (Vector3.Distance(transformData.Position, _TargetPosition) < 0.1f)
+				SetNextPosition();
+	
+			Controller.TransformData = transformData;
 		}
 	}
 }

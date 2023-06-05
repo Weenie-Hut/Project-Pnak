@@ -53,27 +53,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2368294852786622159, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3164896556596590422, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
+      propertyPath: m_text
+      value: 26.0 %
       objectReference: {fileID: 0}
     - target: {fileID: 3817909742681363616, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4802897509883258419, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
+      propertyPath: _normalizedValue
+      value: 0.26
       objectReference: {fileID: 0}
     - target: {fileID: 5335185441659445255, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6491512649407197220, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.26
       objectReference: {fileID: 0}
     - target: {fileID: 6921508387857775446, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8505145665594572215, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_Name
-      value: Lifetime Bar
+      value: Lifetime Bar Variant
       objectReference: {fileID: 0}
     - target: {fileID: 8505145665594572215, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8979896675385527990, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a753967591c5a4b4daac23ab18f329cd, type: 3}

@@ -5,6 +5,16 @@ namespace Pnak
 {
 	public static class MathUtil
 	{
+		public static int ProbabilityRound(float value)
+		{
+			int floor = Mathf.FloorToInt(value);
+			float remainder = value - floor;
+			if (remainder > UnityEngine.Random.value)
+				return floor + 1;
+			else
+				return floor;
+		}
+
 		public static Vector2 RotateVector(Vector2 vector, float angle)
 		{
 			float sin = Mathf.Sin(angle * Mathf.Deg2Rad);

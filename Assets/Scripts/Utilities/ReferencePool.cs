@@ -31,6 +31,16 @@ namespace Pnak
 		protected abstract T CreateInstance();
 	}
 
+	public class ClassPool<T> : ReferencePool<T> where T : class, new()
+	{
+		public ClassPool() : base(null) { }
+
+		protected override T CreateInstance()
+		{
+			return new T();
+		}
+	}
+
 	public class GameObjectPool : ReferencePool<GameObject>
 	{
 		public GameObjectPool(GameObject prefab) : base(prefab) { }
