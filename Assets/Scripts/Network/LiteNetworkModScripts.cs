@@ -8,6 +8,7 @@ namespace Pnak
 	{
 #if UNITY_EDITOR
 		private static LiteNetworkModScripts _instance;
+		public static LiteNetworkModScripts RawInstance => _instance;
 		public static LiteNetworkModScripts Instance
 		{
 			get
@@ -30,6 +31,11 @@ namespace Pnak
 			_instance = this;
 
 			UnityEditor.EditorApplication.delayCall += RefreshRefs;
+		}
+
+		public static void StaticRefreshRefs()
+		{
+			Instance.RefreshRefs();
 		}
 
 		public void RefreshRefs()
@@ -86,112 +92,89 @@ namespace Pnak
 			UnityEditor.AssetDatabase.SaveAssets();
 		}
 
-		public static void AddLitePrefab(StateBehaviourController prefab)
+		public static T[] Add<T>(T[] array, T obj) where T : Object
 		{
-			if (Instance.LiteNetworkPrefabs == null)
-				Instance.LiteNetworkPrefabs = new StateBehaviourController[1] { prefab };
-			else{
-				if (Instance.LiteNetworkPrefabs.Contains(prefab)) return;
-
+			T[] result;
+			if (array == null)
+				result = new T[1] { obj };
+			else if (array.Contains(obj)) result = array;
+			else
+			{
 				// try to find a null slot
-				int index = System.Array.IndexOf(Instance.LiteNetworkPrefabs, null);
+				int index = System.Array.IndexOf(array, null);
 				if (index == -1)
 				{
-					Instance.LiteNetworkPrefabs = Instance.LiteNetworkPrefabs.Concat(new StateBehaviourController[1] { prefab }).ToArray();
+					result = array.Concat(new T[1] { obj }).ToArray();
 				}
-				else Instance.LiteNetworkPrefabs[index] = prefab;
+				else
+				{
+					array[index] = obj;
+					result = array;
+				}
 			}
 
 			UnityEditor.EditorApplication.delayCall += Instance.RefreshRefs;
+			return result;
+		}
+
+		public static void AddLitePrefab(StateBehaviourController prefab)
+		{
+			Instance.LiteNetworkPrefabs = Add(Instance.LiteNetworkPrefabs, prefab);
 		}
 		
 		public static void AddMod(LiteNetworkMod mod)
 		{
-			if (Instance.Mods == null)
-				Instance.Mods = new LiteNetworkMod[1] { mod };
-			else{
-				if (Instance.Mods.Contains(mod)) return;
-
-				// try to find a null slot
-				int index = System.Array.IndexOf(Instance.Mods, null);
-				if (index == -1)
-				{
-					Instance.Mods = Instance.Mods.Concat(new LiteNetworkMod[1] { mod }).ToArray();
-				}
-				else Instance.Mods[index] = mod;
-			}
-
-			UnityEditor.EditorApplication.delayCall += Instance.RefreshRefs;
+			Instance.Mods = Add(Instance.Mods, mod);
 		}
 
 		public static void AddStateModifier(StateModifierSO stateModifier)
 		{
-			if (Instance.StateModifiers == null)
-				Instance.StateModifiers = new StateModifierSO[1] { stateModifier };
-			else{
-				if (Instance.StateModifiers.Contains(stateModifier)) return;
+			Instance.StateModifiers = Add(Instance.StateModifiers, stateModifier);
+		}
 
-				// try to find a null slot
-				int index = System.Array.IndexOf(Instance.StateModifiers, null);
-				if (index == -1)
-				{
-					Instance.StateModifiers = Instance.StateModifiers.Concat(new StateModifierSO[1] { stateModifier }).ToArray();
-				}
-				else Instance.StateModifiers[index] = stateModifier;
+		public static int ValidateIndex<T>(T[] array, T obj) where T : Object
+		{
+			if (array == null)
+			{
+				UnityEditor.EditorApplication.delayCall += StaticRefreshRefs;
+				return -1;
 			}
-
-			UnityEditor.EditorApplication.delayCall += Instance.RefreshRefs;
+			return System.Array.IndexOf(array, obj);
 		}
 
 		public static int ValidateLitePrefabIndex(StateBehaviourController prefab)
-		{
-			if (Instance.LiteNetworkPrefabs == null) return -1;
-			return System.Array.IndexOf(Instance.LiteNetworkPrefabs, prefab);
-		}
+			=> ValidateIndex(RawInstance?.LiteNetworkPrefabs, prefab);
 
 		public static int ValidateModIndex(LiteNetworkMod mod)
-		{
-			if (Instance.Mods == null) return -1;
-			return System.Array.IndexOf(Instance.Mods, mod);
-		}
+			=> ValidateIndex(RawInstance?.Mods, mod);
 
 		public static int ValidateStateModifierIndex(StateModifierSO stateModifier)
-		{
-			if (Instance.StateModifiers == null) return -1;
-			return System.Array.IndexOf(Instance.StateModifiers, stateModifier);
-		}
+			=> ValidateIndex(RawInstance?.StateModifiers, stateModifier);
 
-		public static int RemoveLitePrefab(StateBehaviourController prefab)
+		public static T[] Remove<T>(T[] array, T obj) where T : Object
 		{
-			int index = System.Array.IndexOf(Instance.LiteNetworkPrefabs, prefab);
-			if (index == -1) return -1;
+			int index = System.Array.IndexOf(array, obj);
+			if (index == -1) return array;
 
-			Instance.LiteNetworkPrefabs[index] = null;
+			array[index] = null;
 			UnityEditor.EditorApplication.delayCall += Instance.RefreshRefs;
 
-			return index;
+			return array;
 		}
 
-		public static int RemoveMod(LiteNetworkMod mod)
+		public static void RemoveLitePrefab(StateBehaviourController prefab)
 		{
-			int index = System.Array.IndexOf(Instance.Mods, mod);
-			if (index == -1) return -1;
-
-			Instance.Mods[index] = null;
-			UnityEditor.EditorApplication.delayCall += Instance.RefreshRefs;
-
-			return index;
+			Instance.LiteNetworkPrefabs = Remove(Instance.LiteNetworkPrefabs, prefab);
 		}
 
-		public static int RemoveStateModifier(StateModifierSO stateModifier)
+		public static void RemoveMod(LiteNetworkMod mod)
 		{
-			int index = System.Array.IndexOf(Instance.StateModifiers, stateModifier);
-			if (index == -1) return -1;
+			Instance.Mods = Remove(Instance.Mods, mod);
+		}
 
-			Instance.StateModifiers[index] = null;
-			UnityEditor.EditorApplication.delayCall += Instance.RefreshRefs;
-
-			return index;
+		public static void RemoveStateModifier(StateModifierSO stateModifier)
+		{
+			Instance.StateModifiers = Remove(Instance.StateModifiers, stateModifier);
 		}
 #endif
 		[ReadOnly, NonReorderable]
