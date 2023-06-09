@@ -2,7 +2,12 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public abstract class RadialOptionSO : ScriptableObject
+	public interface Formatable
+	{
+		string Format(string format);
+	}
+
+	public abstract class RadialOptionSO : ScriptableObject, Formatable
 	{
 		[TextArea] public string TitleFormat;
 #if UNITY_EDITOR

@@ -71,11 +71,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   LoadingPlayerPrefab: {fileID: 4266477908009332186, guid: d31126fc3e1616047a5d0d8a04b152b1, type: 3}
-  _AgentNetworkIndex: 65535
   DefaultInteractionOptions:
   - {fileID: 11400000, guid: fcabd90abdbb6ef46a53e4d014bbea01, type: 2}
   - {fileID: 11400000, guid: 632b8c472c888384ca0fb3ca52742890, type: 2}
   - {fileID: 11400000, guid: 8f2d0cfe56060a94998db04e4db96670, type: 2}
   - {fileID: 11400000, guid: 8d3aa8c60de1cc047b8565d3cc2f0cdf, type: 2}
-  - {fileID: 11400000, guid: 553676a479cb3d44baa673d7e48bf2bb, type: 2}
-  - {fileID: 11400000, guid: 2a679a7b5fee04e4bb49fab199183437, type: 2}
+  - {fileID: 11400000, guid: 1a0880258a219bb41b218d8dcf101178, type: 2}

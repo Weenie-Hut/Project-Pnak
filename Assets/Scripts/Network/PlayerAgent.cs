@@ -60,7 +60,7 @@ namespace Pnak
 		{
 			foreach(StateBehaviour behave in DisableWhenBusy)
 			{
-				behave.enabled = false;
+				behave.enabled = !isPiloting;
 			}
 		}
 

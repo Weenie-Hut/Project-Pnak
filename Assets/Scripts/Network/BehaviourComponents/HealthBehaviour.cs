@@ -5,22 +5,10 @@ using UnityEngine;
 
 namespace Pnak
 {
-	[System.Serializable]
-	public struct ResistanceAmount
-	{
-		public float AnyMultiplier;
-		public float PhysicalMultiplier;
-		public float MagicalMultiplier;
-	}
-
 	public class HealthBehaviour : StateBehaviour, IDamageReceiver
 	{
-		public ResistanceAmount Resistance = new ResistanceAmount
-		{
-			AnyMultiplier = 1f,
-			PhysicalMultiplier = 1f,
-			MagicalMultiplier = 1f
-		};
+		[SerializeField]
+		private DataSelectorWithOverrides<ResistanceAmount> ResistanceDataSelector = new DataSelectorWithOverrides<ResistanceAmount>();
 
 		[Tooltip("The starting health of the object.")]
 		[SerializeField, Min(0.01f)] private float _SpawnHealth = 1f;
@@ -45,7 +33,8 @@ namespace Pnak
 
 		public override void Initialize()
 		{
-			HealthVisualIndex = Controller.FindNetworkMod<HealthVisualMod>(out int scriptIndex);
+			int selfTypeIndex = Controller.GetBehaviourTypeIndex(this);
+			HealthVisualIndex = Controller.FindNetworkMod<HealthVisualMod>(selfTypeIndex, out int scriptIndex);
 
 			var health = _SpawnHealth  * SessionManager.Instance.PlayerCount;
 			var max = _SpawnMaxHealth * SessionManager.Instance.PlayerCount;
@@ -63,7 +52,15 @@ namespace Pnak
 
 			_hasSpawned = true;
 
+			ResistanceDataSelector.MoveToNext();
+
 			UpdateHealthVisual();
+		}
+
+		public void ScaleHealth(float scale)
+		{
+			_Health *= scale;
+			_MaxHealth *= scale;
 		}
 
 		public void UpdateHealthVisual()
@@ -82,15 +79,18 @@ namespace Pnak
 		/// </summary>
 		/// <param name="amount">The amount of damage to add.</param>
 		/// <returns>True if the object is dead.</returns>
-		public bool AddDamage(DamageAmount amount, List<StateModifier> runtimeModifiers)
+		public bool AddDamage(DamageAmount amount)
 		{
 			if (!_hasSpawned) return false;
 
-			// TODO: Add armor and resistances
+			ResistanceAmount resistance = ResistanceDataSelector.CurrentData;
+
+			// UnityEngine.Debug.Log($"Damage: {amount.PureDamage} {amount.PhysicalDamage} {amount.MagicalDamage} {amount.ApplyModifiers.Length} {resistance.AllMultiplier} {resistance.PhysicalMultiplier} {resistance.MagicalMultiplier}");
+
 			_Health -=
-				amount.PureDamage * Resistance.AnyMultiplier +
-				amount.PhysicalDamage * Resistance.PhysicalMultiplier * Resistance.AnyMultiplier +
-				amount.MagicalDamage *	Resistance.MagicalMultiplier * Resistance.AnyMultiplier;
+				amount.PureDamage.NaNTo0() * resistance.AllMultiplier.NaNTo0() +
+				amount.PhysicalDamage.NaNTo0() * resistance.PhysicalMultiplier.NaNTo0() * resistance.AllMultiplier.NaNTo0() +
+				amount.MagicalDamage.NaNTo0() *	resistance.MagicalMultiplier.NaNTo0() * resistance.AllMultiplier.NaNTo0();
 
 			if (_Health <= float.Epsilon)
 			{
@@ -98,41 +98,34 @@ namespace Pnak
 				return true;
 			}
 
-			for(int i = 0; i < amount.ApplyModifiers.Count; i++)
-				Controller.AddStateModifier(amount.ApplyModifiers[i].CreateModifier());
-
-			for (int i = 0; i < runtimeModifiers?.Count; i++)
-				Controller.AddStateModifier(runtimeModifiers[i].CopyFor(Controller));
+			foreach (SerializedLiteNetworkedData mod in amount.ApplyModifiers)
+			{
+				LiteNetworkManager.QueueAddModifier(Controller.NetworkContext, mod);
+			}
 
 			if (_Health > _MaxHealth)
 				_Health = _MaxHealth;
 
+			ResistanceDataSelector.MoveToNext();
 			UpdateHealthVisual();
 			return false;
 		}
 
-		/// <summary>
-		/// Adds health to the object. Returns true if the object is at max health.
-		/// </summary>
-		/// <param name="amount">The amount of health to add.</param>
-		/// <returns>True if the object is at max health.</returns>
-		public bool AddHealth(float amount)
+		public void AddOverride(DataOverride<ResistanceAmount> resistance)
 		{
-			if (!_hasSpawned) return false;
-			
-			_Health += amount;
-			if (_Health > _MaxHealth)
-			{
-				_Health = _MaxHealth;
-				return true;
-			}
-
-			if (_Health <= float.Epsilon)
-				OnDeath?.Invoke(this);
-
-			UpdateHealthVisual();
-			return false;
+			ResistanceDataSelector.AddOverride(resistance);
 		}
+
+		public void RemoveOverride(DataOverride<ResistanceAmount> resistance)
+		{
+			ResistanceDataSelector.RemoveOverride(resistance);
+		}
+
+		public void ModifyOverride(DataOverride<ResistanceAmount> resistance)
+		{
+			ResistanceDataSelector.ModifyOverride(resistance);
+		}
+
 
 #if UNITY_EDITOR
 		private void OnValidate()

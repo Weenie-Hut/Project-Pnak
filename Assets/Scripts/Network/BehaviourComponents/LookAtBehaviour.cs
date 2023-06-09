@@ -9,6 +9,7 @@ namespace Pnak
 		[Tooltip("The speed at which the object will rotate to face the target, in degrees per second."), Min(0.01f), Suffix("°/sec")]
 		public float RotationSpeed = 120f;
 		public float DeltaAngle { get; private set; }
+		public InputBehaviourType LookTargetType = InputBehaviourType.Any;
 
 		public override void Initialize()
 		{
@@ -20,19 +21,27 @@ namespace Pnak
 		{
 			float targetAngle;
 
-			if (Controller.Input.HasValue)
+			if (Controller.Input.HasValue && (LookTargetType == InputBehaviourType.Any || LookTargetType == InputBehaviourType.PlayerInputOnly))
 			{
 				targetAngle = Controller.Input.Value.AimAngle;
 			}
-			else
+			else if (LookTargetType == InputBehaviourType.Any || LookTargetType == InputBehaviourType.AutomaticOnly)
 			{
-				if (CollisionProcessor.ColliderCount == 0) return;
+				if (CollisionProcessor.ColliderCount == 0)
+				{
+					DeltaAngle = 180f;
+					return;
+				}
 
 				Transform target = CollisionProcessor.Colliders[0].transform;
 				if (target == null) return;
 
 				Vector3 direction = target.position - transform.position;
 				targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+			}
+			else {
+				DeltaAngle = 180f;
+				return;
 			}
 
 			TransformData transformData = Controller.TransformData;

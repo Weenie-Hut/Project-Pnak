@@ -453,7 +453,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DefaultMods:
-  - scriptType: 3
+  - scriptType: 6
     CustomData: 00000000000000000000000000000000000000000000000000000000
   stateBehaviours:
   - {fileID: 9192185228211547201}

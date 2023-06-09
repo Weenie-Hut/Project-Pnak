@@ -5,103 +5,27 @@ using UnityEngine;
 
 namespace Pnak
 {
-	[System.Serializable]
-	public struct DamageAmount
+	public interface Copyable<T>
 	{
-		public float PhysicalDamage;
-		public float MagicalDamage;
-		public float PureDamage;
+		public T Copy();
+	}
+
+	public interface Stackable<T>
+	{
+		public void StackWith(T other, ValueStackingType stackingType);
+	}
+
+	[System.Serializable]
+	public class DamageAmount : Copyable<DamageAmount>, Stackable<DamageAmount>
+	{
+		[NaNButton]
+		public float PhysicalDamage = float.NaN;
+		[NaNButton]
+		public float MagicalDamage = float.NaN;
+		[NaNButton]
+		public float PureDamage = float.NaN;
 		[Tooltip("Modifiers to apply to the target when this damage is applied.")]
-		[Required, SerializeField]
-		private List<StateModifierSO> applyModifiers;
-		private List<StateModifier> runtimeModifiers;
-
-		public List<StateModifierSO> ApplyModifiers => applyModifiers ?? (applyModifiers = new List<StateModifierSO>());
-		public List<StateModifier> RuntimeModifiers => runtimeModifiers ?? (runtimeModifiers = new List<StateModifier>());
-		
-		public static implicit operator DamageAmount(float value)
-		{
-			return new DamageAmount
-			{
-				PhysicalDamage = value,
-				MagicalDamage = value,
-				PureDamage = value
-			};
-		}
-
-		public static DamageAmount operator +(DamageAmount damage, DamageAmount other)
-		{
-			return new DamageAmount
-			{
-				PhysicalDamage = damage.PhysicalDamage + other.PhysicalDamage,
-				MagicalDamage = damage.MagicalDamage + other.MagicalDamage,
-				PureDamage = damage.PureDamage + other.PureDamage,
-				applyModifiers = damage.ApplyModifiers.Concat(other.ApplyModifiers).ToList(),
-				runtimeModifiers = damage.RuntimeModifiers.Concat(other.RuntimeModifiers).ToList()
-			};
-		}
-
-		public static DamageAmount operator *(DamageAmount damage, DamageAmount other)
-		{
-			return new DamageAmount
-			{
-				PhysicalDamage = damage.PhysicalDamage * other.PhysicalDamage,
-				MagicalDamage = damage.MagicalDamage * other.MagicalDamage,
-				PureDamage = damage.PureDamage * other.PureDamage,
-				applyModifiers = damage.ApplyModifiers.Concat(other.ApplyModifiers).ToList(),
-				runtimeModifiers = damage.RuntimeModifiers.Concat(other.RuntimeModifiers).ToList()
-			};
-		}
-
-		public static DamageAmount operator -(DamageAmount damage, DamageAmount other)
-		{
-			List<StateModifierSO> modifiers = damage.ApplyModifiers.ToList();
-			foreach (StateModifierSO modifier in other.ApplyModifiers)
-				modifiers.Remove(modifier);
-
-			List<StateModifier> runtimeModifiers = damage.RuntimeModifiers.ToList();
-			foreach (StateModifier modifier in other.RuntimeModifiers)
-				runtimeModifiers.Remove(modifier);
-
-			return new DamageAmount
-			{
-				PhysicalDamage = damage.PhysicalDamage - other.PhysicalDamage,
-				MagicalDamage = damage.MagicalDamage - other.MagicalDamage,
-				PureDamage = damage.PureDamage - other.PureDamage,
-				applyModifiers = modifiers,
-				runtimeModifiers = runtimeModifiers
-			};
-		}
-
-		public static DamageAmount operator /(DamageAmount damage, DamageAmount other)
-		{
-			List<StateModifierSO> modifiers = damage.ApplyModifiers.ToList();
-			foreach (StateModifierSO modifier in other.ApplyModifiers)
-				modifiers.Remove(modifier);
-
-			List<StateModifier> runtimeModifiers = damage.RuntimeModifiers.ToList();
-			foreach (StateModifier modifier in other.RuntimeModifiers)
-				runtimeModifiers.Remove(modifier);
-			
-			return new DamageAmount
-			{
-				PhysicalDamage = damage.PhysicalDamage / other.PhysicalDamage,
-				MagicalDamage = damage.MagicalDamage / other.MagicalDamage,
-				PureDamage = damage.PureDamage / other.PureDamage,
-				applyModifiers = modifiers,
-				runtimeModifiers = runtimeModifiers
-			};
-		}
-
-		public static DamageAmount operator -(DamageAmount damage)
-		{
-			return new DamageAmount
-			{
-				PhysicalDamage = -damage.PhysicalDamage,
-				MagicalDamage = -damage.MagicalDamage,
-				PureDamage = -damage.PureDamage
-			};
-		}
+		public SerializedLiteNetworkedData[] ApplyModifiers;
 
 		public override string ToString()
 		{
@@ -109,42 +33,83 @@ namespace Pnak
 				return PhysicalDamage.ToString();
 			else {
 				string result = "";
-				if (PhysicalDamage != 0)
+				if (PhysicalDamage.NaNTo0() != 0)
 					result += PhysicalDamage + " Physical";
-				if (MagicalDamage != 0)
+				if (MagicalDamage.NaNTo0() != 0)
 					result += (result.Length > 0 ? ", " : "") + MagicalDamage + " Magical";
-				if (PureDamage != 0)
+				if (PureDamage.NaNTo0() != 0)
 					result += (result.Length > 0 ? ", " : "") + PureDamage + " Pure";
 				return result;
 			}
 		}
 
-		public string ToString(string format)
+		public string Format(string format)
 		{
-			if (PhysicalDamage == MagicalDamage && PhysicalDamage == PureDamage)
-				return PhysicalDamage.ToString(format);
-			else {
-				string result = "";
-				if (PhysicalDamage != 0)
-					result += PhysicalDamage.ToString(format) + " Physical";
-				if (MagicalDamage != 0)
-					result += (result.Length > 0 ? ", " : "") + MagicalDamage.ToString(format) + " Magical";
-				if (PureDamage != 0)
-					result += (result.Length > 0 ? ", " : "") + PureDamage.ToString(format) + " Pure";
-				return result;
-			}
+			return format.FormatById("physical", PhysicalDamage)
+				.FormatById("magical", MagicalDamage)
+				.FormatById("pure", PureDamage);
 		}
 
-		internal static DamageAmount Min(DamageAmount current, DamageAmount newValue)
+		public DamageAmount Copy()
 		{
-			throw new NotImplementedException();
+			return new DamageAmount
+			{
+				PhysicalDamage = PhysicalDamage,
+				MagicalDamage = MagicalDamage,
+				PureDamage = PureDamage,
+				ApplyModifiers = ApplyModifiers
+			};
 		}
 
-		internal static DamageAmount Max(DamageAmount current, DamageAmount newValue)
+		public void StackWith(DamageAmount other, ValueStackingType stackingType)
 		{
-			throw new NotImplementedException();
+			ValueStack.StackInPlace(this, other, stackingType);
+		}
+
+		public void Scale(float scale)
+		{
+			if (float.IsNaN(scale))
+				return;
+
+			if(!float.IsNaN(PhysicalDamage))
+				PhysicalDamage *= scale;
+
+			if(!float.IsNaN(MagicalDamage))
+				MagicalDamage *= scale;
+
+			if(!float.IsNaN(PureDamage))
+				PureDamage *= scale;
 		}
 	}
 
-	
+	public static partial class ValueStack
+	{
+		// public static ShootData Stack(ShootData a, ShootData b, ValueStackingType stackingType)
+		// {
+		// 	return new ShootData
+		// 	{
+		// 		ReloadTime = Stack(a.ReloadTime, b.ReloadTime, stackingType),
+		// 		FireCountRange = Stack(a.FireCountRange, b.FireCountRange, stackingType),
+		// 		FireSpreadAngle = Stack(a.FireSpreadAngle, b.FireSpreadAngle, stackingType),
+		// 		Spawn = Stack(a.Spawn, b.Spawn, stackingType),
+		// 		MunitionMods = Stack(a.MunitionMods, b.MunitionMods, stackingType),
+		// 		DamageMods = Stack(a.DamageMods, b.DamageMods, stackingType)
+		// 	};
+		// }
+
+		public static void StackInPlace(DamageAmount a, DamageAmount b, ValueStackingType stackingType)
+		{
+			a.PhysicalDamage = Stack(a.PhysicalDamage, b.PhysicalDamage, stackingType);
+			a.MagicalDamage = Stack(a.MagicalDamage, b.MagicalDamage, stackingType);
+			a.PureDamage = Stack(a.PureDamage, b.PureDamage, stackingType);
+			a.ApplyModifiers = Stack(a.ApplyModifiers, b.ApplyModifiers, stackingType);
+		}
+
+		public static DamageAmount Stack(DamageAmount a, DamageAmount b, ValueStackingType stackingType)
+		{
+			var result = a.Copy();
+			StackInPlace(result, a, stackingType);
+			return result;
+		}
+	}
 }

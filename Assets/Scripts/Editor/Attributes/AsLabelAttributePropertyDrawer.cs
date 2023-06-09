@@ -1,25 +1,16 @@
 using UnityEditor;
 using UnityEngine;
+using Pnak;
 
-namespace Pnak
+namespace PnakEditor
 {
 	[CustomPropertyDrawer(typeof(AsLabelAttribute))]
 	public class AsLabelAttributePropertyDrawer : PropertyDrawer
 	{
 		private string GetText(SerializedProperty property)
 		{
-			if (property.propertyType == SerializedPropertyType.String)
-				return property.stringValue;
-			else if (property.propertyType == SerializedPropertyType.Integer)
-				return property.intValue.ToString();
-			else if (property.propertyType == SerializedPropertyType.Float)
-				return property.floatValue.ToString();
-			else if (property.propertyType == SerializedPropertyType.Boolean)
-				return property.boolValue.ToString();
-			else if (property.propertyType == SerializedPropertyType.Enum)
-				return property.enumNames[property.enumValueIndex];
-
-			return null;
+			string format = (attribute as AsLabelAttribute).Format ?? "{0}";
+			return string.Format(format, ExpressionEvaluator.GetPropertyValue(property));
 		}
 
 		private GUIContent GetContent(SerializedProperty property, out GUIStyle style, ref Vector2 size)
@@ -45,6 +36,15 @@ namespace Pnak
 
 			if (asLabelAttribute.Type.HasFlag(LabelType.Mini))
 				style.fontSize = 9;
+
+			if (asLabelAttribute.Type.HasFlag(LabelType.Left))
+				style.alignment = TextAnchor.MiddleLeft;
+			
+			if (asLabelAttribute.Type.HasFlag(LabelType.Center))
+				style.alignment = TextAnchor.MiddleCenter;
+
+			if (asLabelAttribute.Type.HasFlag(LabelType.Right))
+				style.alignment = TextAnchor.MiddleRight;
 
 			return style;
 		}

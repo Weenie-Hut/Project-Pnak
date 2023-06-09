@@ -23,6 +23,8 @@ namespace Pnak
 			}
 			return data;
 		}
+
+		public static implicit operator LiteNetworkedData(SerializedLiteNetworkedData data) => data.ToLiteNetworkedData();
 	}
 
 	[StructLayout(LayoutKind.Explicit)]
@@ -115,8 +117,8 @@ namespace Pnak
 		public abstract System.Type DataType { get; }
 
 #if UNITY_EDITOR
-		[Button(nameof(AddToScripts), "Add", nameof(scriptIndex) + "!=-1")]
-		[Button(nameof(RemoveFromScripts), "Rem", nameof(scriptIndex) + "==-1")]
+		[Button(nameof(AddToScripts), "Add", "Add script to the network config. Adding allows for multiplayer clients to sent a single number to identify the type of script/modifier that should be applied.", nameof(scriptIndex), -1, false)]
+		[Button(nameof(RemoveFromScripts), "Rem", "Remove script from network config, freeing up unused asset. Adding allows for multiplayer clients to sent a single number to identify the type of script/modifier that should be applied.", nameof(scriptIndex), -1)]
 #endif
 		[SerializeField, ReadOnly]
 		private int scriptIndex = -1;
@@ -136,6 +138,11 @@ namespace Pnak
 		{
 		}
 
+		public virtual bool CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
+		{
+			return false;
+		}
+
 		public virtual void Initialize(LiteNetworkObject target, in LiteNetworkedData data, out object context)
 		{
 			context = target;
@@ -147,7 +154,6 @@ namespace Pnak
 		
 		public virtual void OnInvalidatedUpdate(object rContext, ref LiteNetworkedData data)
 		{
-			data.Invalidate();
 		}
 
 		public virtual void OnRender(object context, in LiteNetworkedData data)
@@ -167,11 +173,13 @@ namespace Pnak
 		}
 
 		public void EditorSetScriptIndex(int index) => scriptIndex = index;
-
-		private void OnValidate()
-		{
-			scriptIndex = LiteNetworkModScripts.ValidateModIndex(this);
-		}
 #endif
+
+		protected virtual void OnValidate()
+		{
+#if UNITY_EDITOR
+			scriptIndex = LiteNetworkModScripts.ValidateModIndex(this);
+#endif
+		}
 	}
 }

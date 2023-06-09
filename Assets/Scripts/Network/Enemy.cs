@@ -6,37 +6,86 @@ namespace Pnak
 {
 	public class Enemy : StateBehaviour
 	{
-		[SerializeField] private float _DefaultMovementSpeed = 1f;
+		[SerializeField]
+		private DataSelectorWithOverrides<MovementAmount> MovementDataSelector = new DataSelectorWithOverrides<MovementAmount>();
 
-		private Vector3 _TargetPosition { get; set; }
-		public Vector3 TargetPosition => _TargetPosition;
-		private float _MovementSpeed { get; set; }
-		public float MovementSpeed => _MovementSpeed;
-		private byte PathIndex = 1;
+		private Vector3 TargetPosition { get; set; }
+		public Vector3 PreviousPosition { get; set; }
+		private byte CurrentPathIndex = 0;
 		private Transform path;
+
+		private int endHoldTick = -1;
+		private int EndHoldTick
+		{
+			get => endHoldTick;
+			set {
+				if (value == endHoldTick) return;
+				endHoldTick = value;
+			}
+		}
+
+		public void AddOverride(DataOverride<MovementAmount> dataOverride)
+		{
+			float previousTime = MovementDataSelector.CurrentData.HoldDuration;
+			MovementDataSelector.AddOverride(dataOverride);
+			InterpolateHoldTime(previousTime);
+		}
+
+		public void RemoveOverride(DataOverride<MovementAmount> dataOverride)
+		{
+			float previousTime = MovementDataSelector.CurrentData.HoldDuration;
+			MovementDataSelector.RemoveOverride(dataOverride);
+			InterpolateHoldTime(previousTime);
+		}
+
+		public void ModifyOverride(DataOverride<MovementAmount> dataOverride)
+		{
+			float previousTime = MovementDataSelector.CurrentData.HoldDuration;
+			MovementDataSelector.ModifyOverride(dataOverride);
+			InterpolateHoldTime(previousTime);
+		}
+
+		public void InterpolateHoldTime(float previousTime)
+		{
+			float startReloadTick = EndHoldTick - (previousTime / Runner.DeltaTime);
+			float progress = (Runner.Tick - startReloadTick) / (float)(EndHoldTick - startReloadTick);
+
+			EndHoldTick = Runner.Tick + (int)((MovementDataSelector.CurrentData.HoldDuration * (1f - progress)) / Runner.DeltaTime);
+		}
+
+		public void MoveToNext()
+		{
+			MovementDataSelector.MoveToNext();
+			EndHoldTick = Runner.Tick + (int)(MovementDataSelector.CurrentData.HoldDuration / Runner.DeltaTime);
+		}
+
 
 		public void SetNextPosition()
 		{
-			if (PathIndex >= path.childCount)
+			CurrentPathIndex++;
+
+			if (CurrentPathIndex >= path.childCount)
 			{
 				Controller.QueueForDestroy();
 				return;
 			}
 
-			var target = Random.Range(0, path.GetChild(PathIndex).childCount);
-			_TargetPosition = path.GetChild(PathIndex).GetChild(target).position;
+			PreviousPosition = TargetPosition;
 
-			if (PathIndex >= path.childCount)
-			{
-				Controller.QueueForDestroy();
-			}
-
-			PathIndex++;
+			var target = Random.Range(0, path.GetChild(CurrentPathIndex).childCount);
+			TargetPosition = path.GetChild(CurrentPathIndex).GetChild(target).position;
 		}
 
-		public override void Initialize()
+		public void RevertToPreviousPosition()
 		{
-			_MovementSpeed = _DefaultMovementSpeed;
+			if (CurrentPathIndex <= 1)
+				return;
+
+			CurrentPathIndex--;
+			TargetPosition = PreviousPosition;
+
+			var target = Random.Range(0, path.GetChild(CurrentPathIndex - 1).childCount);
+			PreviousPosition = path.GetChild(CurrentPathIndex - 1).GetChild(target).position;
 		}
 
 		public void Init(Transform path)
@@ -45,6 +94,7 @@ namespace Pnak
 
 			if (path != null)
 			{
+				TargetPosition = Controller.TransformData.Position;
 				SetNextPosition();
 			}
 		}
@@ -57,13 +107,29 @@ namespace Pnak
 				return;
 			}
 
-			float movement = _MovementSpeed * Runner.DeltaTime;
+			if (Runner.Tick >= EndHoldTick)
+			{
+				MoveToNext();
+			}
+
+			float movement = MovementDataSelector.CurrentData.MovementSpeed * Runner.DeltaTime;
 
 			TransformData transformData = Controller.TransformData;
-			transformData.Position = Vector3.MoveTowards(transformData.Position, _TargetPosition, movement);
 
-			if (Vector3.Distance(transformData.Position, _TargetPosition) < 0.1f)
-				SetNextPosition();
+			if (movement >= 0)
+			{
+				transformData.Position = Vector3.MoveTowards(transformData.Position, TargetPosition, movement);
+
+				if (Vector3.Distance(transformData.Position, TargetPosition) < 0.1f)
+					SetNextPosition();
+			}
+			else
+			{
+				transformData.Position = Vector3.MoveTowards(transformData.Position, PreviousPosition, -movement);
+
+				if (CurrentPathIndex >= 2 && Vector3.Distance(transformData.Position, PreviousPosition) < 0.1f)
+					RevertToPreviousPosition();
+			}
 	
 			Controller.TransformData = transformData;
 		}

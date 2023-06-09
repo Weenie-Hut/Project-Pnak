@@ -242,8 +242,10 @@ MonoBehaviour:
   _CollisionMask:
     serializedVersion: 2
     m_Bits: 64
+  RaycastPositionChanges: 0
   SortByDistance: 1
-  UseTransformDistance: 1
+  UseDistanceOnStaticTransform: 1
+  UseTransformDistanceOnStaticTransform: 1
   maxCollisions: 10
 --- !u!114 &6537687673443203514
 MonoBehaviour:
@@ -258,7 +260,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _collisionProcessor: {fileID: 4775989943319580470}
+  MaxHitsPerTick: 1
   RotationSpeed: 110
+  LookTargetType: 0
 --- !u!114 &7866721918867511350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,27 +275,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d3899ada834b544fb36ee7e556e5ccb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TemporaryShootDatas: []
-  ShootDatas:
-  - ReloadTime: 2
-    FireCountRange: {x: 1, y: 1}
-    FireSpreadAngle: 0.1
-    RandomPickWeight: 0
-    Spawn: {fileID: 1326432680719098604, guid: c398c0885225003439acc45b58b8c316, type: 3}
-  RandomizeShootDataOrder: 0
+  ShootDataSelector:
+    TemporaryData: []
+    NormalData:
+    - Option:
+        ReloadTime: 1
+        FireCountRange: {x: 1, y: 1}
+        FireSpreadAngle: 11.6
+        Spawn: {fileID: 1326432680719098604, guid: c398c0885225003439acc45b58b8c316, type: 3}
+        MunitionMods: []
+        DamageMods: []
+      Weight: 0
+    RandomizeDataOrder: 0
   FireBehaviour: 0
   PlayerShootButton: 1
   UseMinimumFireAngle: 1
   LookAt: {fileID: 6537687673443203514}
-  MinimumFireAngle: 25
+  MinimumFireAngle: 15
   MinimumReloadTime: 0.07
-  DefaultDataIndex: 0
-  DefaultData:
-    ReloadTime: 2
-    FireCountRange: {x: 1, y: 1}
-    FireSpreadAngle: 0.1
-    RandomPickWeight: 0
-    Spawn: {fileID: 1326432680719098604, guid: c398c0885225003439acc45b58b8c316, type: 3}
 --- !u!114 &476052751296769762
 MonoBehaviour:
   m_ObjectHideFlags: 0

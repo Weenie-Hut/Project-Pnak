@@ -123,8 +123,9 @@ namespace Pnak
 
 		public override void OnInvalidatedRender(object context, in LiteNetworkedData data)
 		{
-			if (!(context is FillBar fillBar)) return;
-			Destroy(fillBar.gameObject);
+			if (!(context is LifetimeContext lifetimeContext)) return;
+			if (lifetimeContext.FillBar == null) return;
+			Destroy(lifetimeContext.FillBar.gameObject);
 		}
 	}
 }

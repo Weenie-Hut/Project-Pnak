@@ -33,11 +33,6 @@ namespace Pnak
 
 		[SerializeField, ReadOnly] private StateBehaviour[] stateBehaviours;
 
-		private void Awake()
-		{
-			StateModifiers = new List<StateModifier>();
-		}
-
 		public bool QueuedForDestroy { get; private set; }
 		public void QueueForDestroy()
 		{
@@ -76,66 +71,54 @@ namespace Pnak
 		}
 
 		public T GetStateBehaviour<T>() where T : StateBehaviour
+			=> GetStateBehaviour<T>(0) as T;
+
+		public T GetStateBehaviour<T>(int atOrder) where T : StateBehaviour
 		{
 			foreach (StateBehaviour stateBehaviour in stateBehaviours)
 			{
 				if (stateBehaviour is T)
-					return (T)stateBehaviour;
+				{
+					if (atOrder == 0)
+						return (T)stateBehaviour;
+					atOrder--;
+				}
 			}
 			return null;
 		}
 
-		public List<StateModifier> StateModifiers { get; private set; }
-		public void AddStateModifier(StateModifier modifier)
+		public int FindModifierAddress(int scriptIndex) => FindModifierAddress(scriptIndex, out _);
+		public int FindModifierAddress(int scriptIndex, out LiteNetworkedData data)
 		{
-			if (modifier == null) return;
-
-			if (Stage == 1)
+			foreach(int addr in NetworkContext.Modifiers)
 			{
-				AddStateModQueue.Enqueue(modifier);
-				return;
+				data = LiteNetworkManager.GetModifierData(addr);
+				if (data.ScriptType == scriptIndex)
+					return addr;
 			}
 
-			foreach (StateModifier existing in StateModifiers)
-			{
-				if (existing.TryStackWith(modifier))
-					return;
-			}
-
-			StateModifiers.Add(modifier);
-			modifier.Added(this);
+			data = default;
+			return -1;
 		}
 
-		public void RemoveStateModifier(StateModifier modifier)
+		public int GetBehaviourTypeIndex<T>(T behaviour) where T : StateBehaviour
 		{
-			if (modifier == null) return;
-
-			if (Stage == 1)
+			int index = -1;
+			foreach (StateBehaviour stateBehaviour in stateBehaviours)
 			{
-				RemoveStateModQueue.Enqueue(modifier);
-				return;
+				if (stateBehaviour is T)
+				{
+					index++;
+					if (stateBehaviour == behaviour)
+						return index;
+				}
 			}
-
-			StateModifiers.Remove(modifier);
-			modifier.Removed();
+			return -1;
 		}
 
-		public void CopyStateModifiersTo(LiteNetworkObject other)
-		{
-			foreach (StateModifier modifier in StateModifiers)
-			{
-				var copy = modifier.CopyFor(other.Target);
-
-				if (copy != null)
-					other.Target.AddStateModifier(copy);
-			}
-		}
-
-		private TransformData? transformData = null;
 		public TransformData TransformData
 		{
 			get {
-				if (transformData != null) return transformData.Value;
 				if (TransformModIndex == -1)
 				{
 					UnityEngine.Debug.LogWarning("Trying to get transform data on object that does not have a transform mod: " + gameObject.name);
@@ -149,7 +132,6 @@ namespace Pnak
 					UnityEngine.Debug.LogWarning("Trying to set transform data on object that does not have a transform mod: " + gameObject.name);
 					return;
 				}
-				transformData = value;
 				var data = LiteNetworkManager.GetModifierData(TransformModIndex);
 				TransformScript.UpdateTransform(ref data, value);
 				LiteNetworkManager.SetModifierData(TransformModIndex, data);
@@ -160,6 +142,9 @@ namespace Pnak
 		public NetworkInputData? Input { get; private set; }
 
 		public int FindNetworkMod<T>(out int scriptType) where T : LiteNetworkMod
+			=> FindNetworkMod<T>(0, out scriptType);
+
+		public int FindNetworkMod<T>(int atOrder, out int scriptType) where T : LiteNetworkMod
 		{
 			if (NetworkContext == null)
 			{
@@ -173,8 +158,12 @@ namespace Pnak
 				LiteNetworkedData data = LiteNetworkManager.GetModifierData(modifierAddress);
 				if (LiteNetworkManager.ModScripts[data.ScriptType] is T)
 				{
-					scriptType = data.ScriptType;
-					return modifierAddress;
+					if (atOrder == 0)
+					{
+						scriptType = data.ScriptType;
+						return modifierAddress;
+					}
+					atOrder--;
 				}
 			}
 			scriptType = -1;
@@ -184,33 +173,13 @@ namespace Pnak
 		private delegate void UpdateNetworkData(ref LiteNetworkedData runnerData);
 		private event UpdateNetworkData updateNetworkData = null;
 		public int Stage { get; private set; }
-		private Queue<StateModifier> RemoveStateModQueue = new Queue<StateModifier>();
-		private Queue<StateModifier> AddStateModQueue = new Queue<StateModifier>();
+		// private Queue<StateModifier> RemoveStateModQueue = new Queue<StateModifier>();
+		// private Queue<StateModifier> AddStateModQueue = new Queue<StateModifier>();
 		public void FixedUpdateNetwork(ref LiteNetworkedData runnerData)
 		{
-			transformData = null;
 			Input = SessionManager.Instance.NetworkRunner.GetInputForPlayer<NetworkInputData>(InputAuthority);
 
 			Stage = 1;
-
-			foreach (StateModifier modifier in StateModifiers)
-			{
-				modifier.FixedUpdateNetwork();
-			}
-
-			Stage = 2;
-
-			while (RemoveStateModQueue.Count > 0)
-			{
-				StateModifier state = RemoveStateModQueue.Dequeue();
-				RemoveStateModifier(state);
-			}
-
-			while (AddStateModQueue.Count > 0)
-			{
-				StateModifier state = AddStateModQueue.Dequeue();
-				AddStateModifier(state);
-			}
 
 			Stage = 3;
 
@@ -266,8 +235,8 @@ namespace Pnak
 			predictedDestroyTick = -1;
 		}
 #if UNITY_EDITOR
-		[Button(nameof(AddToScripts), "Add", nameof(prefabIndex) + "!=-1")]
-		[Button(nameof(RemoveFromScripts), "Rem", nameof(prefabIndex) + "==-1")]
+		[Button(nameof(AddToScripts), "Add", "Add script to the network config. Adding allows for multiplayer clients to sent a single number to identify the type of script/modifier that should be applied.", nameof(prefabIndex), -1, false)]
+		[Button(nameof(RemoveFromScripts), "Rem", "Remove script from network config, freeing up unused asset. Adding allows for multiplayer clients to sent a single number to identify the type of script/modifier that should be applied.", nameof(prefabIndex), -1)]
 #endif
 		[SerializeField, ReadOnly]
 		private int prefabIndex = -1;

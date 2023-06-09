@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+using System.Linq;
 
 namespace Pnak
 {
@@ -8,29 +11,21 @@ namespace Pnak
 		DoNotStack,
 
 		[Tooltip("When stacking, this field will be ignored.")]
-		KeepCurrent,
-		[Tooltip("When stacking, this field will be reset to the original value.")]
-		Original,
+		Keep,
 		[Tooltip("When stacking, this field will be replaced with the new value.")]
 		Replace,
+
 		[Tooltip("When stacking, this field will be added to the current value.")]
-
-		AddCurrent,
+		Add,
+		[Tooltip("When stacking, this field will be subtracted from the current value.")]
+		Subtract,
 		[Tooltip("When stacking, this field will be multiplied by the current value.")]
-		MultiplyCurrent,
-		[Tooltip("When stacking, this field will be set to the minimum of the current and new values.")]
-		MinCurrent,
-		[Tooltip("When stacking, this field will be set to the maximum of the current and new values.")]
-		MaxCurrent,
+		Multiply,
+		[Tooltip("When stacking, this field will be divided by the current value.")]
+		Divide,
 
-		[Tooltip("When stacking, this field will be added to the original value.")]
-		AddOriginal,
-		[Tooltip("When stacking, this field will be multiplied by the original value.")]
-		MultiplyOriginal,
-		[Tooltip("When stacking, this field will be set to the minimum of the original and new values.")]
-		MinOriginal,
-		[Tooltip("When stacking, this field will be set to the maximum of the original and new values.")]
-		MaxOriginal
+		Min,
+		Max,
 	}
 
 	[System.Serializable]
@@ -41,7 +36,7 @@ namespace Pnak
 	}
 
 	[System.Serializable]
-	public struct ValueStackSettings<T> where T : struct
+	public struct ValueStackSettings<T>
 	{
 		public ValueStackingType StackingType;
 		public int StackId;
@@ -50,224 +45,182 @@ namespace Pnak
 		public static implicit operator T(ValueStackSettings<T> settings) => settings.Value;
 	}
 
-	[System.Serializable]
-	public abstract class Stackable<T, Self> where Self : Stackable<T, Self>, new() where T : struct
+	public static partial class ValueStack
 	{
-		public static Self Create(ValueStackSettings<T> settings) => new Self
+		public static List<T> Stack<T>(List<T> current, List<T> incoming, ValueStackingType stackingType)
+			=> StackEnumerable(current, incoming, stackingType).ToList();
+
+		public static T[] Stack<T>(T[] current, T[] incoming, ValueStackingType stackingType)
+			=> StackEnumerable(current, incoming, stackingType).ToArray();
+
+		public static T Stack<T>(T current, T incoming, ValueStackingType stackingType) where T : UnityEngine.Object
+			=> StackReference(current, incoming, stackingType);
+
+		public static float Stack(float current, float incoming, ValueStackingType stackingType)
 		{
-			StackingType = settings.StackingType,
-			StackId = settings.StackId,
-			Value = settings.Value
-		};
-
-		public ValueStackingType StackingType;
-		[Tooltip("The ID of the stack this modifier belongs to. Modifiers will only stack with other modifiers of the same stack ID.")]
-		public int StackId;
-		public T Value;
-
-		public bool StackWith(Self other) => StackWith(other.Value, other);
-		public bool StackWith(T current, Self other)
-			=> StackWith(current, other.Value, other.StackId, other.StackingType);
-		public bool StackWith(in ValueStackSettings<T> settings)
-			=> StackWith(settings.Value, settings);
-		public bool StackWith(T current, in ValueStackSettings<T> settings)
-			=> StackWith(current, settings.Value, settings.StackId, settings.StackingType);
-
-		public bool StackWith(T current, T newValue, int otherId, ValueStackingType otherStackingType)
-		{
-			if (StackingType != otherStackingType)
-				return false;
-			if (StackingType == ValueStackingType.DoNotStack)
-				return false;
-			if (StackId != otherId)
-				return false;
-
-			Value = Stack(current, newValue);
-			return true;
-		}
-
-
-		public abstract T Stack(T current, T newValue);
-
-		public static implicit operator T(Stackable<T, Self> stackable) => stackable?.Value ?? default;
-	}
-
-	public class StackableFloat : Stackable<float, StackableFloat>
-	{
-		public override float Stack(float current, float newValue)
-		{
-			float original = Value;
-			ValueStackingType stackingType = StackingType;
+			if (float.IsNaN(incoming))
+				return current;
 
 			switch (stackingType)
 			{
-				case ValueStackingType.KeepCurrent:
+				case ValueStackingType.DoNotStack:
+					throw new System.ArgumentException("Cannot stack value with DoNotStack type.");
+				case ValueStackingType.Keep:
 					return current;
-				case ValueStackingType.Original:
-					return original;
 				case ValueStackingType.Replace:
-					return newValue;
-				case ValueStackingType.AddCurrent:
-					return current + newValue;
-				case ValueStackingType.MultiplyCurrent:
-					return current * newValue;
-				case ValueStackingType.MinCurrent:
-					return Mathf.Min(current, newValue);
-				case ValueStackingType.MaxCurrent:
-					return Mathf.Max(current, newValue);
-				case ValueStackingType.AddOriginal:
-					return original + newValue;
-				case ValueStackingType.MultiplyOriginal:
-					return original * newValue;
-				case ValueStackingType.MinOriginal:
-					return Mathf.Min(original, newValue);
-				case ValueStackingType.MaxOriginal:
-					return Mathf.Max(original, newValue);
+					return incoming;
+				case ValueStackingType.Add:
+					return current + incoming;
+				case ValueStackingType.Subtract:
+					return current - incoming;
+				case ValueStackingType.Multiply:
+					return current * incoming;
+				case ValueStackingType.Divide:
+					return current / incoming;
+				case ValueStackingType.Min:
+					return Mathf.Min(current, incoming);
+				case ValueStackingType.Max:
+					return Mathf.Max(current, incoming);
 				default:
-					return newValue;
+					throw new System.ArgumentException("Unknown stacking type.");
 			}
 		}
-	}
 
-	public class StackableInt : Stackable<int, StackableInt>
-	{
-		public override int Stack(int current, int newValue)
+		public static int Stack(int current, int incoming, ValueStackingType stackingType)
 		{
-			int original = Value;
-			ValueStackingType stackingType = StackingType;
+			if (incoming == int.MinValue)
+				return current;
 
 			switch (stackingType)
 			{
-				case ValueStackingType.KeepCurrent:
+				case ValueStackingType.DoNotStack:
+					throw new System.ArgumentException("Cannot stack value with DoNotStack type.");
+				case ValueStackingType.Keep:
 					return current;
-				case ValueStackingType.Original:
-					return original;
 				case ValueStackingType.Replace:
-					return newValue;
-				case ValueStackingType.AddCurrent:
-					return current + newValue;
-				case ValueStackingType.MultiplyCurrent:
-					return current * newValue;
-				case ValueStackingType.MinCurrent:
-					return Mathf.Min(current, newValue);
-				case ValueStackingType.MaxCurrent:
-					return Mathf.Max(current, newValue);
-				case ValueStackingType.AddOriginal:
-					return original + newValue;
-				case ValueStackingType.MultiplyOriginal:
-					return original * newValue;
-				case ValueStackingType.MinOriginal:
-					return Mathf.Min(original, newValue);
-				case ValueStackingType.MaxOriginal:
-					return Mathf.Max(original, newValue);
+					return incoming;
+				case ValueStackingType.Add:
+					return current + incoming;
+				case ValueStackingType.Subtract:
+					return current - incoming;
+				case ValueStackingType.Multiply:
+					return current * incoming;
+				case ValueStackingType.Divide:
+					return current / incoming;
+				case ValueStackingType.Min:
+					return Mathf.Min(current, incoming);
+				case ValueStackingType.Max:
+					return Mathf.Max(current, incoming);
 				default:
-					return newValue;
+					throw new System.ArgumentException("Unknown stacking type.");
 			}
 		}
-	}
 
-	public class StackableDamage : Stackable<DamageAmount, StackableDamage>
-	{
-		public override DamageAmount Stack(DamageAmount current, DamageAmount newValue)
+		public static Vector2 Stack(Vector2 current, Vector2 incoming, ValueStackingType stackingType)
 		{
-			DamageAmount original = Value;
-			ValueStackingType stackingType = StackingType;
+			if (float.IsNaN(incoming.x) || float.IsNaN(incoming.y))
+				return current;
 
 			switch (stackingType)
 			{
-				case ValueStackingType.KeepCurrent:
+				case ValueStackingType.DoNotStack:
+					throw new System.ArgumentException("Cannot stack value with DoNotStack type.");
+				case ValueStackingType.Keep:
 					return current;
-				case ValueStackingType.Original:
-					return original;
 				case ValueStackingType.Replace:
-					return newValue;
-				case ValueStackingType.AddCurrent:
-					return current + newValue;
-				case ValueStackingType.MultiplyCurrent:
-					return current * newValue;
-				case ValueStackingType.MinCurrent:
-					return DamageAmount.Min(current, newValue);
-				case ValueStackingType.MaxCurrent:
-					return DamageAmount.Max(current, newValue);
-				case ValueStackingType.AddOriginal:
-					return original + newValue;
-				case ValueStackingType.MultiplyOriginal:
-					return original * newValue;
-				case ValueStackingType.MinOriginal:
-					return DamageAmount.Min(original, newValue);
-				case ValueStackingType.MaxOriginal:
-					return DamageAmount.Max(original, newValue);
+					return incoming;
+				case ValueStackingType.Add:
+					return current + incoming;
+				case ValueStackingType.Subtract:
+					return current - incoming;
+				case ValueStackingType.Multiply:
+					return new Vector2(current.x * incoming.x, current.y * incoming.y);
+				case ValueStackingType.Divide:
+					return new Vector2(current.x / incoming.x, current.y / incoming.y);
+				case ValueStackingType.Min:
+					return new Vector2(Mathf.Min(current.x, incoming.x), Mathf.Min(current.y, incoming.y));
+				case ValueStackingType.Max:
+					return new Vector2(Mathf.Max(current.x, incoming.x), Mathf.Max(current.y, incoming.y));
 				default:
-					return newValue;
+					throw new System.ArgumentException("Unknown stacking type.");
 			}
 		}
-	}
 
-	public class StackableResistance : Stackable<ResistanceAmount, StackableResistance>
-	{
-		public override ResistanceAmount Stack(ResistanceAmount current, ResistanceAmount newValue)
+		public static Vector3 Stack(Vector3 current, Vector3 incoming, ValueStackingType stackingType)
 		{
-			ResistanceAmount original = Value;
-			ValueStackingType stackingType = StackingType;
+			if (float.IsNaN(incoming.x) || float.IsNaN(incoming.y) || float.IsNaN(incoming.z))
+				return current;
 
 			switch (stackingType)
 			{
-				case ValueStackingType.KeepCurrent:
+				case ValueStackingType.DoNotStack:
+					throw new System.ArgumentException("Cannot stack value with DoNotStack type.");
+				case ValueStackingType.Keep:
 					return current;
-				case ValueStackingType.Original:
-					return original;
 				case ValueStackingType.Replace:
-					return newValue;
-				case ValueStackingType.AddCurrent:
-					return new ResistanceAmount {
-						PhysicalMultiplier = current.PhysicalMultiplier + newValue.PhysicalMultiplier,
-						MagicalMultiplier = current.MagicalMultiplier + newValue.MagicalMultiplier,
-						AnyMultiplier = current.AnyMultiplier + newValue.AnyMultiplier,
-					};
-				case ValueStackingType.MultiplyCurrent:
-					return new ResistanceAmount {
-						PhysicalMultiplier = current.PhysicalMultiplier * newValue.PhysicalMultiplier,
-						MagicalMultiplier = current.MagicalMultiplier * newValue.MagicalMultiplier,
-						AnyMultiplier = current.AnyMultiplier * newValue.AnyMultiplier,
-					};
-				case ValueStackingType.MinCurrent:
-					return new ResistanceAmount {
-						PhysicalMultiplier = Mathf.Min(current.PhysicalMultiplier, newValue.PhysicalMultiplier),
-						MagicalMultiplier = Mathf.Min(current.MagicalMultiplier, newValue.MagicalMultiplier),
-						AnyMultiplier = Mathf.Min(current.AnyMultiplier, newValue.AnyMultiplier),
-					};
-				case ValueStackingType.MaxCurrent:
-					return new ResistanceAmount {
-						PhysicalMultiplier = Mathf.Max(current.PhysicalMultiplier, newValue.PhysicalMultiplier),
-						MagicalMultiplier = Mathf.Max(current.MagicalMultiplier, newValue.MagicalMultiplier),
-						AnyMultiplier = Mathf.Max(current.AnyMultiplier, newValue.AnyMultiplier),
-					};
-				case ValueStackingType.AddOriginal:
-					return new ResistanceAmount {
-						PhysicalMultiplier = original.PhysicalMultiplier + newValue.PhysicalMultiplier,
-						MagicalMultiplier = original.MagicalMultiplier + newValue.MagicalMultiplier,
-						AnyMultiplier = original.AnyMultiplier + newValue.AnyMultiplier,
-					};
-				case ValueStackingType.MultiplyOriginal:
-					return new ResistanceAmount {
-						PhysicalMultiplier = original.PhysicalMultiplier * newValue.PhysicalMultiplier,
-						MagicalMultiplier = original.MagicalMultiplier * newValue.MagicalMultiplier,
-						AnyMultiplier = original.AnyMultiplier * newValue.AnyMultiplier,
-					};
-				case ValueStackingType.MinOriginal:
-					return new ResistanceAmount {
-						PhysicalMultiplier = Mathf.Min(original.PhysicalMultiplier, newValue.PhysicalMultiplier),
-						MagicalMultiplier = Mathf.Min(original.MagicalMultiplier, newValue.MagicalMultiplier),
-						AnyMultiplier = Mathf.Min(original.AnyMultiplier, newValue.AnyMultiplier),
-					};
-				case ValueStackingType.MaxOriginal:
-					return new ResistanceAmount {
-						PhysicalMultiplier = Mathf.Max(original.PhysicalMultiplier, newValue.PhysicalMultiplier),
-						MagicalMultiplier = Mathf.Max(original.MagicalMultiplier, newValue.MagicalMultiplier),
-						AnyMultiplier = Mathf.Max(original.AnyMultiplier, newValue.AnyMultiplier),
-					};
+					return incoming;
+				case ValueStackingType.Add:
+					return current + incoming;
+				case ValueStackingType.Subtract:
+					return current - incoming;
+				case ValueStackingType.Multiply:
+					return new Vector3(current.x * incoming.x, current.y * incoming.y, current.z * incoming.z);
+				case ValueStackingType.Divide:
+					return new Vector3(current.x / incoming.x, current.y / incoming.y, current.z / incoming.z);
+				case ValueStackingType.Min:
+					return new Vector3(Mathf.Min(current.x, incoming.x), Mathf.Min(current.y, incoming.y), Mathf.Min(current.z, incoming.z));
+				case ValueStackingType.Max:
+					return new Vector3(Mathf.Max(current.x, incoming.x), Mathf.Max(current.y, incoming.y), Mathf.Max(current.z, incoming.z));
 				default:
-					return newValue;
+					throw new System.ArgumentException("Unknown stacking type.");
+			}
+		}
+
+		private static T StackReference<T>(T current, T incoming, ValueStackingType stackingType) where T : class
+		{
+			switch (stackingType)
+			{
+				case ValueStackingType.DoNotStack:
+					throw new System.ArgumentException("Cannot stack value with DoNotStack type.");
+				case ValueStackingType.Keep:
+					return current;
+				case ValueStackingType.Replace:
+					return incoming;
+				case ValueStackingType.Add:
+				case ValueStackingType.Multiply:
+				case ValueStackingType.Max:
+					return incoming ?? current;
+				case ValueStackingType.Subtract:
+				case ValueStackingType.Divide:
+					return incoming.Equals(current) ? null : current;
+				case ValueStackingType.Min:
+					return incoming == null ? incoming : current;
+				default:
+					throw new System.ArgumentException("Unknown stacking type.");
+			}
+		}
+
+		public static IEnumerable<T> StackEnumerable<T>(IEnumerable<T> current, IEnumerable<T> incoming, ValueStackingType stackingType)
+		{
+			switch (stackingType)
+			{
+				case ValueStackingType.DoNotStack:
+					throw new System.ArgumentException("Cannot stack value with DoNotStack type.");
+				case ValueStackingType.Keep:
+					return current ?? new T[0];
+				case ValueStackingType.Replace:
+					return incoming ?? new T[0];
+				case ValueStackingType.Add:
+				case ValueStackingType.Multiply:
+					return current?.Concat(incoming) ?? incoming ?? new T[0];
+				case ValueStackingType.Min:
+				case ValueStackingType.Subtract:
+				case ValueStackingType.Divide:
+					return current?.Except(incoming) ?? new T[0];
+				case ValueStackingType.Max:
+					return current?.Intersect(incoming) ?? new T[0];
+				default:
+					throw new System.ArgumentException("Unknown stacking type.");
 			}
 		}
 	}

@@ -22,16 +22,16 @@ namespace Pnak
 
 		public override bool IsSelectable(Interactable interactable = null)
 		{
-			if (Player.IsValid)
+			if (!Player.IsValid)
 				return false;
 			
 			if (interactable == null)
 				return false;
 
-			if (!interactable.TryGetComponent<StateBehaviourController>(out StateBehaviourController tower))
+			if (!interactable.TryGetComponent<StateBehaviourController>(out StateBehaviourController PilotTarget))
 				return false;
 
-			return !tower.InputAuthority.IsNone;
+			return !PilotTarget.InputAuthority.IsNone;
 		}
 	}
 }

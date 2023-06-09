@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4824208289284672205}
   - component: {fileID: 3072735703879940987}
+  - component: {fileID: 5860663208922785953}
   m_Layer: 0
   m_Name: Graphics
   m_TagString: Untagged
@@ -49,6 +50,27 @@ CapsuleCollider2D:
   m_Offset: {x: -1, y: 0}
   m_Size: {x: 59, y: 30}
   m_Direction: 1
+--- !u!50 &5860663208922785953
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584255750843065848}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &2513871686737893388
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,8 +144,10 @@ MonoBehaviour:
   _CollisionMask:
     serializedVersion: 2
     m_Bits: 320
+  RaycastPositionChanges: 1
   SortByDistance: 0
-  UseTransformDistance: 0
+  UseDistanceOnStaticTransform: 0
+  UseTransformDistanceOnStaticTransform: 0
   maxCollisions: 5
 --- !u!114 &1559252364345579475
 MonoBehaviour:
@@ -138,15 +162,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _collisionProcessor: {fileID: 5270848876961268193}
-  DamageByPeirce:
-  - PhysicalDamage: 0
-    MagicalDamage: 0
-    PureDamage: 0
-    applyModifiers:
-    - {fileID: 11400000, guid: fff4216208d4e714db380702b096428f, type: 2}
-  CappedPeirce: 1
+  MaxHitsPerTick: 5
+  DamageDataSelector:
+    TemporaryData: []
+    NormalData:
+    - Option:
+        PhysicalDamage: NaN
+        MagicalDamage: NaN
+        PureDamage: NaN
+        ApplyModifiers:
+        - scriptType: 14
+          CustomData: 0000a04000000000c800050000c0ff0000c0ff0000c040ff00000000
+      Weight: 0
+    RandomizeDataOrder: 0
   Peirce: 1
   IgnoreAfterFirstHit: 1
+  IntervalType: 0
+  IntervalBetweenHits: 0.0333
+  intervalInTicks: -1
+  PickDamageDataAfterEachHit: 0
 --- !u!114 &-2771670484422843685
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _collisionProcessor: {fileID: 5270848876961268193}
+  MaxHitsPerTick: 5
   _DespawnImpactLayers:
     serializedVersion: 2
     m_Bits: 256

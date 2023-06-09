@@ -128,7 +128,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0118e6ed723c79242bd0939acd2f2bc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _DefaultMovementSpeed: 250
+  MovementDataSelector:
+    TemporaryData: []
+    NormalData:
+    - Option:
+        MovementSpeed: 250
+        HoldDuration: Infinity
+      Weight: 0
+    RandomizeDataOrder: 0
 --- !u!114 &1542059804515670451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,10 +148,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 449fdbd043bee11499da8d189a51c23a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Resistance:
-    AnyMultiplier: 1
-    PhysicalMultiplier: 1
-    MagicalMultiplier: 1
+  ResistanceDataSelector:
+    TemporaryData: []
+    NormalData:
+    - Option:
+        AllMultiplier: 1
+        PhysicalMultiplier: 1
+        MagicalMultiplier: 1
+      Weight: 0
+    RandomizeDataOrder: 0
   _SpawnHealth: 4
   _SpawnMaxHealth: 4
   _DespawnOnDeath: 1

@@ -19,6 +19,8 @@ namespace Pnak
 
 		public List<SpawnData> Data;
 		public bool Loop;
+		[ShowIf(nameof(Loop))]
+		public float HealthScalePerLoop = 1.0f;
 
 		public SpawnData this[int index]
 		{

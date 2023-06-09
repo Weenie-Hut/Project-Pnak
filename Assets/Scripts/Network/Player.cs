@@ -67,7 +67,7 @@ namespace Pnak
 			if (!PlayerLoaded && HasStateAuthority)
 			{
 				LiteNetworkManager.QueueNewNetworkObject(LoadingPlayerPrefab, new TransformData(), obj => {
-					UnityEngine.Debug.Log("New agent index is " + obj.Index + ".");
+					// UnityEngine.Debug.Log("New agent index is " + obj.Index + ".");
 					AgentNetworkIndex = (ushort)obj.Index;
 				});
 			}
@@ -132,7 +132,7 @@ namespace Pnak
 		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
 		public void RPC_ChangePlayerAgent(byte index)
 		{
-			UnityEngine.Debug.Log("Changing player agent to " + index + "! Previous agent was " + AgentNetworkIndex + ".");
+			// UnityEngine.Debug.Log("Changing player agent to " + index + "! Previous agent was " + AgentNetworkIndex + ".");
 
 			TransformData? transformData = null;
 			if (AgentNetworkIndex != ushort.MaxValue)

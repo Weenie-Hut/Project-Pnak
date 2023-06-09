@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -45,7 +46,7 @@ namespace Pnak
 		public LiteNetworkModScripts LiteNetworkModScripts => _liteNetworkModScripts;
 
 		public static LiteNetworkMod[] ModScripts => self.LiteNetworkModScripts.Mods;
-		public static StateModifierSO[] StateModifiers => self.LiteNetworkModScripts.StateModifiers;
+		// public static StateModifierSO[] StateModifiers => self.LiteNetworkModScripts.StateModifiers;
 		public static StateBehaviourController[] Prefabs => self.LiteNetworkModScripts.LiteNetworkPrefabs;
 
 		[Networked, Capacity(LiteModCapacity)]
@@ -217,14 +218,11 @@ namespace Pnak
 				modifiersData[i].PrefabIndex = data.Prefab.PrefabIndex;
 
 				LiteNetworkMod script = ModScripts[modifiersData[i].ScriptType];
-
-				script.SetRuntime(ref modifiersData[i]);
-
 				if (script is TransformMod transformModifier)
 					transformModifier.SetTransformData(ref modifiersData[i], data.Transform);
 
 				lastModifierAddress = self.ReserveFreeModifierIndex(modifiersData[i].ScriptType, modifiersData[i].TargetIndex, lastModifierAddress);
-				PlaceModifier(lastModifierAddress, in modifiersData[i]);
+				PlaceModifier(lastModifierAddress, ref modifiersData[i]);
 				self.InitializeContext(lastModifierAddress);
 
 				_workingModAddresses.Add(lastModifierAddress);
@@ -279,18 +277,60 @@ namespace Pnak
 			return liteNetworkObjects.Count - 1;
 		}
 
-		public static void AddModifier(in LiteNetworkedData data)
+		private Queue<LiteNetworkedData> _modifierQueue = new Queue<LiteNetworkedData>();
+
+		private void RunAddModifiers()
 		{
-			int modifierAddress = self.ReserveFreeModifierIndex(data.ScriptType, data.TargetIndex);
-			PlaceModifier(modifierAddress, in data);
+			while (_modifierQueue.Count > 0)
+			{
+				LiteNetworkedData data = _modifierQueue.Dequeue();
+				AddModifier(ref data);
+			}
 		}
 
-		public static void PlaceModifier(int modifierAddress, in LiteNetworkedData data)
+		public static void QueueAddModifier(LiteNetworkObject networkObject, LiteNetworkedData data)
 		{
-			self._PlaceModifier(modifierAddress, in data);
+			data.TargetIndex = networkObject.Index;
+			data.PrefabIndex = networkObject.PrefabIndex;
+			QueueAddModifier(data);
 		}
 
-		private void _PlaceModifier(int modifierAddress, in LiteNetworkedData data)
+		public static void QueueAddModifier(LiteNetworkedData data)
+		{
+			self._modifierQueue.Enqueue(data);
+		}
+
+		private void AddModifier(ref LiteNetworkedData data)
+		{
+			LiteNetworkObject networkObject = self.liteNetworkObjects[data.TargetIndex];
+
+			int last = -1;
+			if (networkObject != null)
+			{
+				foreach (int existingAddress in networkObject.Modifiers)
+				{
+					LiteNetworkedData _data = self.LiteModData[existingAddress];
+					if (ModScripts[_data.ScriptType].CombineWith(GetModContext(existingAddress), ref _data, in data))
+						return;
+				}
+				if (networkObject.Modifiers.Count > 0)
+					last = networkObject.Modifiers[networkObject.Modifiers.Count - 1];
+			}
+
+			int modifierAddress = self.ReserveFreeModifierIndex(data.ScriptType, data.TargetIndex, last);
+			PlaceModifier(modifierAddress, ref data);
+
+			InitializeContext(modifierAddress);
+			ModScripts[data.ScriptType].OnFixedUpdate(liteModContexts[modifierAddress], ref data);
+			LiteModData.Set(modifierAddress, data);
+		}
+
+		public static void PlaceModifier(int modifierAddress, ref LiteNetworkedData data)
+		{
+			self._PlaceModifier(modifierAddress, ref data);
+		}
+
+		private void _PlaceModifier(int modifierAddress, ref LiteNetworkedData data)
 		{
 			try
 			{
@@ -302,6 +342,8 @@ namespace Pnak
 				// UnityEngine.Debug.Log("BehaviourModifierManager.PlaceModifier: { address: " + modifierAddress + ", scriptType: " + data.ScriptType + ", prefabIndex: " + data.PrefabIndex + ", targetIndex: " + data.TargetIndex + " }");
 
 				// UnityEngine.Debug.Log($"Placing at {modifierAddress}: {data},\n Target {liteNetworkObjects[data.TargetIndex].Format()},\nContext: {liteModContexts[modifierAddress]}\n");
+
+				ModScripts[data.ScriptType].SetRuntime(ref data);
 
 				LiteModData.Set(modifierAddress, data);
 				liteModContexts[modifierAddress] = null;
@@ -340,6 +382,7 @@ namespace Pnak
 
 			// Recursively calls itself until queue is empty. Makes sure the all objects are created and ran in correct order.
 			RunQueueCreate();
+			RunAddModifiers();
 
 			while (_deletingLiteObjects.Count > 0)
 			{
@@ -354,6 +397,7 @@ namespace Pnak
 					if (data.TargetIndex != targetIndex) continue;
 
 					ModScripts[data.ScriptType].OnInvalidatedUpdate(liteModContexts[modifierAddress], ref data);
+					data.Invalidate();
 					LiteModData.Set(modifierAddress, data);
 
 					// UnityEngine.Debug.Log("BehaviourModifierManager.Invalidate (update) Modifier due to delete: { address: " + modifierAddress + ", scriptType: " + data.ScriptType + ", prefabIndex: " + data.PrefabIndex + ", targetIndex: " + data.TargetIndex + " }");
@@ -363,6 +407,7 @@ namespace Pnak
 					{
 						liteNetworkObjects[data.TargetIndex].Modifiers.RemoveAt(objectModifierIndex);
 						ModScripts[data.ScriptType].OnInvalidatedRender(liteModContexts[modifierAddress], in data);
+						
 						liteModContexts[modifierAddress] = null;
 
 						objectModifierIndex--;
@@ -396,6 +441,8 @@ namespace Pnak
 				}
 
 				ModScripts[data.ScriptType].OnFixedUpdate(liteModContexts[modifierAddress], ref data);
+				if (!data.IsValid)
+					ModScripts[data.ScriptType].OnInvalidatedUpdate(liteModContexts[modifierAddress], ref data);
 				LiteModData.Set(modifierAddress, data);
 			}
 		}
@@ -591,28 +638,63 @@ namespace Pnak
 			context.IsReserved = false;
 		}
 
-		public static void RPC_AddStateMod(int target, ushort type)
-		{
-			self.RPC_AddStateMod_(target, type);
-		}
+		// public static void RPC_AddStateMod(int target, ushort type)
+		// {
+		// 	self.RPC_AddStateMod_(target, type);
+		// }
 
 		public static void RPC_SetInputAuth(int target, PlayerRef player)
 		{
 			self.RPC_SetInputAuth_(target, player);
 		}
 
-		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-		private void RPC_AddStateMod_(int target, ushort type)
+		public static void RPC_UpdateModifier(int address, LiteNetworkedData mod)
 		{
-			StateModifier modifier = LiteNetworkModScripts.StateModifiers[type].CreateModifier();
-			if (!TryGetNetworkContext(target, out LiteNetworkObject context))
-			{
-				Debug.LogError("BehaviourModifierManager.RPC__AddStateMod: target at index " + target + " does not exist.");
-				return;
-			}
-
-			context.Target.AddStateModifier(modifier);
+			self.RPC_UpdateModifier_(address, mod);
 		}
+
+		public static void RPC_AddModifier(LiteNetworkObject networkObject, LiteNetworkedData mod)
+		{
+			mod.TargetIndex = networkObject.Index;
+			mod.PrefabIndex = networkObject.PrefabIndex;
+			self.RPC_AddModifier_(mod);
+		}
+
+		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+		private void RPC_AddModifier_(LiteDataBuffer mod)
+		{
+			QueueAddModifier(mod);
+		}
+
+		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+		private void RPC_UpdateModifier_(int address, LiteDataBuffer mod)
+		{
+#if DEBUG
+			LiteNetworkedData data = mod;
+			UnityEngine.Debug.Assert(data.TargetIndex != -1, "BehaviourModifierManager.RPC_UpdateModifier_: mod.TargetIndex is -1");
+			UnityEngine.Debug.Assert(data.PrefabIndex != -1, "BehaviourModifierManager.RPC_UpdateModifier_: mod.PrefabIndex is -1");
+			UnityEngine.Debug.Assert(data.ScriptType != -1, "BehaviourModifierManager.RPC_UpdateModifier_: mod.ScriptType is -1");
+			LiteNetworkedData oldData = GetModifierData(address);
+			UnityEngine.Debug.Assert(oldData.TargetIndex == data.TargetIndex, "BehaviourModifierManager.RPC_UpdateModifier_: oldData.TargetIndex != data.TargetIndex");
+			UnityEngine.Debug.Assert(oldData.PrefabIndex == data.PrefabIndex, "BehaviourModifierManager.RPC_UpdateModifier_: oldData.PrefabIndex != data.PrefabIndex");
+			UnityEngine.Debug.Assert(oldData.ScriptType == data.ScriptType, "BehaviourModifierManager.RPC_UpdateModifier_: oldData.ScriptType != data.ScriptType");
+#endif
+
+			SetModifierData(address, mod);
+		}
+
+		// [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+		// private void RPC_AddStateMod_(int target, ushort type)
+		// {
+		// 	StateModifier modifier = LiteNetworkModScripts.StateModifiers[type].CreateModifier();
+		// 	if (!TryGetNetworkContext(target, out LiteNetworkObject context))
+		// 	{
+		// 		Debug.LogError("BehaviourModifierManager.RPC__AddStateMod: target at index " + target + " does not exist.");
+		// 		return;
+		// 	}
+
+		// 	context.Target.AddStateModifier(modifier);
+		// }
 
 		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
 		private void RPC_SetInputAuth_(int target, PlayerRef player)

@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a628152d73341204899f78dc15a8a774, type: 3}
+  m_Name: Basic Enemy Movement
+  m_EditorClassIdentifier: 
+  scriptIndex: 14
+  Visuals: {fileID: 6443340962870154360, guid: 5b095de2100a33c4db7f8b0c51ed2b3f, type: 3}
+  defaultDuration: 5

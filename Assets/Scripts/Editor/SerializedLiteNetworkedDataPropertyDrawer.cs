@@ -40,6 +40,12 @@ namespace PnakEditor
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			if (EditorApplication.isPlayingOrWillChangePlaymode)
+			{
+				EditorGUI.HelpBox(position, "Cannot edit LiteNetworkedData in play mode", MessageType.Info);
+				return;
+			}
+
 			EditorGUI.BeginProperty(position, label, property);
 			SetProperties(property);
 
@@ -66,17 +72,18 @@ namespace PnakEditor
 				{
 					LiteNetworkedData defaultData = default;
 					LiteNetworkModScripts.Instance.Mods[scriptIndex - 1].SetDefaults(ref defaultData);
-					UnityEngine.Debug.Log(defaultData.ToString());
 					SetByteBuffer(customDataProperty_hidden, defaultData.SafeCustomData);
 				}
 			}
-			
 
 			if (customDataProperty_Drawn != null)
 			{
 				UnityEngine.Debug.Assert(customDataProperty_hidden.isFixedBuffer);
 				byte[] customData = GetByteBuffer(customDataProperty_hidden);
 				SetAllFromRawData(customDataProperty_Drawn, customData);
+
+				customDataProperty_Drawn.serializedObject.ApplyModifiedProperties();
+				customDataProperty_Drawn.serializedObject.Update();
 
 				Rect customDataPosition = scriptTypePosition;
 				var enumerator = GetImmediateChildren(customDataProperty_Drawn);
@@ -86,8 +93,12 @@ namespace PnakEditor
 					EditorGUI.PropertyField(customDataPosition, enumerator.Current);
 				}
 
+				customDataProperty_Drawn.serializedObject.ApplyModifiedProperties();
+				customDataProperty_Drawn.serializedObject.Update();
+
 				CopyAllToRawData(customDataProperty_Drawn, customData);
 				SetByteBuffer(customDataProperty_hidden, customData);
+				customDataProperty_hidden.serializedObject.ApplyModifiedProperties();
 			}
 
 			EditorGUI.EndProperty();
@@ -95,6 +106,11 @@ namespace PnakEditor
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
+			if (EditorApplication.isPlayingOrWillChangePlaymode)
+			{
+				return EditorGUIUtility.singleLineHeight;
+			}
+
 			SetProperties(property);
 
 			float height = EditorGUIUtility.singleLineHeight;
@@ -110,6 +126,12 @@ namespace PnakEditor
 
 			return height;
 		}
+
+		public override bool CanCacheInspectorGUI(SerializedProperty property)
+		{
+			return !EditorApplication.isPlayingOrWillChangePlaymode;
+		}
+
 
 		private static byte[] GetByteBuffer(SerializedProperty fixedByteBuffer)
 		{

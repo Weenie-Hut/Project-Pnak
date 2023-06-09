@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4824208289284672205}
   - component: {fileID: 1854844583991640616}
+  - component: {fileID: 4882922721261176398}
   m_Layer: 0
   m_Name: Graphics
   m_TagString: Untagged
@@ -62,6 +63,27 @@ PolygonCollider2D:
       - {x: -22.299309, y: -0.2702775}
       - {x: -35.70305, y: -13.729723}
       - {x: 35.18808, y: 0}
+--- !u!50 &4882922721261176398
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584255750843065848}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &2513871686737893388
 GameObject:
   m_ObjectHideFlags: 0
@@ -112,7 +134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultMods:
   - scriptType: 2
-    CustomData: 000000000000000000007a4400000000000000000000000000000000
+    CustomData: 00000000000000000000964400000000000000000000000000000000
   stateBehaviours:
   - {fileID: 5270848876961268193}
   - {fileID: 1559252364345579475}
@@ -135,8 +157,10 @@ MonoBehaviour:
   _CollisionMask:
     serializedVersion: 2
     m_Bits: 320
+  RaycastPositionChanges: 1
   SortByDistance: 0
-  UseTransformDistance: 0
+  UseDistanceOnStaticTransform: 0
+  UseTransformDistanceOnStaticTransform: 0
   maxCollisions: 5
 --- !u!114 &1559252364345579475
 MonoBehaviour:
@@ -151,22 +175,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _collisionProcessor: {fileID: 5270848876961268193}
-  DamageByPeirce:
-  - PhysicalDamage: 0
-    MagicalDamage: 0
-    PureDamage: 2.5
-    applyModifiers: []
-  - PhysicalDamage: 0
-    MagicalDamage: 0
-    PureDamage: 2
-    applyModifiers: []
-  - PhysicalDamage: 0
-    MagicalDamage: 0
-    PureDamage: 1.5
-    applyModifiers: []
-  CappedPeirce: 1
+  MaxHitsPerTick: 5
+  DamageDataSelector:
+    TemporaryData: []
+    NormalData:
+    - Option:
+        PhysicalDamage: 1
+        MagicalDamage: 0
+        PureDamage: 1
+        ApplyModifiers: []
+      Weight: 0
+    - Option:
+        PhysicalDamage: 0.75
+        MagicalDamage: 0
+        PureDamage: 0.5
+        ApplyModifiers: []
+      Weight: 0
+    - Option:
+        PhysicalDamage: 0.5
+        MagicalDamage: 0
+        PureDamage: 0.25
+        ApplyModifiers: []
+      Weight: 0
+    RandomizeDataOrder: 0
   Peirce: 3
   IgnoreAfterFirstHit: 1
+  IntervalType: 0
+  IntervalBetweenHits: 0
+  intervalInTicks: -1
+  PickDamageDataAfterEachHit: 0
 --- !u!114 &-2771670484422843685
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,6 +217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _collisionProcessor: {fileID: 5270848876961268193}
+  MaxHitsPerTick: 5
   _DespawnImpactLayers:
     serializedVersion: 2
     m_Bits: 256

@@ -29,13 +29,21 @@ namespace Pnak
 		private void OnValidate()
 		{
 			_instance = this;
-
-			UnityEditor.EditorApplication.delayCall += RefreshRefs;
 		}
+
+		private static bool Refreshing = false;
 
 		public static void StaticRefreshRefs()
 		{
-			Instance.RefreshRefs();
+			if (!Refreshing)
+			{
+				UnityEditor.EditorApplication.delayCall += () => {
+					Instance.RefreshRefs();
+					Refreshing = false;
+				};
+				Refreshing = true;
+			}
+			
 		}
 
 		public void RefreshRefs()
@@ -65,15 +73,15 @@ namespace Pnak
 				UnityEditor.EditorUtility.SetDirty(Mods[i]);
 			}
 
-			int stateModifiersLength = StateModifiers == null ? 0 : StateModifiers.Length;
-			for (int i = 0; i < stateModifiersLength; i++)
-			{
-				if (StateModifiers[i] == null)
-					continue;
+			// int stateModifiersLength = StateModifiers == null ? 0 : StateModifiers.Length;
+			// for (int i = 0; i < stateModifiersLength; i++)
+			// {
+			// 	if (StateModifiers[i] == null)
+			// 		continue;
 
-				StateModifiers[i].EditorSetTypeIndex(i);
-				UnityEditor.EditorUtility.SetDirty(StateModifiers[i]);
-			}
+			// 	StateModifiers[i].EditorSetTypeIndex(i);
+			// 	UnityEditor.EditorUtility.SetDirty(StateModifiers[i]);
+			// }
 
 			StateRunnerMod stateRunnerMod = System.Array.Find(Mods, (LiteNetworkMod mod) => mod is StateRunnerMod) as StateRunnerMod;
 			if (stateRunnerMod != null)
@@ -127,10 +135,10 @@ namespace Pnak
 			Instance.Mods = Add(Instance.Mods, mod);
 		}
 
-		public static void AddStateModifier(StateModifierSO stateModifier)
-		{
-			Instance.StateModifiers = Add(Instance.StateModifiers, stateModifier);
-		}
+		// public static void AddStateModifier(StateModifierSO stateModifier)
+		// {
+		// 	Instance.StateModifiers = Add(Instance.StateModifiers, stateModifier);
+		// }
 
 		public static int ValidateIndex<T>(T[] array, T obj) where T : Object
 		{
@@ -148,8 +156,8 @@ namespace Pnak
 		public static int ValidateModIndex(LiteNetworkMod mod)
 			=> ValidateIndex(RawInstance?.Mods, mod);
 
-		public static int ValidateStateModifierIndex(StateModifierSO stateModifier)
-			=> ValidateIndex(RawInstance?.StateModifiers, stateModifier);
+		// public static int ValidateStateModifierIndex(StateModifierSO stateModifier)
+		// 	=> ValidateIndex(RawInstance?.StateModifiers, stateModifier);
 
 		public static T[] Remove<T>(T[] array, T obj) where T : Object
 		{
@@ -172,10 +180,10 @@ namespace Pnak
 			Instance.Mods = Remove(Instance.Mods, mod);
 		}
 
-		public static void RemoveStateModifier(StateModifierSO stateModifier)
-		{
-			Instance.StateModifiers = Remove(Instance.StateModifiers, stateModifier);
-		}
+		// public static void RemoveStateModifier(StateModifierSO stateModifier)
+		// {
+		// 	Instance.StateModifiers = Remove(Instance.StateModifiers, stateModifier);
+		// }
 #endif
 		[ReadOnly, NonReorderable]
 		public StateBehaviourController[] LiteNetworkPrefabs;
@@ -183,7 +191,7 @@ namespace Pnak
 		[ReadOnly, NonReorderable]
 		public LiteNetworkMod[] Mods;
 
-		[ReadOnly, NonReorderable]
-		public StateModifierSO[] StateModifiers;
+		// [ReadOnly, NonReorderable]
+		// public StateModifierSO[] StateModifiers;
 	}
 }

@@ -19,4 +19,4 @@ MonoBehaviour:
   DescriptionPreview: Intense Aura that slowly damages enemies, and a main support
     that increases the amount of damage enemies take.
   Icon: {fileID: 21300000, guid: 133c40de12aefd241aeb5265f1980de1, type: 3}
-  AgentPrefab: {fileID: 7422054026303079073, guid: 961eb932608309542ad60612a0c4694b, type: 3}
+  AgentPrefab: {fileID: 4484754667655281186, guid: 961eb932608309542ad60612a0c4694b, type: 3}

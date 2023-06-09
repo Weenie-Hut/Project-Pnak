@@ -81,6 +81,32 @@ namespace Pnak
 			};
 		}
 
+		public override bool CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
+		{
+			if (ScriptIndex != next.ScriptType) return false;
+
+			UnityEngine.Debug.Log("CombineWith");
+
+			float currentTick = SessionManager.Instance.NetworkRunner.Tick;
+			float tickRate = SessionManager.Instance.NetworkRunner.DeltaTime;
+			float ticksPassed = currentTick - current.KinematicMove.SpawnTick;
+			float timePassed = ticksPassed * tickRate;
+
+			Vector2 currentPos  = GetPosition(current, timePassed);
+			float angle = MathUtil.DirectionToAngle(current.KinematicMove.Velocity);
+
+			current.KinematicMove.Velocity += MathUtil.RotateVector(next.KinematicMove.Velocity, angle);
+			current.KinematicMove.Acceleration += MathUtil.RotateVector(next.KinematicMove.Acceleration, angle);
+
+			// Calculate the starting position using the current velocity and acceleration based on the timePassed
+			current.KinematicMove.SpawnPosition = 
+				currentPos
+				- current.KinematicMove.Velocity * timePassed
+				- current.KinematicMove.Acceleration * timePassed * timePassed / 2;
+
+			return true;
+		}
+
 		public override void SetDefaults(ref LiteNetworkedData data) =>
 			SetDefaults(ref data, Vector2.zero);
 
@@ -105,10 +131,7 @@ namespace Pnak
 
 			float currentTick = SessionManager.Instance.NetworkRunner.Tick;
 			float tickRate = SessionManager.Instance.NetworkRunner.DeltaTime;
-
-
 			float ticksPassed = currentTick - data.KinematicMove.SpawnTick;
-
 			float timePassed = ticksPassed * tickRate;
 
 			Vector2 currentPosition = GetPosition(data, timePassed);

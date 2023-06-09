@@ -18,6 +18,8 @@ namespace Pnak
 		[SerializeField] private float _StartingMoney = 100.0f;
 		private int _SpawnIndex = 0;
 
+		private int loopCount = 0;
+
 		public override void Spawned()
 		{
 			base.Spawned();
@@ -28,6 +30,7 @@ namespace Pnak
 				self = this;
 			}
 
+			loopCount = 0;
 			globalMoney = _StartingMoney;
 		}
 
@@ -47,7 +50,10 @@ namespace Pnak
 					if (_SpawnIndex >= _SpawnPattern.Length)
 					{
 						if (_SpawnPattern.Loop)
+						{
+							loopCount++;
 							_SpawnIndex = 0;
+						}
 						else
 							return;
 					}
@@ -74,6 +80,7 @@ namespace Pnak
 
 			LiteNetworkManager.QueueNewNetworkObject(_SpawnPattern[_SpawnIndex].enemy, data, (enemy) => {
 				enemy.Target.GetStateBehaviour<Enemy>().Init(_SpawnPath);
+				enemy.Target.GetStateBehaviour<HealthBehaviour>().ScaleHealth((loopCount + 1) * _SpawnPattern.HealthScalePerLoop);
 			});
 		}
 
