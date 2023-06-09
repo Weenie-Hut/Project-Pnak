@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
 
 namespace Pnak
 {
-	public class HealthBehaviour : NetworkBehaviour, IDamageReceiver
+	public class HealthBehaviour : StateBehaviour, IDamageReceiver
 	{
+		[SerializeField]
+		private DataSelectorWithOverrides<ResistanceAmount> ResistanceDataSelector = new DataSelectorWithOverrides<ResistanceAmount>();
+
 		[Tooltip("The starting health of the object.")]
 		[SerializeField, Min(0.01f)] private float _SpawnHealth = 1f;
 		[Tooltip("The maximum health of the object. If this is lower than the starting health, then this will automatically be set to the starting health.")]
@@ -16,16 +20,21 @@ namespace Pnak
 		public Action<HealthBehaviour> OnDeath;
 		public Action<HealthBehaviour> OnHealthChanged;
 
+		private int HealthVisualIndex = -1;
+
 		private bool _hasSpawned = false;
 
-		[Networked(OnChanged = nameof(_OnHealthChanged))] private float _Health { get; set; }
+		private float _Health { get; set; }
 		public float Health => _Health;
-		[Networked(OnChanged = nameof(_OnHealthChanged))] private float _MaxHealth { get; set; }
+		private float _MaxHealth { get; set; }
 		public float MaxHealth => _MaxHealth;
 
-		public override void Spawned()
+		public float MoneyOnDeath = 1f;
+
+		public override void Initialize()
 		{
-			base.Spawned();
+			int selfTypeIndex = Controller.GetBehaviourTypeIndex(this);
+			HealthVisualIndex = Controller.FindNetworkMod<HealthVisualMod>(selfTypeIndex, out int scriptIndex);
 
 			var health = _SpawnHealth  * SessionManager.Instance.PlayerCount;
 			var max = _SpawnMaxHealth * SessionManager.Instance.PlayerCount;
@@ -37,9 +46,32 @@ namespace Pnak
 			_MaxHealth = max;
 
 			if (_DespawnOnDeath)
-				OnDeath += NetworkExtensions.DespawnSelf;
+				OnDeath += (self) => self.Controller.QueueForDestroy();
+
+			OnDeath += (self) => SpawnerManager.RPC_ChangeMoney(self.MoneyOnDeath);
 
 			_hasSpawned = true;
+
+			ResistanceDataSelector.MoveToNext();
+
+			UpdateHealthVisual();
+		}
+
+		public void ScaleHealth(float scale)
+		{
+			_Health *= scale;
+			_MaxHealth *= scale;
+		}
+
+		public void UpdateHealthVisual()
+		{
+			if (HealthVisualIndex >= 0)
+			{
+				LiteNetworkedData data = LiteNetworkManager.GetModifierData(HealthVisualIndex);
+				data.HealthVisual.maxHealth = _MaxHealth;
+				data.HealthVisual.currentHealth = _Health;
+				LiteNetworkManager.SetModifierData(HealthVisualIndex, data);
+			}
 		}
 
 		/// <summary>
@@ -51,8 +83,14 @@ namespace Pnak
 		{
 			if (!_hasSpawned) return false;
 
-			// TODO: Add armor and resistances
-			_Health -= amount.PureDamage + amount.PhysicalDamage + amount.MagicalDamage;
+			ResistanceAmount resistance = ResistanceDataSelector.CurrentData;
+
+			// UnityEngine.Debug.Log($"Damage: {amount.PureDamage} {amount.PhysicalDamage} {amount.MagicalDamage} {amount.ApplyModifiers.Length} {resistance.AllMultiplier} {resistance.PhysicalMultiplier} {resistance.MagicalMultiplier}");
+
+			_Health -=
+				amount.PureDamage.NaNTo0() * resistance.AllMultiplier.NaNTo0() +
+				amount.PhysicalDamage.NaNTo0() * resistance.PhysicalMultiplier.NaNTo0() * resistance.AllMultiplier.NaNTo0() +
+				amount.MagicalDamage.NaNTo0() *	resistance.MagicalMultiplier.NaNTo0() * resistance.AllMultiplier.NaNTo0();
 
 			if (_Health <= float.Epsilon)
 			{
@@ -60,39 +98,36 @@ namespace Pnak
 				return true;
 			}
 
+			foreach (SerializedLiteNetworkedData mod in amount.ApplyModifiers)
+			{
+				LiteNetworkManager.QueueAddModifier(Controller.NetworkContext, mod);
+			}
+
 			if (_Health > _MaxHealth)
 				_Health = _MaxHealth;
 
+			ResistanceDataSelector.MoveToNext();
+			UpdateHealthVisual();
 			return false;
 		}
 
-		/// <summary>
-		/// Adds health to the object. Returns true if the object is at max health.
-		/// </summary>
-		/// <param name="amount">The amount of health to add.</param>
-		/// <returns>True if the object is at max health.</returns>
-		public bool AddHealth(float amount)
+		public void AddOverride(DataOverride<ResistanceAmount> resistance)
 		{
-			if (!_hasSpawned) return false;
-			
-			_Health += amount;
-			if (_Health > _MaxHealth)
-			{
-				_Health = _MaxHealth;
-				return true;
-			}
-
-			if (_Health <= float.Epsilon)
-				OnDeath?.Invoke(this);
-
-
-			return false;
+			ResistanceDataSelector.AddOverride(resistance);
 		}
 
-		private static void _OnHealthChanged(Changed<HealthBehaviour> changed) => changed.Behaviour.OnHealthChanged?.Invoke(changed.Behaviour);
+		public void RemoveOverride(DataOverride<ResistanceAmount> resistance)
+		{
+			ResistanceDataSelector.RemoveOverride(resistance);
+		}
+
+		public void ModifyOverride(DataOverride<ResistanceAmount> resistance)
+		{
+			ResistanceDataSelector.ModifyOverride(resistance);
+		}
+
 
 #if UNITY_EDITOR
-
 		private void OnValidate()
 		{
 			if (_SpawnHealth > _SpawnMaxHealth)

@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed32e04e3b0d4754da084a52119843ac, type: 3}
   m_Name: SevenCharacterSelect
   m_EditorClassIdentifier: 
-  Title: Seven??
+  TitleFormat: '{name}'
+  TitlePreview: Seven
+  DescriptionFormat: '{name}'
+  DescriptionPreview: Seven
   Icon: {fileID: 21300040, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
-  Description: Laser with a Sniper Tower
-  CharacterData: {fileID: 11400000, guid: e6c7940c0e1d008498ad632de71fb947, type: 2}
+  AgentPrefab: {fileID: 1157943155690242377, guid: 6f61c845865beb3478ab51b41c9aa041, type: 3}

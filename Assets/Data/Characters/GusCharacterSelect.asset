@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed32e04e3b0d4754da084a52119843ac, type: 3}
   m_Name: GusCharacterSelect
   m_EditorClassIdentifier: 
-  Title: Gus and Mr Shooty
+  TitleFormat: '{name}'
+  TitlePreview: Gus and Mr Shooty
+  DescriptionFormat: '{name}'
+  DescriptionPreview: Gus and Mr Shooty
   Icon: {fileID: 21300000, guid: 07103c52b3aaeca4da8a83361edd059f, type: 3}
-  Description: Minigun with Pistol Bullet Tower
-  CharacterData: {fileID: 11400000, guid: 22f96cdb6a2af884485e3f85812321e0, type: 2}
+  AgentPrefab: {fileID: 950913758558893843, guid: ae5aecebd29e181449e0380a4fba9599, type: 3}

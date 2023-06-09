@@ -2,18 +2,13 @@ using UnityEngine;
 using Fusion;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using UnityEditor;
-using Fusion.Editor;
-#endif
-
 /// <summary>
 /// Derive from this class for different <see cref="ISpawnPointPrototype"/> types. 
 /// Derived manager will only find that spawn point type, allowing for separate handling of player spawn points from other spawn-able items such as AI.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [ScriptHelp(BackColor = EditorHeaderBackColor.Steel)]
-public abstract class SpawnPointManagerPrototype<T> : Fusion.Behaviour, ISpawnPointManagerPrototype<T>
+public abstract partial class SpawnPointManagerPrototype<T> : Fusion.Behaviour, ISpawnPointManagerPrototype<T>
   where T : Component, ISpawnPointPrototype {
   public enum SpawnSequence {
     PlayerId,
@@ -53,32 +48,6 @@ public abstract class SpawnPointManagerPrototype<T> : Fusion.Behaviour, ISpawnPo
   private void Awake() {
     rng = new NetworkRNG(0);
   }
-
-#if UNITY_EDITOR
-  [BehaviourAction]
-  protected void DrawFoundSpawnPointCount() {
-    if (Application.isPlaying == false) {
-      GUILayout.BeginVertical(FusionGUIStyles.GroupBoxType.Info.GetStyle());
-      GUILayout.Space(4);
-      if (GUI.Button(EditorGUILayout.GetControlRect(), "Find Spawn Points")) {
-        _spawnPoints.Clear();
-        var found = UnityEngine.SceneManagement.SceneManager.GetActiveScene().FindObjectsOfTypeInOrder<T, Component>();
-        _spawnPoints.AddRange(found);
-      }
-      GUILayout.Space(4);
-
-      EditorGUI.BeginDisabledGroup(true);
-      foreach (var point in _spawnPoints) {
-        EditorGUILayout.ObjectField(point.name, point, typeof(T),  true);
-      }
-      EditorGUI.EndDisabledGroup();
-
-      EditorGUILayout.LabelField($"{typeof(T).Name}(s): {_spawnPoints.Count}");
-      GUILayout.EndVertical();
-    }
-  }
-#endif
-
 
   /// <summary>
   /// Find all <see cref="ISpawnPointPrototype"/> instances in the same scene as this spawner. 

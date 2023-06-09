@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4f95d4d7286cde4fa636a2eadaf500e, type: 3}
+  m_Name: LiteNetworkedSO
+  m_EditorClassIdentifier: 
+  DamageDataField:
+    Duration: 0
+    startTick: 0
+    UpgradeIndex: 0
+  DoTDataField:
+    Duration: 0
+    startTick: 0
+    ExpireAfterTick: 0
+    Scale: 0
+    StackId: 0
+  DurationAndVisualsDataField:
+    Duration: 0
+    startTick: 0
+  HealthVisualDataField:
+    maxHealth: 0
+    currentHealth: 0
+    displayLocalPosition: {x: 0, y: 0, z: 0}
+  KinematicPositionDataField:
+    SpawnPosition: {x: 0, y: 0}
+    Velocity: {x: 600, y: 0}
+    Acceleration: {x: 0, y: 0}
+    SpawnTick: 0
+  LifetimeDataField:
+    startTick: 0
+    seconds: 1.2
+    displayLocalPosition: {x: NaN, y: NaN, z: NaN}
+  MovementDataField:
+    Duration: 0
+    startTick: 0
+    Priority: 0
+    StackingType: 0
+    MovementSpeed: 0
+    HoldDuration: 0
+  PositionAndChildRotationDataField:
+    Position: {x: 0, y: 0}
+    CurrentChildRotationAngle: 0
+  ReloadVisualDataField:
+    endTick: 0
+    seconds: 0
+    displayLocalPosition: {x: 0, y: 0, z: 0}
+  ResistanceDataField:
+    Duration: 0
+    startTick: 0
+    Priority: 0
+    StackingType: 0
+    AllDamageAmount: 0
+    PhysicalDamageAmount: 0
+    MagicalDamageAmount: 0
+  ShootUpgradeDataField:
+    Duration: Infinity
+    startTick: 0
+    UpgradeIndex: 0
+  StaticTransformDataField:
+    Position: {x: 0, y: 0, z: 0}
+    Scale: {x: 0, y: 0}
+    RotationAngle: 0
+  UpgradableDataField:
+    Duration: 0
+    startTick: 0
+    UpgradeIndex: 0

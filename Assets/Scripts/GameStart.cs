@@ -91,8 +91,19 @@ namespace Pnak
 		[InputActionTriggered(ActionNames.Confirm, InputStateFilters.PreformedThisFrame)]
 		private void QuickJoin(UnityEngine.InputSystem.InputAction.CallbackContext context)
 		{
+			if (context.control.device is UnityEngine.InputSystem.Mouse) return;
+
 			InputCallbackSystem.CleanupInputCallbacks(this);
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.AutoHostOrClient);
+		}
+
+		[InputActionTriggered(ActionNames.Back, InputStateFilters.PreformedThisFrame)]
+		private void SinglePlayerGame(UnityEngine.InputSystem.InputAction.CallbackContext context)
+		{
+			if (context.control.device is UnityEngine.InputSystem.Mouse) return;
+			
+			InputCallbackSystem.CleanupInputCallbacks(this);
+			SessionManager.Instance.StartGame(1, Fusion.GameMode.Single);
 		}
 
 		public void QuitGame()

@@ -5,12 +5,32 @@ namespace Pnak
 {
 	public static class MathUtil
 	{
+		public static int ProbabilityRound(float value)
+		{
+			int floor = Mathf.FloorToInt(value);
+			float remainder = value - floor;
+			if (remainder > UnityEngine.Random.value)
+				return floor + 1;
+			else
+				return floor;
+		}
+
+		public static Vector2 RotateVector(Vector2 vector, float angle)
+		{
+			float sin = Mathf.Sin(angle * Mathf.Deg2Rad);
+			float cos = Mathf.Cos(angle * Mathf.Deg2Rad);
+
+			float tx = vector.x;
+			float ty = vector.y;
+			vector.x = (cos * tx) - (sin * ty);
+			vector.y = (sin * tx) + (cos * ty);
+			return vector;
+		}
+
 		public static Vector2 AngleToDirection(float angle)
 		{
 			return new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
 		}
-
-		
 
 		public static float DirectionToAngle(Vector2 value)
 		{

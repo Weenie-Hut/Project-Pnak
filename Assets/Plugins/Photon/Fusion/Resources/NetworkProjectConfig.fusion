@@ -135,8 +135,8 @@
                 "_hash": -814817977
             },
             {
-                "_value": 0.0010000000474974514,
-                "_inverse": 999.9999389648438,
+                "_value": 0.10000000149011612,
+                "_inverse": 10.0,
                 "_hash": -194233199
             },
             {
@@ -154,8 +154,8 @@
         "values": []
     },
     "AssembliesToWeave": [
-        "Assembly-CSharp",
-        "Assembly-CSharp-firstpass"
+        "Fusion",
+        "Pnak"
     ],
     "UseSerializableDictionary": true,
     "NullChecksForNetworkedProperties": true,

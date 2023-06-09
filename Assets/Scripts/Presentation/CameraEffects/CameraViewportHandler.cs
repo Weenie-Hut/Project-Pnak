@@ -65,7 +65,7 @@ public class CameraViewportHandler : MonoBehaviour
 #if UNITY_EDITOR
 	private void OnValidate()
 	{
-		ComputeResolution();
+		UnityEditor.EditorApplication.delayCall += ComputeResolution;
 	}
 #endif
 }

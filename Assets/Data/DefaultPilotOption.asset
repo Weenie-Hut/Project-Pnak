@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64cd49b59b81d984fbd621631adf7822, type: 3}
   m_Name: DefaultPilotOption
   m_EditorClassIdentifier: 
-  Title: Pilot
+  TitleFormat: Pilot Tower!
+  TitlePreview: Pilot Tower!
+  DescriptionFormat: Manually control the tower, adding all pilot buffs from hero
+  DescriptionPreview: Manually control the tower, adding all pilot buffs from hero
   Icon: {fileID: 21300000, guid: 41bf8b79c5dc7d64aafcc3c68e923096, type: 3}
-  Description: Control the tower while applying extra buffs.

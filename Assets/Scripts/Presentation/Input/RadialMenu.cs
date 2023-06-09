@@ -89,7 +89,7 @@ namespace Pnak
 
 			// Using the angle, find the option that is being hovered over.
 			int closestOption = -1;
-			float closestAngle = float.MaxValue;
+			float closestAngle = 55f;
 
 			var inUse = UseOptionsByCount[currentOptions.Length - 1];
 			for (int i = 0; i < inUse.Length; i++)
@@ -143,6 +143,8 @@ namespace Pnak
 		{
 			if (optionStack.Count == 0)
 				return;
+
+			if (hoveredOption == -1) return;
 
 			int optionIndex = Array.IndexOf(UseOptionsByCount[currentOptions.Length - 1], hoveredOption);
 
@@ -202,9 +204,9 @@ namespace Pnak
 			int min = Mathf.Min(UseOptionsByCount.Length, length);
 
 			RadialFolderOption folder = ScriptableObject.CreateInstance<RadialFolderOption>();
-			folder.Title = "More Options";
+			folder.TitleFormat = "More Options";
 			folder.Icon = MoreOptionsIcon;
-			folder.Description = "Open more options.";
+			folder.DescriptionFormat = "Open more options.";
 
 			folder.childOptions = new RadialOptionSO[min];
 
@@ -253,6 +255,11 @@ namespace Pnak
 		[SerializeField] private float _UIOptionRadius = 300f;
 		[SerializeField, HideInInspector] private int lastCount = -1;
 		private void OnValidate()
+		{
+			UnityEditor.EditorApplication.delayCall += ShowPreviewData;
+		}
+
+		private void ShowPreviewData()
 		{
 			if (UIOptions == null)
 				return;

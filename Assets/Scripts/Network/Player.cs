@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using Pnak.Input;
 using UnityEngine;
@@ -9,101 +10,53 @@ namespace Pnak
 {
 	public class Player : NetworkBehaviour
 	{
+		public static bool IsValid => LocalPlayer?.Agent != null;
 		public static Player LocalPlayer { get; private set; }
+		public TransformData Transform => LocalPlayer?.Agent?.Controller.HasTransform ?? false ? LocalPlayer.Agent.Controller.TransformData : default;
 
-		[SerializeField] private Transform _AimGraphic;
-
-		[Tooltip("The character sprite renderer. Temporary until we have character prefabs.")]
-		public SpriteRenderer CharacterRenderer;
-
-		[Tooltip("The character sprite renderer. Temporary until we have character prefabs.")]
-		public TMPro.TextMeshPro CharacterText;
-
-		public CharacterData LoadingData;
+		public StateBehaviourController LoadingPlayerPrefab;
 
 
-		[Networked]
-		public byte CharacterType { get; private set; }
+		[Networked(OnChanged = nameof(OnAgentNetworkIndex))]
+		private ushort AgentNetworkIndex { get; set; } = ushort.MaxValue;
 
-		public bool PlayerLoaded => CharacterType != 0;
-		public CharacterData CurrentCharacterData => PlayerLoaded ? GameManager.Instance.Characters[CharacterType - 1] : LoadingData;
-
-		[Networked] private TickTimer reloadDelay { get; set; }
-		[Networked] private TickTimer towerDelay { get; set; }
-		[Networked] private float _MP { get; set; }
-		[Networked] private bool _Piloting { get; set; }
-		public float MPPercent => _MP / CurrentCharacterData.MP_Max;
-		public float MP => _MP;
-
-		public override void FixedUpdateNetwork()
+		private PlayerAgent _agent = null;
+		public PlayerAgent Agent
 		{
-			if (GetInput(out NetworkInputData input))
-			{
-				if (!PlayerLoaded) return;
-
-				_MP = Mathf.Clamp(_MP + CurrentCharacterData.MP_RegenerationRate * Runner.DeltaTime, 0.0f, CurrentCharacterData.MP_Max);
-
-				if (input.CurrentInputMap == Input.InputMap.Menu) return;
-				if (_Piloting) return;
-
-				Vector2 movement = input.Movement * CurrentCharacterData.Speed;
-				transform.position += (Vector3)movement * Runner.DeltaTime;
-
-				float _rotation = input.AimAngle;
-
-				if (reloadDelay.ExpiredOrNotRunning(Runner))
+			get {
+				if (_agent == null)
 				{
-					if (input.GetButtonDown(1))
-					{
-						reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
-						Runner.Spawn(CurrentCharacterData.ProjectilePrefab, transform.position, Quaternion.Euler(0.0f, 0.0f, _rotation), null, (_, bullet) => {
-							bullet.GetComponent<Munition>().Initialize();
-						});
-					}
+					if (AgentNetworkIndex != ushort.MaxValue)
+						_agent = LiteNetworkManager.GetNetworkObject(AgentNetworkIndex)?.Target?.GetComponent<PlayerAgent>();
 				}
-
-				if (towerDelay.ExpiredOrNotRunning(Runner))
-				{
-					if (input.GetButtonPressed(2))
-					{
-						towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
-						Runner.Spawn(CurrentCharacterData.TowerPrefab, transform.position, Quaternion.identity, null, (runner, o) =>
-						{
-							o.GetComponent<Tower>().Init(_rotation);
-						});
-					}
-				}
+				return _agent;
 			}
 		}
 
-		public override void Render()
+		public bool PlayerLoaded => Agent != null;
+
+		[Networked] private float _MP { get; set; }
+		[Networked(OnChanged = nameof(OnPilotChanged))]
+		private bool _Piloting { get; set; }
+		public float MPPercent => _MP / Agent.MP_Max;
+		public float MP => _MP;
+		public bool Piloting => _Piloting;
+
+		public override void FixedUpdateNetwork()
 		{
-			if (!PlayerLoaded) return;
-			if (!Object.HasInputAuthority) return;
+			if (!HasStateAuthority) return;
 
-			if (LevelUI.Exists)
+			if (GetInput(out NetworkInputData input))
 			{
-				float? reloadTime = reloadDelay.RemainingTime(Runner);
-				LevelUI.Instance.ShootReloadBar.RawValueRange = new Vector2(0.0f, CurrentCharacterData.ReloadTime);
-				LevelUI.Instance.ShootReloadBar.NormalizedValue = reloadTime.HasValue ? (1 - reloadTime.Value / CurrentCharacterData.ReloadTime) : 1.0f;
-				float? towerTime = towerDelay.RemainingTime(Runner);
-				LevelUI.Instance.TowerReloadBar.RawValueRange = new Vector2(0.0f, CurrentCharacterData.TowerPlacementTime);
-				LevelUI.Instance.TowerReloadBar.NormalizedValue = towerTime.HasValue ? (1 - towerTime.Value / CurrentCharacterData.TowerPlacementTime) : 1.0f;
-				LevelUI.Instance.MPBar.RawValueRange = new Vector2(0.0f, CurrentCharacterData.MP_Max);
-				LevelUI.Instance.MPBar.NormalizedValue = MPPercent;
-			}
+				if (!PlayerLoaded) return;
+				if (Agent == null) return;
 
-			_AimGraphic.rotation = Quaternion.Euler(0.0f, 0.0f, Input.GameInput.Instance.InputData.AimAngle);
+				_MP = Mathf.Clamp(_MP + Agent.MP_RegenerationRate * Runner.DeltaTime, 0.0f, Agent.MP_Max);
+			}
 		}
 
 		public override void Spawned()
 		{
-			if (!Object.HasInputAuthority)
-			{
-				_AimGraphic.gameObject.SetActive(false);
-				return;
-			}
-			
 			if (LocalPlayer != null)
 			{
 				Debug.LogError("Multiple local players detected!");
@@ -111,89 +64,122 @@ namespace Pnak
 			}
 			LocalPlayer = this;
 
-			SetCharacterTypeVisuals();
-			SetPilotVisuals();
+			if (!PlayerLoaded && HasStateAuthority)
+			{
+				LiteNetworkManager.QueueNewNetworkObject(LoadingPlayerPrefab, new TransformData(), obj => {
+					// UnityEngine.Debug.Log("New agent index is " + obj.Index + ".");
+					AgentNetworkIndex = (ushort)obj.Index;
+				});
+			}
 
 			GameManager.Instance.SceneLoader.FinishedLoading();
+
+			if (HasInputAuthority)
+			{
+				Interactable.OnAnyInteract += OnAnyInteract;
+			}
+		}
+
+		[SerializeField] private RadialOptionSO[] DefaultInteractionOptions;
+
+		private void OnAnyInteract(Interactable interactable)
+		{
+			if (Piloting && interactable == null)
+			{
+				RPC_UnsetPilot(SessionManager.Instance.NetworkRunner.LocalPlayer);
+				return;
+			}
+
+			if (Agent == null)
+			{
+				Debug.LogWarning("Player trying to interact when agent not set!");
+				return;
+			}
+
+			IEnumerable<RadialOptionSO> options = DefaultInteractionOptions.Concat(Agent.InteractionOptions);
+
+			if (interactable?.InteractionOptions != null)
+			{
+				options = options.Concat(interactable.InteractionOptions);
+			}
+				
+			options = options.Where(o => o.IsValidTarget(interactable));
+
+			RadialMenu.Instance.Show(options.ToArray(), interactable);
 		}
 
 		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
 		public void RPC_ChangeMP(float change) => _MP += change;
 
-
-		[Rpc(RpcSources.All, RpcTargets.All)]
-		public void RPC_SetCharacterType(byte characterType) => SetCharacterType(characterType);
-
-		private void SetCharacterType(byte characterType)
+		public static void OnAgentNetworkIndex(Changed<Player> changed)
 		{
-			UnityEngine.Debug.Log("Setting character type to " + characterType);
-			if (Object?.HasStateAuthority ?? false)
+			changed.Behaviour._agent = null;
+
+			if (changed.Behaviour.HasStateAuthority)
 			{
-				MessageBox.Instance.RPC_ShowMessage("Player changed character to " + CurrentCharacterData.Name + "!");
-			}
-
-			CharacterType = characterType;
-			reloadDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.ReloadTime);
-			towerDelay = TickTimer.CreateFromSeconds(Runner, CurrentCharacterData.TowerPlacementTime);
-			_MP = Mathf.Min(_MP, CurrentCharacterData.MP_Max);
-
-			SetCharacterTypeVisuals();
-		}
-
-		private void SetCharacterTypeVisuals()
-		{
-			CharacterRenderer.sprite = CurrentCharacterData.Sprite;
-			CharacterText.text = CurrentCharacterData.Name;
-			CharacterRenderer.transform.localScale = (Vector3)CurrentCharacterData.SpriteScale;
-			CharacterRenderer.transform.localPosition = (Vector3)CurrentCharacterData.SpritePosition;
-		}
-
-#if UNITY_EDITOR
-		/// <summary>
-		/// Sets the character information so it doesn't need to be loaded on create. Also useful for previewing.
-		/// </summary>
-		private void OnValidate()
-		{
-			if (Application.isPlaying) return;
-
-			if (LoadingData != null)
-			{
-				if (CharacterRenderer != null)
+				if (changed.Behaviour.Agent != null)
 				{
-					CharacterRenderer.sprite = LoadingData.Sprite;
-					CharacterRenderer.transform.localScale = (Vector3)LoadingData.SpriteScale;
-					CharacterRenderer.transform.localPosition = (Vector3)LoadingData.SpritePosition;
+					MessageBox.Instance.RPC_ShowMessage("Player changed character to " + changed.Behaviour.Agent.gameObject.name + "!");
 				}
-				if (CharacterText != null)
-					CharacterText.text = LoadingData.Name;
+				else {
+					MessageBox.Instance.RPC_ShowMessage("Player is currently loading character!");
+				}
+
+				changed.Behaviour._MP = 0;
 			}
 		}
 
-		[Rpc(RpcSources.All, RpcTargets.All)]
-		public void RPC_SetPilot(NetworkObject tower, PlayerRef playerRef)
+		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+		public void RPC_ChangePlayerAgent(byte index)
 		{
-			tower.AssignInputAuthority(playerRef);
-			transform.position = tower.transform.position;
+			// UnityEngine.Debug.Log("Changing player agent to " + index + "! Previous agent was " + AgentNetworkIndex + ".");
+
+			TransformData? transformData = null;
+			if (AgentNetworkIndex != ushort.MaxValue)
+			{
+				transformData = LiteNetworkManager.TryGetTransformData(AgentNetworkIndex);
+				LiteNetworkManager.QueueDeleteLiteObject(AgentNetworkIndex);
+			}
+
+			LiteNetworkManager.QueueNewNetworkObject(
+				GameManager.Instance.Characters[index],
+				transformData ?? default,
+				obj => {
+					UnityEngine.Debug.Log("New agent index is " + obj.Index + ".");
+					AgentNetworkIndex = (ushort)obj.Index;
+					LiteNetworkManager.SetInputAuthority(AgentNetworkIndex, Object.InputAuthority);
+				}
+			);
+
+
+			
+		}
+
+		[Rpc(RpcSources.All, RpcTargets.All)]
+		public void RPC_SetPilot(int tower, PlayerRef playerRef)
+		{
+			if (HasStateAuthority)
+				LiteNetworkManager.SetInputAuthority(tower, playerRef);
+			
 			_Piloting = true;
-
-			SetPilotVisuals();
 		}
 
 		[Rpc(RpcSources.All, RpcTargets.All)]
-		public void RPC_UnsetPilot(NetworkObject tower)
+		public void RPC_UnsetPilot(int tower)
 		{
-			_Piloting = false;
-			tower.RemoveInputAuthority();
+			if (HasStateAuthority)
+				LiteNetworkManager.RemoveInputAuthority(tower);
 
-			SetPilotVisuals();
+			_Piloting = false;
 		}
 
+		public static void OnPilotChanged(Changed<Player> changed) => changed.Behaviour.SetPilotVisuals();
 		private void SetPilotVisuals()
 		{
-			CharacterRenderer.gameObject.SetActive(!_Piloting);
+			if (HasStateAuthority)
+				Agent.SetPilotState(_Piloting);
+
+			Agent.SetPilotGraphics(_Piloting);
 		}
-
-
-#endif
 	}
 }

@@ -3,36 +3,46 @@ using UnityEngine;
 
 namespace Pnak
 {
-	[RequireComponent(typeof(CollisionProcessor))]
-	public abstract class Munition : NetworkBehaviour
+	public abstract class Munition : StateBehaviour
 	{
-		public CollisionProcessor CollisionProcessor { get; private set; }
+		[Attached, SerializeField] private CollisionProcessor _collisionProcessor;
+		public CollisionProcessor CollisionProcessor => _collisionProcessor;
 
-		protected virtual void Awake()
+		[Validate(nameof(ValidateHitsPerTick)), Min(1), Tooltip("The maximum number of hits that is processed per tick. Use for munitions that effect an area but only apply to a limited number of targets.")]
+		public int MaxHitsPerTick = 1;
+
+		public override void FixedUpdateNetwork()
 		{
-			CollisionProcessor = GetComponent<CollisionProcessor>();
+			if (CollisionProcessor.ColliderCount == 0) return;
+
+			int hitsRemaining = MaxHitsPerTick;
+
+			for (int i = 0; i < CollisionProcessor.ColliderCount && !Controller.QueuedForDestroy && hitsRemaining > 0; i++)
+			{
+				hitsRemaining--;
+				if (CollisionProcessor.Colliders[i] == null) continue;
+				OnHit(CollisionProcessor.Colliders[i], CollisionProcessor.Distances?[i]);
+			}
 		}
 
-		public override void Spawned()
+		protected virtual void OnHit(Collider2D collider2D, float? distance)
 		{
-			base.Spawned();
-
-			CollisionProcessor.OnCollision += OnHit;
+			UnityEngine.Debug.LogWarning($"Munition {name} ({GetType().Name}) should either override OnHit(Collider2D, float?) or override FixedUpdateNetwork()");
 		}
 
-		public abstract void Initialize(ModifierContainer modifiers = null);
-
-		protected void Despawn()
+		public bool ValidateHitsPerTick()
 		{
-			Runner.Despawn(Object);
-			RemoveCollisionDetection();
+			return MaxHitsPerTick <= (CollisionProcessor?.MaxCollisions ?? 0);
 		}
 
-		protected void RemoveCollisionDetection()
+		private void Reset()
 		{
-			CollisionProcessor.OnCollision -= OnHit;
+			MaxHitsPerTick = GetComponent<CollisionProcessor>()?.MaxCollisions ?? 1;
 		}
 
-		protected abstract void OnHit(Collider2D collider2D, float? distance);
+		protected virtual void OnValidate()
+		{
+			// MaxHitsPerTick = GetComponent<CollisionProcessor>()?.MaxCollisions ?? 1;
+		}
 	}
 }

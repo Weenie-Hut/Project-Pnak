@@ -16,7 +16,10 @@ namespace Pnak
 		public static InteractDelegate OnAnyExitRange;
 
 		public bool IsInteractable = true;
+		[Tooltip("The radius around the object that the player can interact with it."), Suffix("units")]
 		public float InteractionRadius = 100f;
+
+		public RadialOptionSO[] InteractionOptions;
 
 		public UnityEvent OnEnterRange;
 		public UnityEvent OnExitRange;
@@ -47,13 +50,13 @@ namespace Pnak
 
 		protected void Update()
 		{
-			if (!IsInteractable || Player.LocalPlayer == null)
+			if (!IsInteractable || !Player.IsValid)
 			{
 				InRange = false;
 				return;
 			}
 
-			InRange = IsInRange(Player.LocalPlayer.transform.position);
+			InRange = IsInRange(Player.LocalPlayer.Transform.Position);
 		}
 		
 		public bool IsInRange(Vector3 position)
@@ -69,8 +72,14 @@ namespace Pnak
 		[InputActionTriggered(ActionNames.Interact, InputStateFilters.PreformedThisFrame)]
 		private static void OnInteractTriggered(InputAction.CallbackContext context)
 		{
-			if (AllInRange.Count == 0) return;
-			if (Player.LocalPlayer == null) return;
+			if (AllInRange.Count == 0 ||
+				!Player.IsValid ||
+				Player.LocalPlayer.Piloting // Todo: allow interaction while piloting, targeting the pilot instead of any range interactables?
+			) {
+				OnAnyInteract?.Invoke(null);
+				return;
+			}
+
 			if (AllInRange.Count == 1)
 			{
 				AllInRange[0].OnInteract?.Invoke();
@@ -82,7 +91,7 @@ namespace Pnak
 			Interactable bestMatch = null;
 			float bestRank = float.MaxValue;
 
-			Vector3 playerPosition = Player.LocalPlayer.transform.position;
+			Vector3 playerPosition = Player.LocalPlayer.Transform.Position;
 			float lookAngle = GameInput.Instance.InputData.AimAngle;
 
 			foreach (Interactable interactable in AllInRange)
@@ -104,9 +113,11 @@ namespace Pnak
 				}
 			}
 
-			if (bestMatch == null) return;
+			if (bestMatch != null)
+			{
+				bestMatch.OnInteract?.Invoke();
+			}
 
-			bestMatch.OnInteract?.Invoke();
 			OnAnyInteract?.Invoke(bestMatch);
 		}
 

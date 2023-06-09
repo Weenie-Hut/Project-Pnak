@@ -4,67 +4,134 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public class Enemy : NetworkBehaviour
+	public class Enemy : StateBehaviour
 	{
-		[SerializeField] private float _DefaultMovementSpeed = 1f;
+		[SerializeField]
+		private DataSelectorWithOverrides<MovementAmount> MovementDataSelector = new DataSelectorWithOverrides<MovementAmount>();
 
-		[Networked] private Vector3 _TargetPosition { get; set; }
-		public Vector3 TargetPosition => _TargetPosition;
-		[Networked] private float _MovementSpeed { get; set; }
-		public float MovementSpeed => _MovementSpeed;
-		private byte PathIndex = 1;
+		private Vector3 TargetPosition { get; set; }
+		public Vector3 PreviousPosition { get; set; }
+		private byte CurrentPathIndex = 0;
 		private Transform path;
+
+		private int endHoldTick = -1;
+		private int EndHoldTick
+		{
+			get => endHoldTick;
+			set {
+				if (value == endHoldTick) return;
+				endHoldTick = value;
+			}
+		}
+
+		public void AddOverride(DataOverride<MovementAmount> dataOverride)
+		{
+			float previousTime = MovementDataSelector.CurrentData.HoldDuration;
+			MovementDataSelector.AddOverride(dataOverride);
+			InterpolateHoldTime(previousTime);
+		}
+
+		public void RemoveOverride(DataOverride<MovementAmount> dataOverride)
+		{
+			float previousTime = MovementDataSelector.CurrentData.HoldDuration;
+			MovementDataSelector.RemoveOverride(dataOverride);
+			InterpolateHoldTime(previousTime);
+		}
+
+		public void ModifyOverride(DataOverride<MovementAmount> dataOverride)
+		{
+			float previousTime = MovementDataSelector.CurrentData.HoldDuration;
+			MovementDataSelector.ModifyOverride(dataOverride);
+			InterpolateHoldTime(previousTime);
+		}
+
+		public void InterpolateHoldTime(float previousTime)
+		{
+			float startReloadTick = EndHoldTick - (previousTime / Runner.DeltaTime);
+			float progress = (Runner.Tick - startReloadTick) / (float)(EndHoldTick - startReloadTick);
+
+			EndHoldTick = Runner.Tick + (int)((MovementDataSelector.CurrentData.HoldDuration * (1f - progress)) / Runner.DeltaTime);
+		}
+
+		public void MoveToNext()
+		{
+			MovementDataSelector.MoveToNext();
+			EndHoldTick = Runner.Tick + (int)(MovementDataSelector.CurrentData.HoldDuration / Runner.DeltaTime);
+		}
+
 
 		public void SetNextPosition()
 		{
-			if (PathIndex >= path.childCount)
+			CurrentPathIndex++;
+
+			if (CurrentPathIndex >= path.childCount)
 			{
-				Runner.Despawn(Object);
+				Controller.QueueForDestroy();
 				return;
 			}
 
-			var target = Random.Range(0, path.GetChild(PathIndex).childCount);
-			_TargetPosition = path.GetChild(PathIndex).GetChild(target).position;
+			PreviousPosition = TargetPosition;
 
-			if (PathIndex >= path.childCount)
-			{
-				Runner.Despawn(Object);
-			}
-
-			PathIndex++;
+			var target = Random.Range(0, path.GetChild(CurrentPathIndex).childCount);
+			TargetPosition = path.GetChild(CurrentPathIndex).GetChild(target).position;
 		}
 
-		public override void Spawned()
+		public void RevertToPreviousPosition()
 		{
-			base.Spawned();
+			if (CurrentPathIndex <= 1)
+				return;
 
-			_MovementSpeed = _DefaultMovementSpeed;
+			CurrentPathIndex--;
+			TargetPosition = PreviousPosition;
 
-			if (path != null)
-			{
-				SetNextPosition();
-			}
+			var target = Random.Range(0, path.GetChild(CurrentPathIndex - 1).childCount);
+			PreviousPosition = path.GetChild(CurrentPathIndex - 1).GetChild(target).position;
 		}
 
 		public void Init(Transform path)
 		{
 			this.path = path;
+
+			if (path != null)
+			{
+				TargetPosition = Controller.TransformData.Position;
+				SetNextPosition();
+			}
 		}
 
 		public override void FixedUpdateNetwork()
 		{
-			float movement = _MovementSpeed * Runner.DeltaTime;
-			transform.position = Vector3.MoveTowards(transform.position, _TargetPosition, movement);
+			if (path == null)
+			{
+				UnityEngine.Debug.LogError("Path is null!  This object must be initialized with custom values using the callback.");
+				return;
+			}
 
-			if (path != null)
-				if (Vector3.Distance(transform.position, _TargetPosition) < 0.1f)
+			if (Runner.Tick >= EndHoldTick)
+			{
+				MoveToNext();
+			}
+
+			float movement = MovementDataSelector.CurrentData.MovementSpeed * Runner.DeltaTime;
+
+			TransformData transformData = Controller.TransformData;
+
+			if (movement >= 0)
+			{
+				transformData.Position = Vector3.MoveTowards(transformData.Position, TargetPosition, movement);
+
+				if (Vector3.Distance(transformData.Position, TargetPosition) < 0.1f)
 					SetNextPosition();
-		}
+			}
+			else
+			{
+				transformData.Position = Vector3.MoveTowards(transformData.Position, PreviousPosition, -movement);
 
-		[Pnak.Input.InputActionTriggered("Shoot")]
-		public void TestingShoot(UnityEngine.InputSystem.InputAction.CallbackContext context)
-		{
-			UnityEngine.Debug.Log("Shoot");
+				if (CurrentPathIndex >= 2 && Vector3.Distance(transformData.Position, PreviousPosition) < 0.1f)
+					RevertToPreviousPosition();
+			}
+	
+			Controller.TransformData = transformData;
 		}
 	}
 }

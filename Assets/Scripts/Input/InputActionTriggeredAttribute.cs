@@ -136,7 +136,7 @@ namespace Pnak.Input
 				return context => context.action.actionMap.name == inputMapFilter.Name();
 			}
 			else return context => {
-				UnityEngine.Debug.Log("context.action.actionMap.name: " + context.action.actionMap.name + " inputMapFilter.Name(): " + inputMapFilter.Name() + " stateFilterCallback(context): " + stateFilterCallback(context) + " context.action.actionMap.name == inputMapFilter.Name(): " + (context.action.actionMap.name == inputMapFilter.Name()));
+				// UnityEngine.Debug.Log("context.action.actionMap.name: " + context.action.actionMap.name + " inputMapFilter.Name(): " + inputMapFilter.Name() + " stateFilterCallback(context): " + stateFilterCallback(context) + " context.action.actionMap.name == inputMapFilter.Name(): " + (context.action.actionMap.name == inputMapFilter.Name()));
 				return stateFilterCallback(context) && context.action.actionMap.name == inputMapFilter.Name();
 			};
 		}

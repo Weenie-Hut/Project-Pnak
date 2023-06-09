@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e3bea9084267ac419481a7d4545eec8, type: 3}
+  m_Name: Flaming Bullets Upgrade
+  m_EditorClassIdentifier: 
+  scriptIndex: 15
+  Visuals: {fileID: 6443340962870154360, guid: 5b095de2100a33c4db7f8b0c51ed2b3f, type: 3}
+  defaultDuration: Infinity
+  Upgrades:
+  - Upgrade:
+      Priority: 300
+      StackingType: 3
+      Data:
+        ReloadTime: NaN
+        FireCountRange: {x: NaN, y: NaN}
+        FireSpreadAngle: NaN
+        Spawn: {fileID: 0}
+        MunitionMods: []
+        DamageMods:
+        - Priority: 300
+          StackingType: 3
+          Data:
+            PhysicalDamage: NaN
+            MagicalDamage: NaN
+            PureDamage: NaN
+            ApplyModifiers:
+            - scriptType: 13
+              CustomData: 000090400000000000000000803fd809000000000000000000000000
+    cost:
+      MP: 20
+      HP: 0
+      Money: 0
+  - Upgrade:
+      Priority: 300
+      StackingType: 3
+      Data:
+        ReloadTime: NaN
+        FireCountRange: {x: NaN, y: NaN}
+        FireSpreadAngle: NaN
+        Spawn: {fileID: 0}
+        MunitionMods: []
+        DamageMods:
+        - Priority: 300
+          StackingType: 3
+          Data:
+            PhysicalDamage: NaN
+            MagicalDamage: NaN
+            PureDamage: NaN
+            ApplyModifiers:
+            - scriptType: 13
+              CustomData: 0000a0400000000000000000c03fd809000000000000000000000000
+    cost:
+      MP: 25
+      HP: 0
+      Money: 0
+  - Upgrade:
+      Priority: 300
+      StackingType: 3
+      Data:
+        ReloadTime: NaN
+        FireCountRange: {x: NaN, y: NaN}
+        FireSpreadAngle: NaN
+        Spawn: {fileID: 0}
+        MunitionMods: []
+        DamageMods:
+        - Priority: 300
+          StackingType: 3
+          Data:
+            PhysicalDamage: NaN
+            MagicalDamage: NaN
+            PureDamage: NaN
+            ApplyModifiers:
+            - scriptType: 13
+              CustomData: 0000b04000000000000000000040d809000000000000000000000000
+    cost:
+      MP: 30
+      HP: 0
+      Money: 0

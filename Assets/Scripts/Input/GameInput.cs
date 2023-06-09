@@ -56,10 +56,10 @@ namespace Pnak.Input
 			// Player Aim
 			if (MouseScreenPosition.HasValue)
 			{
-				if (useMap == InputMap.Gameplay && Player.LocalPlayer != null)
+				if (useMap == InputMap.Gameplay && Player.IsValid)
 				{
 					Vector2 mouseWorld = GameManager.Instance.MainCamera.ScreenToWorldPoint(MouseScreenPosition.Value);
-					InputData.AimDirection = mouseWorld - (Vector2)Player.LocalPlayer.transform.position;
+					InputData.AimDirection = mouseWorld - (Vector2)Player.LocalPlayer.Transform.Position;
 				}
 				else if (useMap == InputMap.Menu)
 				{
@@ -75,13 +75,13 @@ namespace Pnak.Input
 			LoadingInputMap = config;
 
 			// This makes sure that the action map does not change before all actions have been triggered.
-			UnityEngine.Debug.Log("SetInputMap: " + config.Name());
+			// UnityEngine.Debug.Log("SetInputMap: " + config.Name());
 			InputCallbackSystem.OnLateActionTriggered += LateUpdateMap;
 		}
 
 		private void LateUpdateMap(InputAction.CallbackContext context)
 		{
-			UnityEngine.Debug.Log("LateUpdateMap: " + LoadingInputMap.Name());
+			// UnityEngine.Debug.Log("LateUpdateMap: " + LoadingInputMap.Name());
 			InputCallbackSystem.OnLateActionTriggered -= LateUpdateMap;
 			PlayerInput.SwitchCurrentActionMap(LoadingInputMap.Name());
 		}
@@ -102,22 +102,25 @@ namespace Pnak.Input
 		[InputActionTriggered(ActionNames.MousePosition)]
 		private void OnMouseAimTriggered(InputAction.CallbackContext context)
 		{
-			if (Player.LocalPlayer == null)
-				return;
-
 			MouseScreenPosition = context.ReadValue<Vector2>();
 		}
 
 		[InputActionTriggered(ActionNames.Shoot)]
 		private void OnShootTriggered(InputAction.CallbackContext context)
 		{
-			InputData.SetButtonDown(1, context.ReadValueAsButton());
+			InputData.SetButtonDown((int)NetworkButton.Primary, context.ReadValueAsButton());
 		}
 
 		[InputActionTriggered(ActionNames.PlaceTower)]
 		private void OnPlaceTowerTriggered(InputAction.CallbackContext context)
 		{
-			InputData.SetButtonDown(2, context.ReadValueAsButton());
+			InputData.SetButtonDown((int)NetworkButton.Secondary, context.ReadValueAsButton());
+		}
+
+		[InputActionTriggered(ActionNames.Testing)]
+		private void OnTestingTriggered(InputAction.CallbackContext context)
+		{
+			InputData.SetButtonDown((int)NetworkButton.Space, context.ReadValueAsButton());
 		}
 	}
 }

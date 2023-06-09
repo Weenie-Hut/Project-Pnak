@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dfccb8905bad3449a4e49a391911476, type: 3}
+  m_Name: Flaming Bullets Modifier
+  m_EditorClassIdentifier: 
+  scriptIndex: 12
+  Visuals: {fileID: 6443340962870154360, guid: 5b095de2100a33c4db7f8b0c51ed2b3f, type: 3}
+  defaultDuration: 5
+  DamageDataSelector:
+    TemporaryData: []
+    NormalData:
+    - Option:
+        PhysicalDamage: NaN
+        MagicalDamage: 3
+        PureDamage: NaN
+        ApplyModifiers: []
+      Weight: 0
+    RandomizeDataOrder: 0
+  IntervalBetweenHits: 0.04
+  intervalInTicks: 2
+  DurationStackingType: 2
+  DamageScaleStackingType: 2
+  BehaviourOnStack: 2

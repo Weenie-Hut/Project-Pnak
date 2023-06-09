@@ -11,12 +11,16 @@ namespace Pnak
 		public struct SpawnData
 		{
 			[Tooltip("The delay in seconds from the previous spawn time.")]
+			[Min(0.0f)]
 			public float delay;
+			[Required]
 			public Enemy enemy;
 		}
 
 		public List<SpawnData> Data;
 		public bool Loop;
+		[ShowIf(nameof(Loop))]
+		public float HealthScalePerLoop = 1.0f;
 
 		public SpawnData this[int index]
 		{

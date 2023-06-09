@@ -4,14 +4,22 @@ using System.Linq;
 using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Pnak
 {
 	[RequireComponent(typeof(NetworkRunner))]
 	public class SessionManager : SingletonMono<SessionManager>, INetworkRunnerCallbacks
 	{
+		public const float DeltaTime = 1f / 60f;
 		public NetworkRunner NetworkRunner { get; private set; }
+		public static bool IsServer => Instance?.NetworkRunner?.IsServer ?? false;
+		public static PlayerRef LocalPlayer => Instance?.NetworkRunner?.LocalPlayer ?? PlayerRef.None;
+		public static int Tick => Instance?.NetworkRunner?.Tick ?? -1;
+		public static bool HasExpired(int startTick, float duration)
+		{
+			float endTick = startTick + (duration / Instance.NetworkRunner.DeltaTime);
+			return Instance.NetworkRunner.Tick >= endTick;
+		}
 
 		protected override void Awake()
 		{
@@ -38,7 +46,6 @@ namespace Pnak
 		}
 
 		public int PlayerCount => NetworkRunner.ActivePlayers.Count();
-		public NetworkObject LocalPlayer => NetworkRunner.GetPlayerObject(NetworkRunner.LocalPlayer);
 
 		[SerializeField] private NetworkPrefabRef _characterPrefab;
 		private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
@@ -71,7 +78,10 @@ namespace Pnak
 
 		public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
 		public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-		public void OnConnectedToServer(NetworkRunner runner) { }
+		public void OnConnectedToServer(NetworkRunner runner)
+		{
+			UnityEngine.Debug.Assert(DeltaTime == runner.DeltaTime, $"DeltaTime {DeltaTime} must be the same as NetworkRunner.DeltaTime {runner.DeltaTime}!");
+		}
 		public void OnDisconnectedFromServer(NetworkRunner runner) { }
 		public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
 		public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }

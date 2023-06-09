@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed32e04e3b0d4754da084a52119843ac, type: 3}
   m_Name: SpaceGuyCharacterSelect
   m_EditorClassIdentifier: 
-  Title: Space Guy
+  TitleFormat: '{name}'
+  TitlePreview: Space Guy
+  DescriptionFormat: '{name}'
+  DescriptionPreview: Space Guy
   Icon: {fileID: 21300000, guid: 519dafacd208bb64c83d5124be03b09d, type: 3}
-  Description: Sniper with a Minigun Tower
-  CharacterData: {fileID: 11400000, guid: a143e41c845dcc343b415290749772a8, type: 2}
+  AgentPrefab: {fileID: 5250481704382095234, guid: e10a768225b687e4b878c9b324670f9a, type: 3}

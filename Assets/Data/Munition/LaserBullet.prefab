@@ -68,11 +68,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6328995277521983043}
-  - component: {fileID: 1984285038170924512}
-  - component: {fileID: 2273252125631242694}
+  - component: {fileID: 1326432680719098604}
   - component: {fileID: 5270848876961268193}
   - component: {fileID: 1559252364345579475}
-  - component: {fileID: -949506430533141622}
   - component: {fileID: -9056244033394439521}
   m_Layer: 0
   m_Name: LaserBullet
@@ -97,7 +95,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1984285038170924512
+--- !u!114 &1326432680719098604
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,53 +104,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 2513871686737893388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Script: {fileID: 11500000, guid: 1febac16e493aa5419e16a12865b2d89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  InterpolationSpace: 0
-  InterpolationTarget: {fileID: 4824208289284672205}
-  InterpolateErrorCorrection: 1
-  InterpolatedErrorCorrectionSettings:
-    MinRate: 3.3
-    MaxRate: 10
-    PosBlendStart: 0.25
-    PosBlendEnd: 1
-    PosMinCorrection: 0.025
-    PosTeleportDistance: 2
-    RotBlendStart: 0.1
-    RotBlendEnd: 0.5
-    RotTeleportRadians: 1.5
-  UseLegacySharedModeInterpolation: 0
-  TargetInterpolationDelay: 0.03
---- !u!114 &2273252125631242694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2513871686737893388}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObjectInterest: 1
-  DefaultInterestGroups: []
-  DestroyWhenStateAuthorityLeaves: 0
-  AllowStateAuthorityOverride: 1
-  AoiPositionSource: {fileID: 0}
-  Flags: 2305
-  NetworkGuid:
-    RawGuidValue: f154aa82ebfe59d44bce5abca8fd1870
-  NestedObjects: []
-  NetworkedBehaviours:
-  - {fileID: 1984285038170924512}
+  DefaultMods:
+  - scriptType: 3
+    CustomData: 00000000000000000000000000000000000000000000000000000000
+  - scriptType: 4
+    CustomData: 000000009a99993f0000c0ff0000c0ff0000c0ff0000000000000000
+  stateBehaviours:
   - {fileID: 5270848876961268193}
   - {fileID: 1559252364345579475}
-  - {fileID: -949506430533141622}
   - {fileID: -9056244033394439521}
-  SimulationBehaviours: []
+  prefabIndex: -1
+  StateRunnerMod: {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
 --- !u!114 &5270848876961268193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,14 +130,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ec43fa111b41e7478d24cf202449fac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
   _Collider: {fileID: 5293821979417053353}
   _CollisionMask:
     serializedVersion: 2
     m_Bits: 320
+  RaycastPositionChanges: 0
   SortByDistance: 0
-  UseTransformDistance: 0
-  maxCollisions: 5
+  UseDistanceOnStaticTransform: 0
+  UseTransformDistanceOnStaticTransform: 0
+  maxCollisions: 10
 --- !u!114 &1559252364345579475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,29 +151,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7c41dc6d8c22b46aaba34042b41a73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  _DamageByPeirce:
-  - PhysicalDamage: 0
-    MagicalDamage: 0
-    PureDamage: 2
-  CappedPeirce: 0
+  _collisionProcessor: {fileID: 5270848876961268193}
+  MaxHitsPerTick: 10
+  DamageDataSelector:
+    TemporaryData: []
+    NormalData:
+    - Option:
+        PhysicalDamage: 0
+        MagicalDamage: 3
+        PureDamage: 0
+        ApplyModifiers: []
+      Weight: 0
+    RandomizeDataOrder: 0
+  Peirce: 4294967295
   IgnoreAfterFirstHit: 0
---- !u!114 &-949506430533141622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2513871686737893388}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 583cc54e80ad1b049acd6b5744f07647, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  _SpawnLifetime: 1.1
-  _SpawnMaxLifetime: 1.1
-  _DespawnOnExpire: 1
+  IntervalType: 0
+  IntervalBetweenHits: 0.0333
+  intervalInTicks: 1
+  PickDamageDataAfterEachHit: 0
 --- !u!114 &-9056244033394439521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,13 +181,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64e574b0621c4ca4aad1ed267bd5c636, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
   HitLayerMask:
     serializedVersion: 2
     m_Bits: 256
   MaxUnits: 1920
   ScalePerUnit: 0.0222
-  Update: 0
+  ScaleAxis: 1
 --- !u!1 &2973621702732448016
 GameObject:
   m_ObjectHideFlags: 0

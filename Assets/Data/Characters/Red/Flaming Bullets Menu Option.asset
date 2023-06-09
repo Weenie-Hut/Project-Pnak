@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e49303ad2b40ff143a78664bcff749d1, type: 3}
+  m_Name: Flaming Bullets Menu Option
+  m_EditorClassIdentifier: Pnak:Pnak:StateModifierSO
+  TitleFormat: Flaming Bullets
+  TitlePreview: Flaming Bullets
+  DescriptionFormat: Add flames to bullets, causing magical DoT
+  DescriptionPreview: Add flames to bullets, causing magical DoT
+  Icon: {fileID: 21300058, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
+  Data:
+    scriptType: 16
+    CustomData: 0000807f000000000000000000000000000000000000000000000000

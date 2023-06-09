@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578b952ccf858a40be8090a469ed430, type: 3}
+  m_Name: LifetimeMod
+  m_EditorClassIdentifier: 
+  scriptIndex: 0
+  lifetimeBarPrefab: {fileID: 1643972510333819729, guid: 534a4f69a9a914b429d372eb8643ac9f, type: 3}
+  defaultSeconds: 5
+  defaultDisplayPosition: {x: 0, y: 40, z: 0}

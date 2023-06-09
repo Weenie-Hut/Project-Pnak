@@ -19,7 +19,7 @@ namespace Pnak
 				return;
 #endif
 
-			Foreground.localScale = new Vector2(Mathf.Max(NormalizedValue, 1e-4f), 1);
+			Foreground.localScale = new Vector3(Mathf.Max(NormalizedValue, 1e-4f), 1, 1);
 			Text.text = FormattedValue;
 		}
 	}
