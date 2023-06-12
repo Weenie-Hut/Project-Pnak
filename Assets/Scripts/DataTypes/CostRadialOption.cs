@@ -12,25 +12,25 @@ namespace Pnak
 
 	public abstract class CustomCostRadialOption : RadialOptionSO
 	{
-		private Cost previousCost;
+		private Cost? previousCost;
 		private Interactable previousInteractable;
 
-		public Cost GetCost(Interactable interactable = null)
+		public virtual Cost GetCost(Interactable interactable = null)
 		{
-			if (previousInteractable != interactable)
+			if (previousInteractable != interactable || !previousCost.HasValue)
 			{
 				previousCost = SetCost(interactable);
 				previousInteractable = interactable;
 			}
 
-			return previousCost;
+			return previousCost.Value;
 		}
 
 		public abstract Cost SetCost(Interactable interactable = null);
 
-		public override string Format(string format)
+		public override string Format(string format, Interactable interactable = null)
 		{
-			return base.Format(format).FormatById("cost", previousCost.ToString());
+			return base.Format(format, interactable).FormatById("cost", GetCost(interactable).ToString());
 		}
 
 		public override void OnSelect(Interactable interactable = null)

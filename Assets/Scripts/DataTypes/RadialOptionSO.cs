@@ -27,7 +27,8 @@ namespace Pnak
 		public string Title => Format(TitleFormat);
 		public string Description => Format(DescriptionFormat);
 
-		public virtual string Format(string format) => format;
+		public virtual string Format(string format) => Format(format, null);
+		public virtual string Format(string format, Interactable interactable) => format;
 
 		public abstract void OnSelect(Interactable interactable = null);
 		public virtual bool IsSelectable(Interactable interactable = null) => true;

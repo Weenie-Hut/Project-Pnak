@@ -11,6 +11,10 @@ namespace Pnak
 
 		public override Cost SetCost(Interactable interactable = null)
 		{
+			if (interactable == null)
+				return Cost.Zero;
+			if (ScriptType < 0 && ScriptType >= LiteNetworkManager.ModScripts.Length)
+				throw new System.ArgumentException("ScriptType is not set to a script: " + ScriptType);
 			if (!(LiteNetworkManager.ModScripts[ScriptType] is UpgradableMod upgradable))
 				throw new System.ArgumentException("ScriptType is not a valid UpgradableMod.");
 

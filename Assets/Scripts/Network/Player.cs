@@ -38,6 +38,7 @@ namespace Pnak
 		[Networked] private float _MP { get; set; }
 		[Networked(OnChanged = nameof(OnPilotChanged))]
 		private bool _Piloting { get; set; }
+		private int _PilotingTower;
 		public float MPPercent => _MP / Agent.MP_Max;
 		public float MP => _MP;
 		public bool Piloting => _Piloting;
@@ -86,7 +87,7 @@ namespace Pnak
 		{
 			if (Piloting && interactable == null)
 			{
-				RPC_UnsetPilot(SessionManager.Instance.NetworkRunner.LocalPlayer);
+				RPC_UnsetPilot(_PilotingTower);
 				return;
 			}
 
@@ -158,9 +159,19 @@ namespace Pnak
 		[Rpc(RpcSources.All, RpcTargets.All)]
 		public void RPC_SetPilot(int tower, PlayerRef playerRef)
 		{
+			if (!LiteNetworkManager.TryGetNetworkContext(tower, out LiteNetworkObject context))
+			{
+				Debug.LogError("BehaviourModifierManager.RPC__SetInputAuth: target at index " + tower + " does not exist.");
+				return;
+			}
+
 			if (HasStateAuthority)
+			{
 				LiteNetworkManager.SetInputAuthority(tower, playerRef);
-			
+				_PilotingTower = tower;
+			}
+			Agent.Controller.TransformData = context.Target.TransformData;
+
 			_Piloting = true;
 		}
 

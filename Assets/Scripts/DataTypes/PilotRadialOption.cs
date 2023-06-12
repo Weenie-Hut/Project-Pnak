@@ -31,7 +31,7 @@ namespace Pnak
 			if (!interactable.TryGetComponent<StateBehaviourController>(out StateBehaviourController PilotTarget))
 				return false;
 
-			return !PilotTarget.InputAuthority.IsNone;
+			return PilotTarget.InputAuthority.IsNone;
 		}
 	}
 }

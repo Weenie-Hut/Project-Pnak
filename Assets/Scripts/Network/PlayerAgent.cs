@@ -1,9 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Fusion;
-using Pnak.Input;
 using UnityEngine;
 
 namespace Pnak
@@ -16,8 +10,6 @@ namespace Pnak
 		public RadialOptionSO[] InteractionOptions;
 
 		[SerializeField] private Transform _AimGraphic;
-		[Tooltip("Disabled whenever the agent starts piloting")]
-		[SerializeField] private Transform GraphicsRoot;
 		[SerializeField] private StateBehaviour[] DisableWhenBusy;
 
 		public override void FixedUpdateNetwork()
@@ -66,7 +58,11 @@ namespace Pnak
 
 		public void SetPilotGraphics(bool isPiloting)
 		{
-			GraphicsRoot.gameObject.SetActive(!isPiloting);
+			foreach(Transform child in transform)
+			{
+				if (child != _AimGraphic)
+					child.gameObject.SetActive(!isPiloting);
+			}
 		}
 	}
 }

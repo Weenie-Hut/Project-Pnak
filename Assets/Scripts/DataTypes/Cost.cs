@@ -42,5 +42,7 @@ namespace Pnak
 			HP = ValueStack.Stack(HP, other.HP, stackingType);
 			Money = ValueStack.Stack(Money, other.Money, stackingType);
 		}
+
+		public static Cost Zero => new Cost() { MP = 0, HP = 0, Money = 0 };
 	}
 }

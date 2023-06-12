@@ -33,9 +33,9 @@ namespace Pnak
 			base.OnValidate();
 		}
 
-		public override string Format(string format)
+		public override string Format(string format, Interactable interactable = null)
 		{
-			return base.Format(format)
+			return base.Format(format, interactable)
 				.Replace("{name}", AgentPrefab.gameObject.name)
 				// .Replace("{description}", CharacterData.Description)
 				;
