@@ -20,6 +20,11 @@ namespace Pnak
 
 		private int loopCount = 0;
 
+		private void Awake()
+		{
+			self = this;
+		}
+
 		public override void Spawned()
 		{
 			base.Spawned();
@@ -27,7 +32,6 @@ namespace Pnak
 			if (Runner.IsServer)
 			{
 				delay = TickTimer.CreateFromSeconds(Runner, _SpawnPattern[_SpawnIndex].delay);
-				self = this;
 			}
 
 			loopCount = 0;

@@ -81,7 +81,7 @@ namespace Pnak
 			};
 		}
 
-		public override bool CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
+		public override bool ModAdded_CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
 		{
 			if (ScriptIndex != next.ScriptType) return false;
 

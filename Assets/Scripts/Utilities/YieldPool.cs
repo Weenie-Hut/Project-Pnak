@@ -21,7 +21,7 @@ namespace Pnak
 			WaitForSeconds waitForSeconds;
 			if (!WaitForSecondsCache.TryGetValue(roundedSeconds, out waitForSeconds))
 			{
-				Debug.Log("Creating WaitForSeconds: " + (roundedSeconds / 100.0f));
+				if (Time.time > 60f) Debug.Log("Creating WaitForSeconds: " + (roundedSeconds / 100.0f));
 				waitForSeconds = new WaitForSeconds(roundedSeconds / 100.0f);
 				WaitForSecondsCache.Add(roundedSeconds, waitForSeconds);
 			}
@@ -36,7 +36,7 @@ namespace Pnak
 			WaitForSecondsRealtime waitForSeconds;
 			if (!WaitForSecondsCacheRealtime.TryGetValue(roundedSeconds, out waitForSeconds))
 			{
-				Debug.Log("Creating WaitForSecondsRealtime: " + (roundedSeconds / 100.0f));
+				if (Time.time > 60f) Debug.Log("Creating WaitForSecondsRealtime: " + (roundedSeconds / 100.0f));
 				waitForSeconds = new WaitForSecondsRealtime(roundedSeconds / 100.0f);
 				WaitForSecondsCacheRealtime.Add(roundedSeconds, waitForSeconds);
 			}

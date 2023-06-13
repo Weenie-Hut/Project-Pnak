@@ -39,9 +39,9 @@ namespace Pnak
 
 		public void StackWith(ResistanceAmount other, ValueStackingType stackingType)
 		{
-			UnityEngine.Debug.Log($"Stacking {this} with {other} using {stackingType}");
+			// UnityEngine.Debug.Log($"Stacking {this} with {other} using {stackingType}");
 			ValueStack.StackInPlace(this, other, stackingType);
-			UnityEngine.Debug.Log($"Result: {this}");
+			// UnityEngine.Debug.Log($"Result: {this}");
 		}
 	}
 

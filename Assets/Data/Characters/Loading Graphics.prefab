@@ -130,12 +130,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1febac16e493aa5419e16a12865b2d89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultMods:
+  SerializedMods:
   - scriptType: 3
     CustomData: 00000000000000000000000000000000000000000000000000000000
+  OnQueuedForDestroy:
+    m_PersistentCalls:
+      m_Calls: []
   stateBehaviours: []
   prefabIndex: -1
-  StateRunnerMod: {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
 --- !u!1 &4104794997157482176
 GameObject:
   m_ObjectHideFlags: 0

@@ -138,7 +138,7 @@ namespace Pnak
 		{
 		}
 
-		public virtual bool CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
+		public virtual bool ModAdded_CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
 		{
 			return false;
 		}

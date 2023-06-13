@@ -452,13 +452,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1febac16e493aa5419e16a12865b2d89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultMods:
+  SerializedMods:
   - scriptType: 6
     CustomData: 00000000000000000000000000000000000000000000000000000000
+  OnQueuedForDestroy:
+    m_PersistentCalls:
+      m_Calls: []
   stateBehaviours:
   - {fileID: 9192185228211547201}
   prefabIndex: -1
-  StateRunnerMod: {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
 --- !u!114 &9192185228211547201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -476,5 +478,4 @@ MonoBehaviour:
   MP_RegenerationRate: 1
   InteractionOptions: []
   _AimGraphic: {fileID: 2776160277855912392}
-  GraphicsRoot: {fileID: 6562808046322256031}
   DisableWhenBusy: []

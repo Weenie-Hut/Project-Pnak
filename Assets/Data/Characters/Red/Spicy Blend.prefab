@@ -119,15 +119,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1febac16e493aa5419e16a12865b2d89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultMods:
+  SerializedMods:
   - scriptType: 2
-    CustomData: 000000000000000000004842000000000080bb440000000000000000
+    CustomData: 00000000000000000000c842000000000080bb440000000000000000
+  OnQueuedForDestroy:
+    m_PersistentCalls:
+      m_Calls: []
   stateBehaviours:
   - {fileID: 5270848876961268193}
   - {fileID: 1559252364345579475}
   - {fileID: -2771670484422843685}
   prefabIndex: -1
-  StateRunnerMod: {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
 --- !u!114 &5270848876961268193
 MonoBehaviour:
   m_ObjectHideFlags: 0

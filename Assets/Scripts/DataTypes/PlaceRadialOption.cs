@@ -19,7 +19,7 @@ namespace Pnak
 				return;
 			}
 
-			LiteNetworkManager.QueueNewNetworkObject(Prefab, new TransformData {
+			LiteNetworkManager.RPC_CreateLiteObject(Prefab.PrefabIndex, new TransformData {
 				Position = Player.LocalPlayer.Transform.Position,
 				RotationAngle = Input.GameInput.Instance.InputData.AimAngle
 			});

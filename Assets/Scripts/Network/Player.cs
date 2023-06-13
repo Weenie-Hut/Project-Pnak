@@ -12,7 +12,7 @@ namespace Pnak
 	{
 		public static bool IsValid => LocalPlayer?.Agent != null;
 		public static Player LocalPlayer { get; private set; }
-		public TransformData Transform => LocalPlayer?.Agent?.Controller.HasTransform ?? false ? LocalPlayer.Agent.Controller.TransformData : default;
+		public TransformData Transform => LocalPlayer?.Agent?.Controller.HasTransform ?? false ? LocalPlayer.Agent.Controller.TransformCache : default;
 
 		public StateBehaviourController LoadingPlayerPrefab;
 
@@ -26,8 +26,9 @@ namespace Pnak
 			get {
 				if (_agent == null)
 				{
+					// UnityEngine.Debug.Log("Player.Agent: Agent is null, attempting to get from network index (" + AgentNetworkIndex + ")");
 					if (AgentNetworkIndex != ushort.MaxValue)
-						_agent = LiteNetworkManager.GetNetworkObject(AgentNetworkIndex)?.Target?.GetComponent<PlayerAgent>();
+						_agent = LiteNetworkManager.TryGetNetworkObject(AgentNetworkIndex)?.Target?.GetComponent<PlayerAgent>();
 				}
 				return _agent;
 			}
@@ -58,12 +59,15 @@ namespace Pnak
 
 		public override void Spawned()
 		{
-			if (LocalPlayer != null)
+			if (HasInputAuthority)
 			{
-				Debug.LogError("Multiple local players detected!");
-				return;
+				if (LocalPlayer != null)
+				{
+					Debug.LogError("Multiple local players detected!");
+					return;
+				}
+				LocalPlayer = this;
 			}
-			LocalPlayer = this;
 
 			if (!PlayerLoaded && HasStateAuthority)
 			{
@@ -87,7 +91,7 @@ namespace Pnak
 		{
 			if (Piloting && interactable == null)
 			{
-				RPC_UnsetPilot(_PilotingTower);
+				RPC_UnsetPilot();
 				return;
 			}
 
@@ -128,6 +132,8 @@ namespace Pnak
 
 				changed.Behaviour._MP = 0;
 			}
+
+			changed.Behaviour.Agent?.SetPilotGraphics(changed.Behaviour._Piloting);
 		}
 
 		[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -136,10 +142,10 @@ namespace Pnak
 			// UnityEngine.Debug.Log("Changing player agent to " + index + "! Previous agent was " + AgentNetworkIndex + ".");
 
 			TransformData? transformData = null;
-			if (AgentNetworkIndex != ushort.MaxValue)
+			if (LiteNetworkManager.TryGetNetworkObject(AgentNetworkIndex, out LiteNetworkObject obj))
 			{
-				transformData = LiteNetworkManager.TryGetTransformData(AgentNetworkIndex);
-				LiteNetworkManager.QueueDeleteLiteObject(AgentNetworkIndex);
+				transformData = LiteNetworkManager.TryGetTransformData(obj);
+				LiteNetworkManager.QueueDeleteLiteObject(obj);
 			}
 
 			LiteNetworkManager.QueueNewNetworkObject(
@@ -159,7 +165,7 @@ namespace Pnak
 		[Rpc(RpcSources.All, RpcTargets.All)]
 		public void RPC_SetPilot(int tower, PlayerRef playerRef)
 		{
-			if (!LiteNetworkManager.TryGetNetworkContext(tower, out LiteNetworkObject context))
+			if (!LiteNetworkManager.NetworkContextIsValid(tower))
 			{
 				Debug.LogError("BehaviourModifierManager.RPC__SetInputAuth: target at index " + tower + " does not exist.");
 				return;
@@ -169,17 +175,17 @@ namespace Pnak
 			{
 				LiteNetworkManager.SetInputAuthority(tower, playerRef);
 				_PilotingTower = tower;
+				Agent.Controller.TransformCache.Value = LiteNetworkManager.GetNetworkObject(tower).Target.TransformCache;
 			}
-			Agent.Controller.TransformData = context.Target.TransformData;
 
 			_Piloting = true;
 		}
 
 		[Rpc(RpcSources.All, RpcTargets.All)]
-		public void RPC_UnsetPilot(int tower)
+		public void RPC_UnsetPilot()
 		{
 			if (HasStateAuthority)
-				LiteNetworkManager.RemoveInputAuthority(tower);
+				LiteNetworkManager.RemoveInputAuthority(_PilotingTower);
 
 			_Piloting = false;
 		}
@@ -188,9 +194,9 @@ namespace Pnak
 		private void SetPilotVisuals()
 		{
 			if (HasStateAuthority)
-				Agent.SetPilotState(_Piloting);
+				Agent?.SetPilotState(_Piloting);
 
-			Agent.SetPilotGraphics(_Piloting);
+			Agent?.SetPilotGraphics(_Piloting);
 		}
 	}
 }

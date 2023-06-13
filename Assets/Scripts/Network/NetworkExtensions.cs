@@ -190,6 +190,30 @@ namespace Pnak
 					else
 						throw new ArgumentException("Not a whole numeric type");
 			}
+
+			
+		}
+		
+		public static bool InBounds<T>(this T[] array, int index)
+		{
+			return index >= 0 && index < array.Length;
+		}
+
+		public static bool InBounds<T>(this List<T> list, int index)
+		{
+			return index >= 0 && index < list.Count;
+		}
+
+		public static T SafeGet<T>(this List<T> list, int index)
+		{
+			if (index < 0 || index >= list.Count)
+				return default(T);
+			return list[index];
+		}
+
+		public static T ListLast<T>(this List<T> list)
+		{
+			return list[list.Count - 1];
 		}
 	}
 

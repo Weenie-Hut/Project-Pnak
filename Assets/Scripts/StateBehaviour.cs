@@ -46,6 +46,10 @@ namespace Pnak
 		{
 		}
 
+		public virtual void InputFixedUpdateNetwork()
+		{
+		}
+
 		public virtual void FixedUpdateNetwork()
 		{
 		}
@@ -54,7 +58,10 @@ namespace Pnak
 		{
 		}
 
-		public virtual void Initialize()
+		/// <summary>
+		/// Called when the object is created, only on the server.
+		/// </summary>
+		public virtual void FixedInitialize()
 		{
 		}
 

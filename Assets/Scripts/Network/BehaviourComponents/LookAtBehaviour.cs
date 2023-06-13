@@ -11,40 +11,44 @@ namespace Pnak
 		public float DeltaAngle { get; private set; }
 		public InputBehaviourType LookTargetType = InputBehaviourType.Any;
 
-		public override void Initialize()
+		public override void FixedInitialize()
 		{
-			base.Initialize();
+			base.FixedInitialize();
 			DeltaAngle = 180f;
+		}
+
+		public override void InputFixedUpdateNetwork()
+		{
+			base.InputFixedUpdateNetwork();
+
+			if (LookTargetType == InputBehaviourType.AutomaticOnly)
+				return;
+			
+			if (Controller.Input.HasValue)
+				UpdateTransform(Controller.Input.Value.AimAngle);
 		}
 
 		public override void FixedUpdateNetwork()
 		{
-			float targetAngle;
+			if (Controller.Input.HasValue && LookTargetType != InputBehaviourType.AutomaticOnly)
+				return;
 
-			if (Controller.Input.HasValue && (LookTargetType == InputBehaviourType.Any || LookTargetType == InputBehaviourType.PlayerInputOnly))
+			if (LookTargetType == InputBehaviourType.PlayerInputOnly || CollisionProcessor.ColliderCount == 0)
 			{
-				targetAngle = Controller.Input.Value.AimAngle;
-			}
-			else if (LookTargetType == InputBehaviourType.Any || LookTargetType == InputBehaviourType.AutomaticOnly)
-			{
-				if (CollisionProcessor.ColliderCount == 0)
-				{
-					DeltaAngle = 180f;
-					return;
-				}
-
-				Transform target = CollisionProcessor.Colliders[0].transform;
-				if (target == null) return;
-
-				Vector3 direction = target.position - transform.position;
-				targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-			}
-			else {
 				DeltaAngle = 180f;
 				return;
 			}
 
-			TransformData transformData = Controller.TransformData;
+			Transform target = CollisionProcessor.Colliders[0].transform;
+			if (target == null) return;
+
+			Vector3 direction = target.position - transform.position;
+			UpdateTransform(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+		}
+
+		private void UpdateTransform(float targetAngle)
+		{
+			TransformData transformData = Controller.TransformCache;
 
 			float delta = Mathf.DeltaAngle(transformData.RotationAngle, targetAngle);
 			float rotationSpeed = RotationSpeed * Runner.DeltaTime;
@@ -54,7 +58,7 @@ namespace Pnak
 			DeltaAngle = Mathf.Abs(delta - change);
 
 			transformData.RotationAngle = newAngle;
-			Controller.TransformData = transformData;
+			Controller.TransformCache.Value = transformData;
 		}
 	}
 }

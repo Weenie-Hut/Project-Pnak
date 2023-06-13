@@ -105,10 +105,9 @@ namespace Pnak
 			AdjustCurrentForInterval();
 		}
 
-		public override void Initialize()
+		public override void FixedInitialize()
 		{
-			base.Initialize();
-
+			base.FixedInitialize();
 			MoveToNext();
 		}
 
@@ -154,7 +153,7 @@ namespace Pnak
 			if (HitCount >= Peirce)
 			{
 				UnityEngine.Debug.LogError("Munition has or is trying to hit more targets than allowed: " + HitCount + " >= " + Peirce + ". The munition should be be queued for destruction which happens automatically to prevent this call.");
-				Controller.QueueForDestroy();
+				LiteNetworkManager.QueueDeleteLiteObject(Controller.NetworkContext);
 				return;
 			}
 

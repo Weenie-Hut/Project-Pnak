@@ -31,7 +31,7 @@ namespace Pnak
 
 		public float MoneyOnDeath = 1f;
 
-		public override void Initialize()
+		public override void FixedInitialize()
 		{
 			int selfTypeIndex = Controller.GetBehaviourTypeIndex(this);
 			HealthVisualIndex = Controller.FindNetworkMod<HealthVisualMod>(selfTypeIndex, out int scriptIndex);

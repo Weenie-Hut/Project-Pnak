@@ -21,6 +21,11 @@ public class CameraViewportHandler : MonoBehaviour
 
 	private void Update()
 	{
+#if UNITY_EDITOR
+		if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode && !UnityEditor.EditorApplication.isPlaying)
+			return;
+#endif
+
 		if (Screen.width != _lastScreenSize.x || Screen.height != _lastScreenSize.y)
 		{
 			_lastScreenSize.x = Screen.width;
@@ -65,6 +70,9 @@ public class CameraViewportHandler : MonoBehaviour
 #if UNITY_EDITOR
 	private void OnValidate()
 	{
+		if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+			return;
+
 		UnityEditor.EditorApplication.delayCall += ComputeResolution;
 	}
 #endif

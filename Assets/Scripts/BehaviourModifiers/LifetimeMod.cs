@@ -111,13 +111,15 @@ namespace Pnak
 
 		public override void OnFixedUpdate(object rContext, ref LiteNetworkedData data)
 		{
+			if (!(rContext is LifetimeContext lifetimeContext)) return;
+
 			float currentTick = SessionManager.Instance.NetworkRunner.Tick;
 			float tickRate = SessionManager.Instance.NetworkRunner.DeltaTime;
 			float endTick = data.Lifetime.startTick + (data.Lifetime.seconds / tickRate);
 
 			if (currentTick > endTick)
 			{
-				LiteNetworkManager.QueueDeleteLiteObject(data.TargetIndex);
+				LiteNetworkManager.QueueDeleteLiteObject(lifetimeContext.NetworkContext);
 			}
 		}
 

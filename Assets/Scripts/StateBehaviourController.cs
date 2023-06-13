@@ -9,7 +9,11 @@ namespace Pnak
 	[DisallowMultipleComponent]
 	public class StateBehaviourController : MonoBehaviour
 	{
-		public SerializedLiteNetworkedData[] DefaultMods;
+		// TODO: This is copied to all instances created, but only needed on the prefab. Maybe use serialized object?
+		public SerializedLiteNetworkedData[] SerializedMods;
+		
+		// Used for disabling object features when the object is queued for destroy, like disabling a collider.
+		public UnityEngine.Events.UnityEvent OnQueuedForDestroy;
 
 		private LiteNetworkedData[] data;
 		public LiteNetworkedData[] Data
@@ -17,28 +21,23 @@ namespace Pnak
 			get {
 				if (data == null)
 				{
-					bool hasStateBehaviour = stateBehaviours.Length != 0;
-					data = new LiteNetworkedData[DefaultMods.Length + (hasStateBehaviour ? 1 : 0)];
-					for (int i = 0; i < DefaultMods.Length; i++)
-						data[i] = DefaultMods[i].ToLiteNetworkedData();
-
-					if (hasStateBehaviour)
-					{
-						StateRunnerMod.SetDefaults(ref data[DefaultMods.Length]);
-					}
+					data = new LiteNetworkedData[SerializedMods.Length];
+					for (int i = 0; i < SerializedMods.Length; i++)
+						data[i] = SerializedMods[i].ToLiteNetworkedData();
 				}
 				return data;
 			}
 		}
 
-		[SerializeField, ReadOnly] private StateBehaviour[] stateBehaviours;
+		[Header("Read Only")]
+		[SerializeField, NonReorderable, ReadOnly] private StateBehaviour[] stateBehaviours;
 
-		public bool QueuedForDestroy { get; private set; }
 		public void QueueForDestroy()
 		{
-			QueuedForDestroy = true;
-			LiteNetworkManager.QueueDeleteLiteObject(TargetNetworkIndex);
+			if (!LiteNetworkManager.QueueDeleteLiteObject(NetworkContext)) return;
+			OnQueuedForDestroy?.Invoke();
 		}
+		
 
 		public LiteNetworkObject NetworkContext { get; private set; }
 		public int TargetNetworkIndex => NetworkContext.Index;
@@ -116,29 +115,33 @@ namespace Pnak
 			return -1;
 		}
 
-		public TransformData TransformData
+		private void Awake()
 		{
-			get {
-				if (TransformModIndex == -1)
-				{
-					UnityEngine.Debug.LogWarning("Trying to get transform data on object that does not have a transform mod: " + gameObject.name);
-					return default;
-				}
-				return TransformScript.GetTransformData(TransformModIndex);
-			}
-			set {
-				if (TransformModIndex == -1)
-				{
-					UnityEngine.Debug.LogWarning("Trying to set transform data on object that does not have a transform mod: " + gameObject.name);
-					return;
-				}
-				var data = LiteNetworkManager.GetModifierData(TransformModIndex);
-				TransformScript.UpdateTransform(ref data, value);
-				LiteNetworkManager.SetModifierData(TransformModIndex, data);
-			}
+			TransformCache = new CacheCallbacks<TransformData>(GetTransformData, SetTransformData);
+			TransformCache.Enabled = false;
 		}
 
-		public PlayerRef InputAuthority => LiteNetworkManager.GetInputAuth(TargetNetworkIndex);
+		public Cache<TransformData> TransformCache { get; private set; }
+
+		private TransformData GetTransformData()
+		{
+			if (TransformModIndex == -1)
+			{
+				UnityEngine.Debug.LogWarning("Trying to get transform data on object that does not have a transform mod: " + gameObject.name);
+				return default;
+			}
+
+			return TransformScript.GetTransformData(TransformModIndex);
+		}
+
+		private void SetTransformData(ref TransformData value)
+		{
+			var data = LiteNetworkManager.GetModifierData(TransformModIndex);
+			TransformScript.UpdateTransform(ref data, value);
+			LiteNetworkManager.SetModifierData(TransformModIndex, data);
+		}
+
+		public PlayerRef InputAuthority => NetworkContext.InputAuthority;
 		public NetworkInputData? Input { get; private set; }
 
 		public int FindNetworkMod<T>(out int scriptType) where T : LiteNetworkMod
@@ -170,41 +173,43 @@ namespace Pnak
 			return -1;
 		}
 
-		private delegate void UpdateNetworkData(ref LiteNetworkedData runnerData);
-		private event UpdateNetworkData updateNetworkData = null;
-		public int Stage { get; private set; }
+		// private delegate void UpdateNetworkData(ref LiteNetworkedData runnerData);
+		// private event UpdateNetworkData updateNetworkData = null;
 		// private Queue<StateModifier> RemoveStateModQueue = new Queue<StateModifier>();
 		// private Queue<StateModifier> AddStateModQueue = new Queue<StateModifier>();
-		public void FixedUpdateNetwork(ref LiteNetworkedData runnerData)
+		public void InputFixedUpdateNetwork()
 		{
 			Input = SessionManager.Instance.NetworkRunner.GetInputForPlayer<NetworkInputData>(InputAuthority);
+			TransformCache.Enabled = true;
 
-			Stage = 1;
+			foreach (StateBehaviour state in stateBehaviours)
+			{
+				if (state.enabled) state.InputFixedUpdateNetwork();
+			}
 
-			Stage = 3;
+			TransformCache.Apply();
+			TransformCache.Enabled = false;
+		}
+
+		public void FixedUpdateNetwork()
+		{
+			TransformCache.Enabled = true;
 
 			foreach (StateBehaviour state in stateBehaviours)
 			{
 				if (state.enabled) state.FixedUpdateNetwork();
 			}
 
-			if (updateNetworkData != null)
-			{
-				updateNetworkData(ref runnerData);
-				updateNetworkData = null;
-			}
-
-			Stage = 4;
+			TransformCache.Apply();
+			TransformCache.Enabled = false;
 		}
 
 		internal void Render()
 		{
-			Stage = 5;
 			foreach (StateBehaviour state in stateBehaviours)
 			{
 				state.Render();
 			}
-			Stage = 0;
 		}
 
 		public void Initialize(LiteNetworkObject networkContext)
@@ -216,24 +221,28 @@ namespace Pnak
 
 			NetworkContext = networkContext;
 
-			foreach (StateBehaviour state in stateBehaviours)
+			if (SessionManager.IsServer)
 			{
-				state.Initialize();
+				foreach (StateBehaviour state in stateBehaviours)
+				{
+					state.FixedInitialize();
+				}
 			}
 		}
 
-		private int predictedDestroyTick = -1;
-		public void SetPredictedDestroyTick(int tick)
-		{
-			predictedDestroyTick = tick;
-			updateNetworkData += _SetPredictedDestroyTick;
-		}
+		// private int predictedDestroyTick = -1;
+		// public void SetPredictedDestroyTick(int tick)
+		// {
+		// 	predictedDestroyTick = tick;
+		// 	updateNetworkData += _SetPredictedDestroyTick;
+		// }
 
-		private void _SetPredictedDestroyTick(ref LiteNetworkedData data)
-		{
-			data.StateRunner.predictedDestroyTick = predictedDestroyTick;
-			predictedDestroyTick = -1;
-		}
+		// private void _SetPredictedDestroyTick(ref LiteNetworkedData data)
+		// {
+		// 	data.StateRunner.predictedDestroyTick = predictedDestroyTick;
+		// 	predictedDestroyTick = -1;
+		// }
+
 #if UNITY_EDITOR
 		[Button(nameof(AddToScripts), "Add", "Add script to the network config. Adding allows for multiplayer clients to sent a single number to identify the type of script/modifier that should be applied.", nameof(prefabIndex), -1, false)]
 		[Button(nameof(RemoveFromScripts), "Rem", "Remove script from network config, freeing up unused asset. Adding allows for multiplayer clients to sent a single number to identify the type of script/modifier that should be applied.", nameof(prefabIndex), -1)]
@@ -252,11 +261,11 @@ namespace Pnak
 
 		
 		public int PrefabIndex => prefabIndex;
-		[SerializeField, ReadOnly] private StateRunnerMod StateRunnerMod;
 
-		public virtual int DefaultModsCount => Data.Length;
 		public virtual LiteNetworkedData[] GetDefaultMods(ref TransformData transform)
 		{
+			UnityEngine.Debug.Log("GetDefaultMods() called on " + gameObject.name + " with " + stateBehaviours.Length + " state behaviours and " + Data.Length + " mods.");
+
 			LiteNetworkedData[] mods = new LiteNetworkedData[Data.Length];
 			System.Array.Copy(Data, mods, Data.Length);
 
@@ -269,10 +278,9 @@ namespace Pnak
 		}
 
 #if UNITY_EDITOR
-		internal void SetHiddenSerializedFields(int prefabIndex, StateRunnerMod stateRunnerMod)
+		internal void SetHiddenSerializedFields(int prefabIndex)
 		{
 			this.prefabIndex = prefabIndex;
-			StateRunnerMod = stateRunnerMod;
 			stateBehaviours = GetComponents<StateBehaviour>();
 		}
 

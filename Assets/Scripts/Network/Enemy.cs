@@ -66,7 +66,7 @@ namespace Pnak
 
 			if (CurrentPathIndex >= path.childCount)
 			{
-				Controller.QueueForDestroy();
+				LiteNetworkManager.QueueDeleteLiteObject(Controller.NetworkContext);
 				return;
 			}
 
@@ -94,12 +94,12 @@ namespace Pnak
 
 			if (path != null)
 			{
-				TargetPosition = Controller.TransformData.Position;
+				TargetPosition = Controller.TransformCache.Value.Position;
 				SetNextPosition();
 			}
 		}
 
-		public override void FixedUpdateNetwork()
+		public override void InputFixedUpdateNetwork()
 		{
 			if (path == null)
 			{
@@ -114,7 +114,7 @@ namespace Pnak
 
 			float movement = MovementDataSelector.CurrentData.MovementSpeed * Runner.DeltaTime;
 
-			TransformData transformData = Controller.TransformData;
+			TransformData transformData = Controller.TransformCache;
 
 			if (movement >= 0)
 			{
@@ -131,7 +131,7 @@ namespace Pnak
 					RevertToPreviousPosition();
 			}
 	
-			Controller.TransformData = transformData;
+			Controller.TransformCache.Value = transformData;
 		}
 	}
 }

@@ -4,11 +4,16 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public struct TransformData
+	public struct TransformData : INetworkStruct
 	{
 		public Vector3 Position;
 		public Vector2 Scale;
 		public float RotationAngle;
+
+		public override string ToString()
+		{
+			return $"{{p: {Position}, a: {RotationAngle}, s: {Scale}}}";
+		}
 	}
 
 	public abstract class TransformMod : LiteNetworkMod

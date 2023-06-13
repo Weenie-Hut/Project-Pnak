@@ -81,6 +81,7 @@ namespace Pnak
 
 		public override void FixedUpdateNetwork()
 		{
+			Controller.TransformCache.Apply();
 			Physics2D.SyncTransforms();
 
 			for (int i = 0; i < ignoredColliders.Count; i++)

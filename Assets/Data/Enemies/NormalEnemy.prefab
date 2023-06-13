@@ -106,16 +106,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1febac16e493aa5419e16a12865b2d89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultMods:
+  SerializedMods:
   - scriptType: 3
     CustomData: 00000000000000000000000000000000000000000000000000000000
   - scriptType: 8
-    CustomData: 0000803f000000000000000033332742000000000000000000000000
+    CustomData: 0000803f000000000000000000002042000000000000000000000000
+  OnQueuedForDestroy:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 109408743665055290}
+        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   stateBehaviours:
   - {fileID: 6067962359517261133}
   - {fileID: 1542059804515670451}
   prefabIndex: -1
-  StateRunnerMod: {fileID: 11400000, guid: 497320821dc9d484080248a7e37a959b, type: 2}
 --- !u!114 &6067962359517261133
 MonoBehaviour:
   m_ObjectHideFlags: 0

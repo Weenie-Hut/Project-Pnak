@@ -12,18 +12,18 @@ namespace Pnak
 		[SerializeField] private Transform _AimGraphic;
 		[SerializeField] private StateBehaviour[] DisableWhenBusy;
 
-		public override void FixedUpdateNetwork()
+		public override void InputFixedUpdateNetwork()
 		{
-			base.FixedUpdateNetwork();
+			base.InputFixedUpdateNetwork();
 
 			if (Controller.Input.HasValue)
 			{
 				Vector2 movement = Controller.Input.Value.Movement * Speed;
 
-				TransformData transformData = Controller.TransformData;
+				TransformData transformData = Controller.TransformCache;
 				transformData.Position += (Vector3)movement * Runner.DeltaTime;
 				transformData.RotationAngle = Controller.Input.Value.AimAngle;
-				Controller.TransformData = transformData;
+				Controller.TransformCache.Value = transformData;
 			}
 		}
 

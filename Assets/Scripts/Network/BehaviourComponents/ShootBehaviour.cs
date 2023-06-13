@@ -77,14 +77,14 @@ namespace Pnak
 		public float CurrentReloadTime => Mathf.Max(MinimumReloadTime, ShootDataSelector.CurrentData.ReloadTime);
 
 		private int endReloadTick = -1;
-		private int EndReloadTick
+		private int EndReloadTick => endReloadTick;
+
+		private int SetEndReloadTick(int value)
 		{
-			get => endReloadTick;
-			set {
-				if (value == endReloadTick) return;
-				endReloadTick = value;
-				UpdateVisuals();
-			}
+			if (value == endReloadTick) return value;
+			endReloadTick = value;
+			UpdateVisuals();
+			return value;
 		}
 
 		protected override void Awake()
@@ -127,7 +127,7 @@ namespace Pnak
 			float startReloadTick = EndReloadTick - (previousTime / Runner.DeltaTime);
 			float progress = (Runner.Tick - startReloadTick) / (float)(EndReloadTick - startReloadTick);
 
-			EndReloadTick = Runner.Tick + (int)((CurrentReloadTime * (1f - progress)) / Runner.DeltaTime);
+			SetEndReloadTick(Runner.Tick + (int)((CurrentReloadTime * (1f - progress)) / Runner.DeltaTime));
 		}
 
 		public void UpdateVisuals()
@@ -141,14 +141,15 @@ namespace Pnak
 			}
 		}
 
-		public override void Initialize()
+		public override void FixedInitialize()
 		{
-			base.Initialize();
+			base.FixedInitialize();
+
 			int selfTypeIndex = Controller.GetBehaviourTypeIndex(this);
 			ReloadVisualIndex = Controller.FindNetworkMod<ReloadVisualMod>(selfTypeIndex, out int scriptIndex);
 			
 			ShootDataSelector.MoveToNext();
-			EndReloadTick = Runner.Tick + (int)(CurrentReloadTime / Runner.DeltaTime);
+			SetEndReloadTick(Runner.Tick + (int)(CurrentReloadTime / Runner.DeltaTime));
 		}
 
 		public override void FixedUpdateNetwork()
@@ -184,14 +185,14 @@ namespace Pnak
 				if (shootData.Spawn != null)
 				{
 					LiteNetworkManager.QueueNewNetworkObject(shootData.Spawn, new TransformData {
-						Position = Controller.TransformData.Position,
-						RotationAngle = Controller.TransformData.RotationAngle + rotationOffset
+						Position = Controller.TransformCache.Value.Position,
+						RotationAngle = Controller.TransformCache.Value.RotationAngle + rotationOffset
 					}, n => CopyMunitionAndDamageMods(n, shootData));
 				}
 			}
 
 			ShootDataSelector.MoveToNext();
-			EndReloadTick = Runner.Tick + (int)(CurrentReloadTime / Runner.DeltaTime);
+			SetEndReloadTick(Runner.Tick + (int)(CurrentReloadTime / Runner.DeltaTime));
 		}
 
 		private static void CopyMunitionAndDamageMods(LiteNetworkObject networkObject, ShootData current)

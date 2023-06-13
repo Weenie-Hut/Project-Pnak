@@ -11,17 +11,18 @@ namespace Pnak
 		[Validate(nameof(ValidateHitsPerTick)), Min(1), Tooltip("The maximum number of hits that is processed per tick. Use for munitions that effect an area but only apply to a limited number of targets.")]
 		public int MaxHitsPerTick = 1;
 
+		protected int workingHitsRemaining;
 		public override void FixedUpdateNetwork()
 		{
 			if (CollisionProcessor.ColliderCount == 0) return;
 
-			int hitsRemaining = MaxHitsPerTick;
+			workingHitsRemaining = MaxHitsPerTick;
 
-			for (int i = 0; i < CollisionProcessor.ColliderCount && !Controller.QueuedForDestroy && hitsRemaining > 0; i++)
+			for (int i = 0; i < CollisionProcessor.ColliderCount && !Controller.NetworkContext.QueuedForDestruction && workingHitsRemaining > 0; i++)
 			{
-				hitsRemaining--;
-				if (CollisionProcessor.Colliders[i] == null) continue;
+				if (CollisionProcessor.Colliders[i] == null || !CollisionProcessor.Colliders[i].enabled) continue;
 				OnHit(CollisionProcessor.Colliders[i], CollisionProcessor.Distances?[i]);
+				workingHitsRemaining--;
 			}
 		}
 

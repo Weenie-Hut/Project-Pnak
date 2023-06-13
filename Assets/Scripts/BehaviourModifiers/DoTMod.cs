@@ -91,7 +91,7 @@ namespace Pnak
 			}
 		}
 
-		public override bool CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
+		public override bool ModAdded_CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
 		{
 			if (ScriptIndex != next.ScriptType) return false;
 			if (current.DoT.StackId != next.DoT.StackId) return false;
@@ -131,13 +131,13 @@ namespace Pnak
 			DataSelector<DamageAmount> selector = DoTContext.DamageSelector;
 			if (selector.MoveToNext())
 			{
-				UnityEngine.Debug.Log("DoT: Current Data has changed => " + selector.CurrentData + " => " + data.DoT.Scale);
+				// UnityEngine.Debug.Log("DoT: Current Data has changed => " + selector.CurrentData + " => " + data.DoT.Scale);
 				selector.CurrentData.Scale(
 					SessionManager.Instance.NetworkRunner.DeltaTime *
 					(intervalInTicks) *
 					data.DoT.Scale
 				);
-				UnityEngine.Debug.Log("DoT: Current Data has changed => " + selector.CurrentData);
+				// UnityEngine.Debug.Log("DoT: Current Data has changed => " + selector.CurrentData);
 			}
 
 			DoTContext.HealthBehaviour.AddDamage(selector.CurrentData);

@@ -83,17 +83,13 @@ namespace Pnak
 			// 	UnityEditor.EditorUtility.SetDirty(StateModifiers[i]);
 			// }
 
-			StateRunnerMod stateRunnerMod = System.Array.Find(Mods, (LiteNetworkMod mod) => mod is StateRunnerMod) as StateRunnerMod;
-			if (stateRunnerMod != null)
+			int liteNetworkPrefabsLength = LiteNetworkPrefabs == null ? 0 : LiteNetworkPrefabs.Length;
+			for (int i = 0; i < liteNetworkPrefabsLength; i++)
 			{
-				int liteNetworkPrefabsLength = LiteNetworkPrefabs == null ? 0 : LiteNetworkPrefabs.Length;
-				for (int i = 0; i < liteNetworkPrefabsLength; i++)
-				{
-					if (LiteNetworkPrefabs[i] == null) continue;
+				if (LiteNetworkPrefabs[i] == null) continue;
 
-					LiteNetworkPrefabs[i].SetHiddenSerializedFields(i, stateRunnerMod);
-					UnityEditor.EditorUtility.SetDirty(LiteNetworkPrefabs[i]);
-				}
+				LiteNetworkPrefabs[i].SetHiddenSerializedFields(i);
+				UnityEditor.EditorUtility.SetDirty(LiteNetworkPrefabs[i]);
 			}
 
 			UnityEditor.EditorUtility.SetDirty(this);

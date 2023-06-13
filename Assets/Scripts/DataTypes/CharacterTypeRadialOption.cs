@@ -19,6 +19,17 @@ namespace Pnak
 			Player.LocalPlayer.RPC_ChangePlayerAgent((byte)(characterIndex));
 		}
 
+		
+
+		public override string Format(string format, Interactable interactable = null)
+		{
+			return base.Format(format, interactable)
+				.Replace("{name}", AgentPrefab.gameObject.name)
+				// .Replace("{description}", CharacterData.Description)
+				;
+		}
+		
+#if UNITY_EDITOR
 		protected override void OnValidate()
 		{
 			if (AgentPrefab == null)
@@ -32,13 +43,6 @@ namespace Pnak
 
 			base.OnValidate();
 		}
-
-		public override string Format(string format, Interactable interactable = null)
-		{
-			return base.Format(format, interactable)
-				.Replace("{name}", AgentPrefab.gameObject.name)
-				// .Replace("{description}", CharacterData.Description)
-				;
-		}
+#endif
 	}
 }
