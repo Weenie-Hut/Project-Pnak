@@ -264,7 +264,7 @@ namespace Pnak
 
 		public virtual LiteNetworkedData[] GetDefaultMods(ref TransformData transform)
 		{
-			UnityEngine.Debug.Log("GetDefaultMods() called on " + gameObject.name + " with " + stateBehaviours.Length + " state behaviours and " + Data.Length + " mods.");
+			// UnityEngine.Debug.Log("GetDefaultMods() called on " + gameObject.name + " with " + stateBehaviours.Length + " state behaviours and " + Data.Length + " mods.");
 
 			LiteNetworkedData[] mods = new LiteNetworkedData[Data.Length];
 			System.Array.Copy(Data, mods, Data.Length);

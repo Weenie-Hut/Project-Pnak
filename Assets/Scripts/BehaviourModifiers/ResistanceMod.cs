@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace Pnak
 {
+	public enum ResistanceStackIds
+	{
+		RedPepperSpicyBlend = 2520,
+	}
+
 	public partial struct LiteNetworkedData
 	{
 		[System.Serializable, StructLayout(LayoutKind.Explicit)]
@@ -21,21 +26,30 @@ namespace Pnak
 			/***********************************/
 			[EnumNameSuffix(typeof(Priorities))]
 			[FieldOffset(8)]
-			public ushort Priority;
+			public ushort OverridePriority;
 			[AsEnum(typeof(ValueStackingType))]
 			[FieldOffset(10)]
-			public byte StackingType;
+			public byte OverrideType;
 			[FieldOffset(11)]
 			[NaNButton, Min(0f)] public float AllDamageAmount;
 			[FieldOffset(15)]
 			[NaNButton, Min(0f)] public float PhysicalDamageAmount;
 			[FieldOffset(19)]
 			[NaNButton, Min(0f)] public float MagicalDamageAmount;
+			[Tooltip("The stack ID of this Resistance. If a new Resistance is applied to a target with the same stack ID, the old Resistance will be stacked with the new one."), EnumNameSuffix(typeof(ResistanceStackIds))]
+			[FieldOffset(23)]
+			public short StackId;
+			[AsEnum(typeof(ValueStackingType))]
+			[FieldOffset(25)]
+			public byte DurationStackType;
+			[AsEnum(typeof(ValueStackingType)), Default(1)]
+			[FieldOffset(26)]
+			public byte AmountStackType;
 
 			public bool IsEqual(in ResistanceData other)
 			{
-				return StackingType.Equals(other.StackingType) &&
-					Priority.Equals(other.Priority) &&
+				return OverrideType.Equals(other.OverrideType) &&
+					OverridePriority.Equals(other.OverridePriority) &&
 					AllDamageAmount.Equals(other.AllDamageAmount) &&
 					PhysicalDamageAmount.Equals(other.PhysicalDamageAmount) &&
 					MagicalDamageAmount.Equals(other.MagicalDamageAmount);
@@ -67,11 +81,31 @@ namespace Pnak
 		public override void SetDefaults(ref LiteNetworkedData data)
 		{
 			base.SetDefaults(ref data);
-			data.Resistance.StackingType = (byte)ValueStackingType.Multiply;
-			data.Resistance.Priority = (ushort)Priorities.GeneralMult;
+			data.Resistance.OverrideType = (byte)ValueStackingType.Multiply;
+			data.Resistance.OverridePriority = (ushort)Priorities.GeneralMult;
 			data.Resistance.AllDamageAmount = float.NaN;
 			data.Resistance.PhysicalDamageAmount = float.NaN;
 			data.Resistance.MagicalDamageAmount = float.NaN;
+			data.Resistance.DurationStackType = (byte)ValueStackingType.Replace;
+			data.Resistance.AmountStackType = (byte)ValueStackingType.Replace;
+		}
+
+		public override bool ModAdded_CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
+		{
+			if (ScriptIndex != next.ScriptType) return false;
+			if (current.DoT.StackId != next.DoT.StackId) return false;
+			if (current.Resistance.DurationStackType == (byte)ValueStackingType.DoNotStack) return false;
+			if (current.Resistance.AmountStackType == (byte)ValueStackingType.DoNotStack) return false;
+			if (current.Resistance.DurationStackType != next.Resistance.DurationStackType) return false;
+			if (current.Resistance.AmountStackType != next.Resistance.AmountStackType) return false;
+
+			current.DoT.Duration = ValueStack.Stack(current.Resistance.Duration, next.Resistance.Duration, (ValueStackingType)current.Resistance.DurationStackType);
+
+			current.Resistance.AllDamageAmount = ValueStack.Stack(current.Resistance.AllDamageAmount, next.Resistance.AllDamageAmount, (ValueStackingType)current.Resistance.AmountStackType);
+			current.Resistance.PhysicalDamageAmount = ValueStack.Stack(current.Resistance.PhysicalDamageAmount, next.Resistance.PhysicalDamageAmount, (ValueStackingType)current.Resistance.AmountStackType);
+			current.Resistance.MagicalDamageAmount = ValueStack.Stack(current.Resistance.MagicalDamageAmount, next.Resistance.MagicalDamageAmount, (ValueStackingType)current.Resistance.AmountStackType);
+
+			return true;
 		}
 
 		public override void Initialize(LiteNetworkObject networkContext, in LiteNetworkedData data, out object context)
@@ -93,8 +127,8 @@ namespace Pnak
 			context.Override.Data.AllMultiplier = data.Resistance.AllDamageAmount;
 			context.Override.Data.PhysicalMultiplier = data.Resistance.PhysicalDamageAmount;
 			context.Override.Data.MagicalMultiplier = data.Resistance.MagicalDamageAmount;
-			context.Override.Priority = data.Resistance.Priority;
-			context.Override.StackingType = (ValueStackingType)data.Resistance.StackingType;
+			context.Override.Priority = data.Resistance.OverridePriority;
+			context.Override.StackingType = (ValueStackingType)data.Resistance.OverrideType;
 
 			context.HealthBehaviour.ModifyOverride(context.Override);
 		}

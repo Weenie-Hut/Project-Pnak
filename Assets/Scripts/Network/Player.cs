@@ -152,7 +152,7 @@ namespace Pnak
 				GameManager.Instance.Characters[index],
 				transformData ?? default,
 				obj => {
-					UnityEngine.Debug.Log("New agent index is " + obj.Index + ".");
+					// UnityEngine.Debug.Log("New agent index is " + obj.Index + ".");
 					AgentNetworkIndex = (ushort)obj.Index;
 					LiteNetworkManager.SetInputAuthority(AgentNetworkIndex, Object.InputAuthority);
 				}

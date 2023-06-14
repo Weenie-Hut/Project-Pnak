@@ -38,8 +38,8 @@ namespace Pnak
 		[Suffix("sec"), MinMax(min: 0.0333f)]
 		public float IntervalBetweenHits = 0.33f;
 
-		[AsLabel(LabelType.Italic | LabelType.Right, "Damage is in d/sec and dealt every {0} network tick(s)")]
 		[HideIf(nameof(intervalInTicks), -1)]
+		[AsLabel(LabelType.Italic | LabelType.Right, "Damage is in d/sec and dealt every {0} network tick(s)")]
 		[SerializeField]
 		private int intervalInTicks; // Used for any interval
 

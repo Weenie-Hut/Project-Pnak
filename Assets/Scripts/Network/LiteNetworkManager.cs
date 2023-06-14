@@ -59,7 +59,9 @@ namespace Pnak
 		/// The highest index in ModifiersData that is currently in use.
 		/// Used as a hint to avoid iterating over the entire array (performance).
 		/// </summary>
-		[Networked] private int liteModUsingCapacity { get; set; }
+		[Networked] private ushort liteModUsingCapacity { get; set; }
+		private ushort previousLiteModUsingCapacity = 0;
+	
 		// TODO: This is to make sure that if an index is disabled and enabled with different data, we can clear the data first.
 		private LiteNetworkedData[] liteModDataCopy;
 
@@ -324,7 +326,7 @@ namespace Pnak
 					continue;
 
 				if (i >= liteModUsingCapacity)
-					liteModUsingCapacity = i + 1;
+					liteModUsingCapacity = (ushort)(i + 1);
 
 				return i;
 			}
@@ -509,18 +511,19 @@ namespace Pnak
 
 			if (!HasStateAuthority) return;
 
-			UnityEngine.Debug.Log("BehaviourModifierManager.FixedUpdateNetwork: " + liteModUsingCapacity);
-
 			// if (_deletingLiteObjects.Count > 0)
 			// {
 			// 	UnityEngine.Debug.LogError("BehaviourModifierManager.FixedUpdateNetwork: _deletingTargets.Count > 0");
 			// }
 
+			int lastValidAddress = -1;
+
 			for (int modifierAddress = 0; modifierAddress < liteModUsingCapacity; modifierAddress++)
 			{
 				LiteNetworkedData data = LiteModData[modifierAddress];
-				UnityEngine.Debug.Log("Up: " + modifierAddress + ": " + data.ToString());
 				if (!data.IsValid) continue;
+
+				lastValidAddress = modifierAddress;
 
 				if (liteModContexts[modifierAddress] == null)
 				{
@@ -536,6 +539,8 @@ namespace Pnak
 				}
 				LiteModData.Set(modifierAddress, data);
 			}
+
+			liteModUsingCapacity = (ushort)(lastValidAddress + 1);
 
 			for (int i = 0; i < liteNetworkObjects.Count; i++)
 			{
@@ -554,7 +559,10 @@ namespace Pnak
 		{
 			base.Render();
 
-			for (int modifierAddress = 0; modifierAddress < liteModUsingCapacity; modifierAddress++)
+			int maxCapacity = previousLiteModUsingCapacity > liteModUsingCapacity ? previousLiteModUsingCapacity : liteModUsingCapacity;
+			previousLiteModUsingCapacity = liteModUsingCapacity;
+
+			for (int modifierAddress = 0; modifierAddress < maxCapacity; modifierAddress++)
 			{
 				LiteNetworkedData current = LiteModData[modifierAddress];
 				LiteNetworkedData previous = liteModDataCopy[modifierAddress];
@@ -575,10 +583,13 @@ namespace Pnak
 						}
 					}
 				}
+#if DEBUG
 				else if (!HasStateAuthority && liteModContexts[modifierAddress] != null)
 				{
 					UnityEngine.Debug.LogError($"BehaviourModifierManager.Render: liteModContexts[{modifierAddress}] != null -> Previous: {previous.ToString()} ;;;;; Current: {current.ToString()} ;;;;; Context: {liteModContexts[modifierAddress].ToString()}");
 				}
+				
+				UnityEngine.Debug.Assert(modifierAddress < liteModUsingCapacity || (!current.IsValid && liteModContexts[modifierAddress] == null), $"Render: current data outside of using address capacity is still valid, ie current is not invalid or context still exists: {previous.ToString()} ;;;;; Current: {current.ToString()}");
 
 				int targetForAddress = -1;
 				for (int i = 0; i < liteNetworkObjects.Count; i++)
@@ -598,6 +609,7 @@ namespace Pnak
 						UnityEngine.Debug.LogWarning($"Object {targetForAddress} which contains modifier address {modifierAddress} ({target.Modifiers.Format()}) does not match the current data target -> Previous: {previous.ToString()} ;;;;; Current: {current.ToString()}");
 					}
 				}
+#endif
 
 				liteModDataCopy[modifierAddress] = current;
 			}
@@ -605,7 +617,7 @@ namespace Pnak
 			// Note that the objects are returned before executing the normal render because if a modifier was removed and replace with another on the same update, the new modifier could possibly target the same object index but be intended for a different object
 			for (int i = 0; i < liteNetworkObjects.Count; i++)
 			{
-				if (!liteNetworkObjects[i].IsReserved) return;
+				if (!liteNetworkObjects[i].IsReserved) continue;
 
 				if (!liteNetworkObjects[i].IsValid)
 					LOCAL_ReleaseLiteObject(i);
@@ -627,9 +639,7 @@ namespace Pnak
 				LiteNetworkedData data = LiteModData[modifierAddress];
 				if (!data.IsValid) continue;
 
-				try {
-					ModScripts[data.ScriptType].OnRender(liteModContexts[modifierAddress], in data);
-				}
+				try { ModScripts[data.ScriptType].OnRender(liteModContexts[modifierAddress], in data); }
 				catch (System.Exception e)
 				{
 					UnityEngine.Debug.LogError(data.ToString() + " :: " + liteModContexts[modifierAddress].ToString());
