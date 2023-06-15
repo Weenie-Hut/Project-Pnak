@@ -26,6 +26,7 @@ namespace Pnak
 			ButtonName = buttonName;
 			Tooltip = tooltip;
 			HideWhen = hideWhen.Select(x => MutliType.Create(x)).ToArray();
+			order = -100;
 		}
 	}
 

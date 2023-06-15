@@ -40,7 +40,7 @@ namespace Pnak
 		public UnityEvent OnHoverEnter;
 		public UnityEvent OnHoverExit;
 
-		public void SetData(RadialOptionSO data = null)
+		public void SetData(RadialOptionSO data = null, Interactable interactable = null)
 		{
 			if (data == null)
 			{
@@ -52,8 +52,8 @@ namespace Pnak
 			}
 
 			_Icon.sprite = data.Icon;
-			_TitleText.text = data.Title;
-			_DescriptionText.text = data.Description;
+			_TitleText.text = data.GetTitle(interactable);
+			_DescriptionText.text = data.GetDescription(interactable);
 		}
 
 		public void UpdateAffordability(bool selectable)

@@ -15,7 +15,7 @@ namespace Pnak
 		private Cost? previousCost;
 		private Interactable previousInteractable;
 
-		public virtual Cost GetCost(Interactable interactable = null)
+		public Cost GetCost(Interactable interactable = null)
 		{
 			if (previousInteractable != interactable || !previousCost.HasValue)
 			{

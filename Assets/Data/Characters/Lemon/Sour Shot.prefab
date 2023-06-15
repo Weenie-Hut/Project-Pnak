@@ -174,7 +174,7 @@ MonoBehaviour:
         PureDamage: NaN
         ApplyModifiers:
         - scriptType: 15
-          CustomData: 9a99993e00000000c800053d0a573f0000c0ffe00b00010000000000
+          CustomData: 0000803f00000000c80005cdcc4c3f0000c0ffe00b00010000000000
       Weight: 0
     RandomizeDataOrder: 0
   Peirce: 1

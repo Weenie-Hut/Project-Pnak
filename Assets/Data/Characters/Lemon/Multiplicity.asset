@@ -21,8 +21,8 @@ MonoBehaviour:
       StackingType: 3
       Data:
         ReloadTime: NaN
-        FireCountRange: {x: 0, y: 0.2}
-        FireSpreadAngle: 8
+        FireCountRange: {x: 0, y: 0.3}
+        FireSpreadAngle: 5
         Spawn: {fileID: 0}
         MunitionMods: []
         DamageMods: []
@@ -35,8 +35,8 @@ MonoBehaviour:
       StackingType: 3
       Data:
         ReloadTime: NaN
-        FireCountRange: {x: 0, y: 0.4}
-        FireSpreadAngle: 14
+        FireCountRange: {x: 0.05, y: 0.5}
+        FireSpreadAngle: 10
         Spawn: {fileID: 0}
         MunitionMods: []
         DamageMods: []
@@ -49,8 +49,8 @@ MonoBehaviour:
       StackingType: 3
       Data:
         ReloadTime: NaN
-        FireCountRange: {x: 0, y: 0.6}
-        FireSpreadAngle: 20
+        FireCountRange: {x: 0.1, y: 0.7}
+        FireSpreadAngle: 14
         Spawn: {fileID: 0}
         MunitionMods: []
         DamageMods: []
@@ -63,8 +63,8 @@ MonoBehaviour:
       StackingType: 3
       Data:
         ReloadTime: NaN
-        FireCountRange: {x: 0, y: 0.8}
-        FireSpreadAngle: 25
+        FireCountRange: {x: 0.15, y: 1}
+        FireSpreadAngle: 18
         Spawn: {fileID: 0}
         MunitionMods: []
         DamageMods: []
@@ -77,8 +77,8 @@ MonoBehaviour:
       StackingType: 3
       Data:
         ReloadTime: NaN
-        FireCountRange: {x: 0, y: 1}
-        FireSpreadAngle: 30
+        FireCountRange: {x: 0.2, y: 1.3}
+        FireSpreadAngle: 21
         Spawn: {fileID: 0}
         MunitionMods: []
         DamageMods: []

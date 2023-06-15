@@ -20,6 +20,8 @@ namespace Pnak
 
 			if (interactable == null || !interactable.TryGetComponent(out StateBehaviourController controller))
 				throw new System.ArgumentException("Interactable is not valid but is still trying to access cost.");
+
+			UnityEngine.Debug.Log("ScriptType: " + ScriptType + " Upgrade Get Cost");
 			
 			int address = controller.FindModifierAddress(ScriptType, out LiteNetworkedData data);
 			if (address != -1)
@@ -77,65 +79,4 @@ namespace Pnak
 			LiteNetworkManager.RPC_AddModifier(controller.NetworkContext, Data);
 		}
 	}
-
-// 	public abstract class StateModifier
-// 	{
-// 		private int startTick;
-// 		protected StackableFloat Duration;
-
-// 		public StateBehaviourController Controller { get; private set; }
-
-// 		public abstract StateModifier CopyFor(StateBehaviourController controller);
-
-// 		public virtual bool TryStackWith(StateModifier other) => false;
-
-// 		protected void SetDuration(ValueStackSettings<float> duration)
-// 		{
-// 			if (Duration == null)
-// 				Duration = StackableFloat.Create(duration);
-// 			else
-// 				Duration.Value = duration;
-
-// 			ResetStartTick();
-// 		}
-
-// 		protected bool ResetStartTick(bool changed = true)
-// 		{
-// 			if (changed)
-// 			{
-// 				startTick = SessionManager.Instance.NetworkRunner.Tick;
-// 				if (Duration <= 0)
-// 					Duration.Value = float.PositiveInfinity;
-// 			}
-
-// 			return changed;
-// 		}
-
-// 		protected float GetTimeLeft()
-// 		{
-// 			if (Duration <= 0) return float.PositiveInfinity;
-
-// 			int currentTick = SessionManager.Instance.NetworkRunner.Tick;
-// 			float tickRate = SessionManager.Instance.NetworkRunner.DeltaTime;
-
-// 			return Duration - (currentTick - startTick) * tickRate;
-// 		}
-
-// 		public virtual void Added(StateBehaviourController controller)
-// 		{
-// 			Controller = controller;
-// 		}
-
-// 		public virtual void FixedUpdateNetwork()
-// 		{
-// 			if (GetTimeLeft() <= 0)
-// 			{
-// 				Controller.RemoveStateModifier(this);
-// 			}
-// 		}
-
-// 		public virtual void Removed()
-// 		{
-// 		}
-// 	}
 }

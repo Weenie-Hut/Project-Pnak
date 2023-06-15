@@ -229,7 +229,7 @@ namespace Pnak
 			for (int i = 0; i < useOptions.Length; i++)
 			{
 				int index = useOptions[i];
-				UIOptions[index].SetData(options[i]);
+				UIOptions[index].SetData(options[i], interactable);
 				indicesNotSet.Remove(index);
 
 #if UNITY_EDITOR

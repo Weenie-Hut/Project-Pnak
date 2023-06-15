@@ -18,18 +18,12 @@ namespace Pnak
 		public Type[] RequiredComponents { get; private set; }
 		public bool IncludeChildren { get; private set; }
 
-		public SearchableAttribute(params Type[] requiredComponents)
+		public SearchableAttribute(params Type[] requiredComponents) : this(false, requiredComponents)
 		{
-			AssetsOnly = false;
-			RequiredComponents = requiredComponents;
-			IncludeChildren = false;
 		}
 
-		public SearchableAttribute(bool assetsOnly, params Type[] requiredComponents)
+		public SearchableAttribute(bool assetsOnly, params Type[] requiredComponents) : this(assetsOnly, false, requiredComponents)
 		{
-			AssetsOnly = assetsOnly;
-			RequiredComponents = requiredComponents;
-			IncludeChildren = false;
 		}
 
 		public SearchableAttribute(bool assetsOnly, bool includeChildren, params Type[] requiredComponents)
@@ -37,6 +31,7 @@ namespace Pnak
 			AssetsOnly = assetsOnly;
 			RequiredComponents = requiredComponents;
 			IncludeChildren = includeChildren;
+			order = -50;
 		}
 	}
 }

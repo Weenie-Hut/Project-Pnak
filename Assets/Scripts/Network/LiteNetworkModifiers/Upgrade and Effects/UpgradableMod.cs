@@ -30,9 +30,7 @@ namespace Pnak
 	public struct UpgradeData<T>
 	{
 		public T Upgrade;
-		
 		public Cost cost;
-		
 	}
 
 	public abstract class GenericUpgradableMod<T> : UpgradableMod
@@ -40,7 +38,11 @@ namespace Pnak
 		public List<UpgradeData<T>> Upgrades = new List<UpgradeData<T>>();
 
 		public override Cost GetBaseCost() => Upgrades[0].cost;
-		public override Cost GetCost(in LiteNetworkedData data) => Upgrades[data.Upgradable.UpgradeIndex].cost;
+		public override Cost GetCost(in LiteNetworkedData data)
+		{
+			UnityEngine.Debug.Log("UpgradeIndex: " + data.Upgradable.UpgradeIndex);
+			return Upgrades[data.Upgradable.UpgradeIndex + 1].cost;
+		}
 		public override bool CanUpgrade(in LiteNetworkedData data) => data.Upgradable.UpgradeIndex < Upgrades.Count - 1;
 	}
 

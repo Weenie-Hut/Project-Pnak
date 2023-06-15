@@ -225,7 +225,7 @@ MonoBehaviour:
   MP_Max: 60
   MP_RegenerationRate: 1
   InteractionOptions:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: c6dcd4c3168bebe478835713ef1d8f21, type: 2}
   _AimGraphic: {fileID: 5555317936244450478}
   DisableWhenBusy:
   - {fileID: 3296648624864799941}
@@ -246,8 +246,8 @@ MonoBehaviour:
     NormalData:
     - Option:
         ReloadTime: 0.23
-        FireCountRange: {x: 1, y: 2.1}
-        FireSpreadAngle: 30
+        FireCountRange: {x: 1, y: 2.3}
+        FireSpreadAngle: 26
         Spawn: {fileID: 1326432680719098604, guid: fd621db819123584b9867edaa8c968b4, type: 3}
         MunitionMods: []
         DamageMods: []

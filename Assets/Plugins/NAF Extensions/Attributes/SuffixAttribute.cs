@@ -20,6 +20,7 @@ namespace Pnak
 		{
 			Suffix = suffix;
 			Tooltip = tooltip;
+			order = -1;
 		}
 	}
 }

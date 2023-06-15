@@ -35,7 +35,7 @@ namespace Pnak
 			return base.IsValidTarget(interactable) && interactable == null;
 		}
 
-		public override string Format(string format)
+		public override string Format(string format, Interactable interactable = null)
 		{
 			return base.Format(format).FormatById("prefab", Prefab?.name);
 		}

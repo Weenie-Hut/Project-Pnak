@@ -7,7 +7,7 @@ namespace Pnak
 		string Format(string format);
 	}
 
-	public abstract class RadialOptionSO : ScriptableObject, Formatable
+	public abstract class RadialOptionSO : ScriptableObject
 	{
 		[TextArea] public string TitleFormat;
 #if UNITY_EDITOR
@@ -21,13 +21,9 @@ namespace Pnak
 
 		[Required, HideLabel] public Sprite Icon;
 
+		public string GetTitle(Interactable interactable = null) => Format(TitleFormat, interactable);
+		public string GetDescription(Interactable interactable = null) => Format(DescriptionFormat, interactable);
 
-
-
-		public string Title => Format(TitleFormat);
-		public string Description => Format(DescriptionFormat);
-
-		public virtual string Format(string format) => Format(format, null);
 		public virtual string Format(string format, Interactable interactable) => format;
 
 		public abstract void OnSelect(Interactable interactable = null);
@@ -37,8 +33,8 @@ namespace Pnak
 #if UNITY_EDITOR
 		protected virtual void OnValidate()
 		{
-			TitlePreview = Title;
-			DescriptionPreview = Description;
+			TitlePreview = GetTitle();
+			DescriptionPreview = GetDescription();
 		}
 #endif
 	}

@@ -21,6 +21,7 @@ namespace Pnak
 		{
 			EqualsOrArgs = equalsOrArgs.Select(x => MutliType.Create(x)).ToArray();
 			Invert = false;
+			order = -1000;
 		}
 	}
 
