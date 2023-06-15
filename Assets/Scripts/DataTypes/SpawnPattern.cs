@@ -13,7 +13,7 @@ namespace Pnak
 			[Tooltip("The delay in seconds from the previous spawn time.")]
 			[Min(0.0f)]
 			public float delay;
-			[Required]
+			[Required, Searchable]
 			public Enemy enemy;
 		}
 
