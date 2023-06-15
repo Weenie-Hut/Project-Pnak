@@ -1,15 +1,14 @@
 {
-    "name": "Pnak",
+    "name": "NAFEditor",
     "rootNamespace": "",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:1118c9ccea12cfa4a9bf29e3a48a6233",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
         "GUID:0931d2de5f5d77d469bc48f2fa9b962a"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

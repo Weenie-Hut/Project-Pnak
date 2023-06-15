@@ -35,18 +35,18 @@ namespace PnakEditor
 			}
 		}
 
+		public LiteNetworkedData.LifetimeData LifetimeDataField;
+		public LiteNetworkedData.KinematicPositionData KinematicPositionDataField;
+		public LiteNetworkedData.PositionAndChildRotationData PositionAndChildRotationDataField;
+		public LiteNetworkedData.StaticTransformData StaticTransformDataField;
 		public LiteNetworkedData.DamageData DamageDataField;
 		public LiteNetworkedData.DoTData DoTDataField;
-		public LiteNetworkedData.DurationAndVisualsData DurationAndVisualsDataField;
-		public LiteNetworkedData.HealthVisualData HealthVisualDataField;
-		public LiteNetworkedData.KinematicPositionData KinematicPositionDataField;
-		public LiteNetworkedData.LifetimeData LifetimeDataField;
 		public LiteNetworkedData.MovementData MovementDataField;
-		public LiteNetworkedData.PositionAndChildRotationData PositionAndChildRotationDataField;
-		public LiteNetworkedData.ReloadVisualData ReloadVisualDataField;
 		public LiteNetworkedData.ResistanceData ResistanceDataField;
 		public LiteNetworkedData.ShootUpgradeData ShootUpgradeDataField;
-		public LiteNetworkedData.StaticTransformData StaticTransformDataField;
 		public LiteNetworkedData.UpgradableData UpgradableDataField;
+		public LiteNetworkedData.DurationAndVisualsData DurationAndVisualsDataField;
+		public LiteNetworkedData.HealthVisualData HealthVisualDataField;
+		public LiteNetworkedData.ReloadVisualData ReloadVisualDataField;
 	}
 }

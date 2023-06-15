@@ -37,6 +37,7 @@ MonoBehaviour:
   - {fileID: 4384683791787163753, guid: c80188ca58b3fca41a3577ee3e8fbd21, type: 3}
   - {fileID: 1326432680719098604, guid: fd621db819123584b9867edaa8c968b4, type: 3}
   - {fileID: 0}
+  - {fileID: 6309384282167593476, guid: 330f4b079b543d24ea66808677fe33e1, type: 3}
   Mods:
   - {fileID: 11400000, guid: b0aed57d9a86aa543acf57780c488c03, type: 2}
   - {fileID: 11400000, guid: b04c5774bf8428844b84df3f2a8a7e91, type: 2}

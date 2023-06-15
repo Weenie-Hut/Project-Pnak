@@ -17,12 +17,12 @@ namespace Pnak
 		[Tooltip("Possible Damage Data. If " + nameof(RandomizeDataOrder) + " is true, data is picked randomly after each hit. If data has a weight of 'NaN', it will always come after the previous entry regardless of randomness. Otherwise, damage data is picked in order they appear.")]
 		public List<WeightedOption<T>> NormalData = new List<WeightedOption<T>>();
 
+		[Tooltip("If true, the damage data will be picked at random using weights, after temporary damage data has been used. Otherwise, the damage data will be picked in order, cyclicly, based on pierce.")]
+		public bool RandomizeDataOrder = false;
+
 		protected int lastNormalIndex = -1;
 		protected int currentDataIndex = int.MinValue;
 		public T CurrentData { get; protected set; }
-
-		[Tooltip("If true, the damage data will be picked at random using weights, after temporary damage data has been used. Otherwise, the damage data will be picked in order, cyclicly, based on pierce.")]
-		public bool RandomizeDataOrder = false;
 
 		public bool MoveToNext()
 		{

@@ -335,7 +335,7 @@ MonoBehaviour:
   MP_Max: 60
   MP_RegenerationRate: 1
   InteractionOptions:
-  - {fileID: 11400000, guid: 7cb13676c4d430a488186301b96559a0, type: 2}
+  - {fileID: 0}
   _AimGraphic: {fileID: 5555317936244450478}
   DisableWhenBusy:
   - {fileID: 3296648624864799941}

@@ -1,10 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
-using System.Collections.Generic;
-using System;
-using Pnak.Input;
 using System.Linq;
 
 namespace Pnak

@@ -146,54 +146,6 @@ namespace Pnak
 			});
 		}
 
-		public static bool IsWholeNumeric(this Type type)
-		{
-			switch (Type.GetTypeCode(type))
-			{
-				case TypeCode.Byte:
-				case TypeCode.SByte:
-				case TypeCode.UInt16:
-				case TypeCode.UInt32:
-				case TypeCode.UInt64:
-				case TypeCode.Int16:
-				case TypeCode.Int32:
-				case TypeCode.Int64:
-					return true;
-				default:
-					return type.IsEnum;
-			}
-		}
-
-		public static long AsWholeNumeric(this object obj)
-		{
-			switch (Type.GetTypeCode(obj.GetType()))
-			{
-				case TypeCode.Byte:
-					return (byte)obj;
-				case TypeCode.SByte:
-					return (sbyte)obj;
-				case TypeCode.UInt16:
-					return (ushort)obj;
-				case TypeCode.UInt32:
-					return (uint)obj;
-				case TypeCode.UInt64:
-					return (long)(ulong)obj;
-				case TypeCode.Int16:
-					return (short)obj;
-				case TypeCode.Int32:
-					return (int)obj;
-				case TypeCode.Int64:
-					return (long)obj;
-				default:
-					if (obj.GetType().IsEnum)
-						return (long)obj;
-					else
-						throw new ArgumentException("Not a whole numeric type");
-			}
-
-			
-		}
-		
 		public static bool InBounds<T>(this T[] array, int index)
 		{
 			return index >= 0 && index < array.Length;

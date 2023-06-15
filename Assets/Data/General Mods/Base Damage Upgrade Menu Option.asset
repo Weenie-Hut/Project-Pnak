@@ -9,15 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e49303ad2b40ff143a78664bcff749d1, type: 3}
+  m_Script: {fileID: 11500000, guid: 379a940a708bfc647b14f4f05ba59e9c, type: 3}
   m_Name: Base Damage Upgrade Menu Option
   m_EditorClassIdentifier: Pnak:Pnak:StateModifierSO
-  TitleFormat: Damage Upgrade
-  TitlePreview: Damage Upgrade
-  DescriptionFormat: 'Increases the base damage of bullets.
+  TitleFormat: Damage Boost
+  TitlePreview: Damage Boost
+  DescriptionFormat: 'Increases base damage of tower.
 
     Costs {cost}'
-  DescriptionPreview: 'Increases the base damage of bullets.
+  DescriptionPreview: 'Increases base damage of tower.
 
     Costs Free'
   Icon: {fileID: 21300004, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}

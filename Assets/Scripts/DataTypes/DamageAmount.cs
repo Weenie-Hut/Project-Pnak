@@ -5,16 +5,6 @@ using UnityEngine;
 
 namespace Pnak
 {
-	public interface Copyable<T>
-	{
-		public T Copy();
-	}
-
-	public interface Stackable<T>
-	{
-		public void StackWith(T other, ValueStackingType stackingType);
-	}
-
 	[System.Serializable]
 	public class DamageAmount : Copyable<DamageAmount>, Stackable<DamageAmount>
 	{
