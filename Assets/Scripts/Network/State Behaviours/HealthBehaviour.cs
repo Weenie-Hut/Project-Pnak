@@ -36,8 +36,8 @@ namespace Pnak
 			int selfTypeIndex = Controller.GetBehaviourTypeIndex(this);
 			HealthVisualIndex = Controller.FindNetworkMod<HealthVisualMod>(selfTypeIndex, out int scriptIndex);
 
-			var health = _SpawnHealth  * SessionManager.Instance.PlayerCount;
-			var max = _SpawnMaxHealth * SessionManager.Instance.PlayerCount;
+			var health = _SpawnHealth * (0.8f + 0.2f * SessionManager.Instance.PlayerCount);
+			var max = _SpawnMaxHealth * (0.8f + 0.2f * SessionManager.Instance.PlayerCount);
 
 			if (health > max)
 				health = max;
@@ -61,6 +61,7 @@ namespace Pnak
 		{
 			_Health *= scale;
 			_MaxHealth *= scale;
+			UpdateHealthVisual();
 		}
 
 		public void UpdateHealthVisual()

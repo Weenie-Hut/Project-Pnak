@@ -132,7 +132,7 @@ namespace Pnak
 			DataSelector<DamageAmount> selector = DoTContext.DamageSelector;
 			if (selector.MoveToNext())
 			{
-				UnityEngine.Debug.Log("DoT: Current Data has changed => " + selector.CurrentData + " => " + data.DoT.Scale);
+				// UnityEngine.Debug.Log("DoT: Current Data has changed => " + selector.CurrentData + " => " + data.DoT.Scale);
 				selector.CurrentData.Scale(
 					SessionManager.Instance.NetworkRunner.DeltaTime *
 					(intervalInTicks) *

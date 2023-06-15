@@ -47,7 +47,9 @@ namespace Pnak
 
 		protected override GameObject CreateInstance()
 		{
-			return GameObject.Instantiate(prefab);
+			var instance = GameObject.Instantiate(prefab);
+			instance.hideFlags = HideFlags.HideAndDontSave;
+			return instance;
 		}
 	}
 
@@ -57,7 +59,9 @@ namespace Pnak
 
 		protected override T CreateInstance()
 		{
-			return GameObject.Instantiate(prefab.gameObject).GetComponent<T>();
+			var instance = GameObject.Instantiate(prefab.gameObject);
+			instance.hideFlags = HideFlags.HideAndDontSave;
+			return instance.GetComponent<T>();
 		}
 	}
 }

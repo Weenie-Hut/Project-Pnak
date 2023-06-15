@@ -14,4 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scriptIndex: 7
   HealthVisualBarPrefab: {fileID: 1643972510333819729, guid: 534a4f69a9a914b429d372eb8643ac9f, type: 3}
+  DamageTextPrefab: {fileID: 73642442965841364, guid: 8a502c6b862db414bb7ad9d5696d77f6, type: 3}
+  IntervalBetweenDamage: 1
+  intervalInTicks: 60
   defaultDisplayPosition: {x: 0, y: 40, z: 0}

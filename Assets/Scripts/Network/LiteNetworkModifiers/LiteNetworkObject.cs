@@ -20,6 +20,7 @@ namespace Pnak
 				{
 					UnityEngine.Debug.Assert((PrefabIndex == -1 && Target == null) || (PrefabIndex != -1 && Target != null), $"Invalid LiteNetworkObject state! {Format()}");
 				}
+				// UnityEngine.Debug.Assert(Target != null && Modifiers.Count > 0 || Target == null && Modifiers.Count == 0, $"Invalid LiteNetworkObject state! {Format()}");
 #endif
 				return Target != null && Modifiers.Count > 0;
 			}

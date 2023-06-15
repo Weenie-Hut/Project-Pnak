@@ -339,7 +339,7 @@ namespace Pnak
 		{
 			for (int i = 0; i < liteNetworkObjects.Count; i++)
 			{
-				if (!liteNetworkObjects[i].IsValid)
+				if (!liteNetworkObjects[i].IsReserved)
 				{
 					liteNetworkObjects[i].STATE_ReserveAs(prefabIndex);
 					return i;
