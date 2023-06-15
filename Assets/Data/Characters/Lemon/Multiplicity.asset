@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e3bea9084267ac419481a7d4545eec8, type: 3}
+  m_Name: Multiplicity
+  m_EditorClassIdentifier: 
+  scriptIndex: 4
+  Visuals: {fileID: 6443340962870154360, guid: 5b095de2100a33c4db7f8b0c51ed2b3f, type: 3}
+  defaultDuration: NaN
+  Upgrades:
+  - Upgrade:
+      Priority: 100
+      StackingType: 3
+      Data:
+        ReloadTime: NaN
+        FireCountRange: {x: 0, y: 0.2}
+        FireSpreadAngle: 8
+        Spawn: {fileID: 0}
+        MunitionMods: []
+        DamageMods: []
+    cost:
+      MP: 20
+      HP: 0
+      Money: 0
+  - Upgrade:
+      Priority: 100
+      StackingType: 3
+      Data:
+        ReloadTime: NaN
+        FireCountRange: {x: 0, y: 0.4}
+        FireSpreadAngle: 14
+        Spawn: {fileID: 0}
+        MunitionMods: []
+        DamageMods: []
+    cost:
+      MP: 25
+      HP: 0
+      Money: 0
+  - Upgrade:
+      Priority: 100
+      StackingType: 3
+      Data:
+        ReloadTime: NaN
+        FireCountRange: {x: 0, y: 0.6}
+        FireSpreadAngle: 20
+        Spawn: {fileID: 0}
+        MunitionMods: []
+        DamageMods: []
+    cost:
+      MP: 30
+      HP: 0
+      Money: 0
+  - Upgrade:
+      Priority: 100
+      StackingType: 3
+      Data:
+        ReloadTime: NaN
+        FireCountRange: {x: 0, y: 0.8}
+        FireSpreadAngle: 25
+        Spawn: {fileID: 0}
+        MunitionMods: []
+        DamageMods: []
+    cost:
+      MP: 35
+      HP: 0
+      Money: 0
+  - Upgrade:
+      Priority: 100
+      StackingType: 3
+      Data:
+        ReloadTime: NaN
+        FireCountRange: {x: 0, y: 1}
+        FireSpreadAngle: 30
+        Spawn: {fileID: 0}
+        MunitionMods: []
+        DamageMods: []
+    cost:
+      MP: 35
+      HP: 0
+      Money: 0

@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Pnak:Pnak:StateModifierSO
   TitleFormat: Damage Upgrade
   TitlePreview: Damage Upgrade
-  DescriptionFormat: Increases the base damage of bullets.
-  DescriptionPreview: Increases the base damage of bullets.
+  DescriptionFormat: 'Increases the base damage of bullets.
+
+    Costs {cost}'
+  DescriptionPreview: 'Increases the base damage of bullets.
+
+    Costs Free'
   Icon: {fileID: 21300004, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
   Data:
     scriptType: 17
     CustomData: 0000807f000000000000000000000000000000000000000000000000
-  saatas: 03af971c38

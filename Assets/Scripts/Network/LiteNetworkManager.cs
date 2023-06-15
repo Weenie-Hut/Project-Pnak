@@ -199,7 +199,7 @@ namespace Pnak
 		}
 
 #if DEBUG
-		private const int MaxWorkingLoopCount = 1000;
+		private const int MaxWorkingLoopCount = 2000;
 		private int _workingLoopCount = 0;
 		private void CheckInfiniteLoop()
 		{
@@ -321,7 +321,7 @@ namespace Pnak
 			for (int i = mustBeAfter + 1; i < LiteModCapacity; i++)
 			{
 				LiteNetworkedData data = LiteModData[i];
-				if (data.IsValid) continue;
+				if (data.IsValid || liteModContexts[i] != null) continue;
 				if (data.ScriptType == scriptIndex && data.TargetIndex == targetIndex)
 					continue;
 
@@ -415,13 +415,13 @@ namespace Pnak
 		{
 			try
 			{
+#if DEBUG
 				UnityEngine.Debug.Assert(HasStateAuthority);
 				UnityEngine.Debug.Assert(data.ScriptType < ModScripts.Length, "BehaviourModifierManager.ReplaceModifier: data.scriptType is out of range");
 				UnityEngine.Debug.Assert(data.PrefabIndex < Prefabs.Length, "BehaviourModifierManager.ReplaceModifier: data.prefabIndex is out of range");
 				UnityEngine.Debug.Assert(data.TargetIndex < LiteModCapacity, "BehaviourModifierManager.ReplaceModifier: parameter data.targetIndex is out of range: Range is [0, " + LiteModCapacity + "), but data.targetIndex is " + data.TargetIndex);
 				UnityEngine.Debug.Assert(modifierAddress != -1, "BehaviourModifierManager.AddModifier: ModifierCapacity (" + LiteModCapacity + ") reached. Modifier will not be added.");
 
-#if DEBUG
 				LiteNetworkedData __data = LiteModData[modifierAddress];
 				UnityEngine.Debug.Assert(!__data.IsValid, "BehaviourModifierManager.AddModifier: modifierAddress is not free");
 				UnityEngine.Debug.Assert(liteModContexts[modifierAddress] == null, "BehaviourModifierManager.AddModifier: modifierAddress context is not null");
@@ -489,6 +489,10 @@ namespace Pnak
 		public void LateFixedNetworkUpdate()
 		{
 			if (!HasStateAuthority) return;
+
+#if DEBUG
+			_workingLoopCount = 0;
+#endif
 
 			// Recursively calls until queues are empty. Makes sure the all objects are deleted, created, initialized, and ran in correct order.
 			while (
@@ -646,13 +650,27 @@ namespace Pnak
 					UnityEngine.Debug.LogError($"BehaviourModifierManager.Render: {e.Message}\n{e.StackTrace}");
 				}
 			}
+
+			for (int i = 0; i < liteNetworkObjects.Count; i++)
+			{
+				if (liteNetworkObjects[i].IsValid && !liteNetworkObjects[i].QueuedForDestruction)
+				{
+					if (liteNetworkObjects[i].Target.NetworkContext == null)
+					{
+						UnityEngine.Debug.Assert(!SessionManager.IsServer, "Server should not be creating/initialize new objects during render");
+						liteNetworkObjects[i].Target.Initialize(liteNetworkObjects[i]);
+					}
+
+					liteNetworkObjects[i].Target.Render();
+				}
+			}
 		}
 
 
 		public static bool NetworkContextIsValid(int index)
 		{
 			if (!SessionManager.IsServer)
-				if (index < 0 && index >= self.liteNetworkObjects.Count)
+				if (index < 0 || index >= self.liteNetworkObjects.Count)
 					return false;
 
 			return self.liteNetworkObjects[index].IsValid;

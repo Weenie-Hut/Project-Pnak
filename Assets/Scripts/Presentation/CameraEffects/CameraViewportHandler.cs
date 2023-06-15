@@ -65,15 +65,4 @@ public class CameraViewportHandler : MonoBehaviour
 				break;
 		}
 	}
-
-
-#if UNITY_EDITOR
-	private void OnValidate()
-	{
-		if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
-			return;
-
-		UnityEditor.EditorApplication.delayCall += ComputeResolution;
-	}
-#endif
 }

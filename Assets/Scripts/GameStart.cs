@@ -52,7 +52,7 @@ namespace Pnak
 			_ProgressBar.NormalizedValue = 1;
 			OnFinishedLoading.Invoke();
 
-			InputCallbackSystem.SetupInputCallbacks(this);
+			// InputCallbackSystem.SetupInputCallbacks(this);
 		}
 
 		/// <summary>
@@ -78,31 +78,25 @@ namespace Pnak
 
 		public void JoinGame()
 		{
-			InputCallbackSystem.CleanupInputCallbacks(this);
+			// InputCallbackSystem.CleanupInputCallbacks(this);
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.Client);
 		}
 
 		public void HostGame()
 		{
-			InputCallbackSystem.CleanupInputCallbacks(this);
+			// InputCallbackSystem.CleanupInputCallbacks(this);
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.Host);
 		}
 
-		[InputActionTriggered(ActionNames.Confirm, InputStateFilters.PreformedThisFrame)]
-		private void QuickJoin(UnityEngine.InputSystem.InputAction.CallbackContext context)
+		public void QuickJoin()
 		{
-			if (context.control.device is UnityEngine.InputSystem.Mouse) return;
-
-			InputCallbackSystem.CleanupInputCallbacks(this);
+			// InputCallbackSystem.CleanupInputCallbacks(this);
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.AutoHostOrClient);
 		}
 
-		[InputActionTriggered(ActionNames.Back, InputStateFilters.PreformedThisFrame)]
-		private void SinglePlayerGame(UnityEngine.InputSystem.InputAction.CallbackContext context)
+		public void SinglePlayerGame()
 		{
-			if (context.control.device is UnityEngine.InputSystem.Mouse) return;
-			
-			InputCallbackSystem.CleanupInputCallbacks(this);
+			// InputCallbackSystem.CleanupInputCallbacks(this);
 			SessionManager.Instance.StartGame(1, Fusion.GameMode.Single);
 		}
 

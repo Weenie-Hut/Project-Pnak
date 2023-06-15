@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e49303ad2b40ff143a78664bcff749d1, type: 3}
+  m_Name: Multipicity Upgrade Menu Option
+  m_EditorClassIdentifier: 
+  TitleFormat: Multiplicity
+  TitlePreview: Multiplicity
+  DescriptionFormat: 'Tower has a chance to shoot more bullets, but has more bullet
+    spread
+
+    Costs {cost}'
+  DescriptionPreview: 'Tower has a chance to shoot more bullets, but has more bullet
+    spread
+
+    Costs Free'
+  Icon: {fileID: 21300108, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
+  Data:
+    scriptType: 5
+    CustomData: 0000c0ff000000000000000000000000000000000000000000000000

@@ -42,6 +42,7 @@ namespace Pnak
 			[AsEnum(typeof(ValueStackingType))]
 			[FieldOffset(25)]
 			public byte DurationStackType;
+			[HideIf(nameof(DurationStackType), 0)]
 			[AsEnum(typeof(ValueStackingType)), Default(1)]
 			[FieldOffset(26)]
 			public byte AmountStackType;
@@ -93,7 +94,7 @@ namespace Pnak
 		public override bool ModAdded_CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
 		{
 			if (ScriptIndex != next.ScriptType) return false;
-			if (current.DoT.StackId != next.DoT.StackId) return false;
+			if (current.Resistance.StackId != next.Resistance.StackId) return false;
 			if (current.Resistance.DurationStackType == (byte)ValueStackingType.DoNotStack) return false;
 			if (current.Resistance.AmountStackType == (byte)ValueStackingType.DoNotStack) return false;
 			if (current.Resistance.DurationStackType != next.Resistance.DurationStackType) return false;

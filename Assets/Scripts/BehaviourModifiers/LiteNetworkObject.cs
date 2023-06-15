@@ -40,9 +40,11 @@ namespace Pnak
 
 		public string Format()
 		{
-			return $"{{\n\tIsReserved: {IsValid}" +
+			return $"{{" +
 				"\n\tModifiers:\n\t\t" + Modifiers.Select(addr => $"Addr {addr} = {LiteNetworkManager.GetModifierData(addr)}").Format("\n\t\t", "", "") +
 				$"\n\tTarget: {Target}" +
+				$"\n\tInputAuthority: {InputAuthority}" +
+				$"\n\tQueuedForDestruction: {QueuedForDestruction}" +
 				$"\n\tPrefabIndex: {PrefabIndex}\n}}";
 		}
 

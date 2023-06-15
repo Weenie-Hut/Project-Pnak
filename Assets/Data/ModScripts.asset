@@ -34,12 +34,14 @@ MonoBehaviour:
   - {fileID: 1326432680719098604, guid: 91089c6c0b3073a4fa42e18573bc70dd, type: 3}
   - {fileID: 4384683791787163753, guid: 961eb932608309542ad60612a0c4694b, type: 3}
   - {fileID: 1326432680719098604, guid: 2668749a1cb7cd847bcd183be23814cb, type: 3}
+  - {fileID: 4384683791787163753, guid: c80188ca58b3fca41a3577ee3e8fbd21, type: 3}
+  - {fileID: 1326432680719098604, guid: fd621db819123584b9867edaa8c968b4, type: 3}
   Mods:
   - {fileID: 11400000, guid: b0aed57d9a86aa543acf57780c488c03, type: 2}
   - {fileID: 11400000, guid: b04c5774bf8428844b84df3f2a8a7e91, type: 2}
   - {fileID: 11400000, guid: 6c80342785daf4241be22800afa1cf21, type: 2}
   - {fileID: 11400000, guid: f8b6cbb59fc055648baba2a5020fadde, type: 2}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 3ea839d4e639f574ead4f5514b1117ad, type: 2}
   - {fileID: 11400000, guid: d6e786cf2ab19a94998256be582d54e7, type: 2}
   - {fileID: 11400000, guid: 1e1ff78c85bf2454a82c257c71c40045, type: 2}
   - {fileID: 11400000, guid: 0d3b39d20f928154fa899d266fb5acad, type: 2}

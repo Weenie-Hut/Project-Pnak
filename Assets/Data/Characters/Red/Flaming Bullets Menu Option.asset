@@ -14,8 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Pnak:Pnak:StateModifierSO
   TitleFormat: Flaming Bullets
   TitlePreview: Flaming Bullets
-  DescriptionFormat: Add flames to bullets, causing magical DoT
-  DescriptionPreview: Add flames to bullets, causing magical DoT
+  DescriptionFormat: 'Add flames to bullets, causing magical DoT.
+
+    Costs {cost}'
+  DescriptionPreview: 'Add flames to bullets, causing magical DoT.
+
+    Costs Free'
   Icon: {fileID: 21300058, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
   Data:
     scriptType: 16

@@ -135,7 +135,6 @@ GameObject:
   - component: {fileID: 24659325}
   - component: {fileID: 24659324}
   - component: {fileID: 24659323}
-  - component: {fileID: 24659322}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -164,19 +163,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &24659322
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 24659320}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d54531977ecb194c95e2d3aa7a5d72a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ControlPath: <Keyboard>/2
 --- !u!114 &24659323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,7 +206,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 24659324}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1825321445}
+        m_TargetAssemblyTypeName: Pnak.GameStart, Pnak
+        m_MethodName: SinglePlayerGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &24659324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -763,7 +761,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 573.77716
+  orthographic size: 619.4012
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -943,7 +941,6 @@ GameObject:
   - component: {fileID: 1773115071}
   - component: {fileID: 1773115070}
   - component: {fileID: 1773115069}
-  - component: {fileID: 1773115072}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -1015,7 +1012,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1773115070}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1825321445}
+        m_TargetAssemblyTypeName: Pnak.GameStart, Pnak
+        m_MethodName: QuickJoin
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1773115070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1054,19 +1063,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1773115067}
   m_CullTransparentMesh: 1
---- !u!114 &1773115072
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773115067}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d54531977ecb194c95e2d3aa7a5d72a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ControlPath: <Keyboard>/1
 --- !u!1 &1784953667
 GameObject:
   m_ObjectHideFlags: 0

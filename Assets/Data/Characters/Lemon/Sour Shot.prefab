@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4824208289284672205}
-  - component: {fileID: 630204788099380303}
+  - component: {fileID: 3072735703879940987}
+  - component: {fileID: 5860663208922785953}
   m_Layer: 0
   m_Name: Graphics
   m_TagString: Untagged
@@ -33,8 +34,8 @@ Transform:
   m_Father: {fileID: 6328995277521983043}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!58 &630204788099380303
-CircleCollider2D:
+--- !u!70 &3072735703879940987
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -46,9 +47,30 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 400
+  m_Offset: {x: -1, y: 0}
+  m_Size: {x: 59, y: 30}
+  m_Direction: 1
+--- !u!50 &5860663208922785953
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584255750843065848}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &2513871686737893388
 GameObject:
   m_ObjectHideFlags: 0
@@ -61,8 +83,9 @@ GameObject:
   - component: {fileID: 1326432680719098604}
   - component: {fileID: 5270848876961268193}
   - component: {fileID: 1559252364345579475}
+  - component: {fileID: -2771670484422843685}
   m_Layer: 0
-  m_Name: Screaming Intimidation
+  m_Name: Sour Shot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -97,16 +120,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SerializedMods:
-  - scriptType: 3
-    CustomData: 00000000000000000000000000000000000000000000000000000000
-  - scriptType: 4
-    CustomData: 000000009a99993e0000c07f0000c07f0000c07f0000000000000000
+  - scriptType: 2
+    CustomData: 00000000000000000000964400000000000000000000964400000000
   OnQueuedForDestroy:
     m_PersistentCalls:
       m_Calls: []
   stateBehaviours:
   - {fileID: 5270848876961268193}
   - {fileID: 1559252364345579475}
+  - {fileID: -2771670484422843685}
   prefabIndex: -1
 --- !u!114 &5270848876961268193
 MonoBehaviour:
@@ -120,11 +142,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ec43fa111b41e7478d24cf202449fac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Collider: {fileID: 630204788099380303}
+  _Collider: {fileID: 3072735703879940987}
   _CollisionMask:
     serializedVersion: 2
-    m_Bits: 64
-  RaycastPositionChanges: 0
+    m_Bits: 320
+  RaycastPositionChanges: 1
   SortByDistance: 0
   UseDistanceOnStaticTransform: 0
   UseTransformDistanceOnStaticTransform: 0
@@ -152,15 +174,32 @@ MonoBehaviour:
         PureDamage: NaN
         ApplyModifiers:
         - scriptType: 15
-          CustomData: 0000a04000000000c80005cdccccbd0000c0ffff0000010000000000
+          CustomData: 9a99993e00000000c800056666663f0000c0ffe00b00010000000000
       Weight: 0
     RandomizeDataOrder: 0
-  Peirce: 19
+  Peirce: 1
   IgnoreAfterFirstHit: 1
   IntervalType: 0
   IntervalBetweenHits: 0.0333
   intervalInTicks: -1
   PickDamageDataAfterEachHit: 0
+--- !u!114 &-2771670484422843685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513871686737893388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92e23f9385be46c48916664f78f1f404, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionProcessor: {fileID: 5270848876961268193}
+  MaxHitsPerTick: 5
+  _DespawnImpactLayers:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1 &2973621702732448016
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,7 +226,7 @@ Transform:
   m_GameObject: {fileID: 2973621702732448016}
   m_LocalRotation: {x: 0, y: 0, z: 0.92387956, w: 0.38268343}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1200, y: 1200, z: 1}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4824208289284672205}
@@ -234,8 +273,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 86794b68b9e792441aec44fe7784d588, type: 3}
-  m_Color: {r: 0.894, g: 0.7053025, b: 0.42704466, a: 0.2784314}
+  m_Sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+  m_Color: {r: 0.94509804, g: 0.892084, b: 0.10196078, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

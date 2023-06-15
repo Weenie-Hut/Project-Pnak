@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace Pnak
 {
+	public enum MovementStackIds
+	{
+		SourShot = 3040,
+	}
+
 	public partial struct LiteNetworkedData
 	{
 		[System.Serializable, StructLayout(LayoutKind.Explicit)]
@@ -21,21 +26,31 @@ namespace Pnak
 			/***********************************/
 			[EnumNameSuffix(typeof(Priorities))]
 			[FieldOffset(8)]
-			public ushort Priority;
+			public ushort OverridePriority;
 			[AsEnum(typeof(ValueStackingType))]
 			[FieldOffset(10)]
-			public byte StackingType;
+			public byte OverrideStackingType;
 			[FieldOffset(11)]
 			[NaNButton, Suffix("units/sec")] public float MovementSpeed;
 			[FieldOffset(15)]
 			[NaNButton, Min(0.0f), Suffix("sec")] public float HoldDuration;
+			[Tooltip("The stack ID of this Resistance. If a new Resistance is applied to a target with the same stack ID, the old Resistance will be stacked with the new one."), EnumNameSuffix(typeof(MovementStackIds))]
+			[FieldOffset(19)]
+			public short StackId;
+			[AsEnum(typeof(ValueStackingType))]
+			[FieldOffset(21)]
+			public byte DurationStackType;
+			[HideIf(nameof(DurationStackType), 0)]
+			[AsEnum(typeof(ValueStackingType)), Default(1)]
+			[FieldOffset(22)]
+			public byte AmountStackType;
 
 			public bool IsEqual(in MovementData other)
 			{
 				return MovementSpeed.Equals(other.MovementSpeed) &&
 					HoldDuration.Equals(other.HoldDuration) &&
-					StackingType.Equals(other.StackingType) &&
-					Priority.Equals(other.Priority);
+					OverrideStackingType.Equals(other.OverrideStackingType) &&
+					OverridePriority.Equals(other.OverridePriority);
 			}
 		}
 
@@ -64,10 +79,27 @@ namespace Pnak
 		public override void SetDefaults(ref LiteNetworkedData data)
 		{
 			base.SetDefaults(ref data);
-			data.Movement.StackingType = (byte)ValueStackingType.Multiply;
-			data.Movement.Priority = (ushort)Priorities.GeneralMult;
+			data.Movement.OverrideStackingType = (byte)ValueStackingType.Multiply;
+			data.Movement.OverridePriority = (ushort)Priorities.GeneralMult;
 			data.Movement.MovementSpeed = float.NaN;
 			data.Movement.HoldDuration = float.NaN;
+			data.Movement.DurationStackType = (byte)ValueStackingType.Replace;
+			data.Movement.AmountStackType = (byte)ValueStackingType.Replace;
+		}
+
+		public override bool ModAdded_CombineWith(object rContext, ref LiteNetworkedData current, in LiteNetworkedData next)
+		{
+			if (ScriptIndex != next.ScriptType) return false;
+			if (current.Movement.StackId != next.Movement.StackId) return false;
+			if (current.Movement.DurationStackType == (byte)ValueStackingType.DoNotStack) return false;
+			if (current.Movement.AmountStackType == (byte)ValueStackingType.DoNotStack) return false;
+			if (current.Movement.DurationStackType != next.Movement.DurationStackType) return false;
+			if (current.Movement.AmountStackType != next.Movement.AmountStackType) return false;
+
+			current.DoT.Duration = ValueStack.Stack(current.Movement.Duration, next.Movement.Duration, (ValueStackingType)current.Movement.DurationStackType);
+			current.Movement.MovementSpeed = ValueStack.Stack(current.Movement.MovementSpeed, next.Movement.MovementSpeed, (ValueStackingType)current.Movement.AmountStackType);
+
+			return true;
 		}
 
 		public override void Initialize(LiteNetworkObject networkContext, in LiteNetworkedData data, out object context)
@@ -88,8 +120,8 @@ namespace Pnak
 
 			context.Override.Data.MovementSpeed = data.Movement.MovementSpeed;
 			context.Override.Data.HoldDuration = data.Movement.HoldDuration;
-			context.Override.Priority = data.Movement.Priority;
-			context.Override.StackingType = (ValueStackingType)data.Movement.StackingType;
+			context.Override.Priority = data.Movement.OverridePriority;
+			context.Override.StackingType = (ValueStackingType)data.Movement.OverrideStackingType;
 
 			context.Enemy.ModifyOverride(context.Override);
 		}
