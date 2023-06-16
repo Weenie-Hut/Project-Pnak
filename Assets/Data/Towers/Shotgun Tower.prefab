@@ -282,7 +282,7 @@ MonoBehaviour:
     - Option:
         ReloadTime: 1.5
         FireCountRange: {x: 5, y: 10}
-        FireSpreadAngle: 25
+        FireSpreadAngle: 40
         Spawn: {fileID: 1326432680719098604, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
         MunitionMods: []
         DamageMods: []
