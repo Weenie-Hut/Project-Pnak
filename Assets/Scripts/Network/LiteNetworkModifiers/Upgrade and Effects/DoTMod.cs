@@ -79,7 +79,7 @@ namespace Pnak
 
 		public override System.Type DataType => typeof(LiteNetworkedData.DoTData);
 
-		public class DoTContext : DurationAndVisualsContext
+		public class DoTContext : VisualsContext
 		{
 			public HealthBehaviour HealthBehaviour;
 			public DataSelector<DamageAmount> DamageSelector;

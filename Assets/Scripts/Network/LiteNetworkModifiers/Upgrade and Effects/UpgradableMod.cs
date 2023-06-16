@@ -11,13 +11,6 @@ namespace Pnak
 		[System.Serializable]
 		public struct UpgradableData
 		{
-			/***** Copy of Duration and Visuals ******/
-			[Suffix("sec"), Tooltip("The duration of this upgrade. Use 0 or less for permanent upgrades.")]
-			[Default(float.PositiveInfinity), Min(0)]
-			public float Duration;
-			[HideInInspector]
-			public int startTick;
-			/***********************************/
 			[HideInInspector] public ushort UpgradeIndex;
 		}
 
@@ -46,13 +39,13 @@ namespace Pnak
 		public override bool CanUpgrade(in LiteNetworkedData data) => data.Upgradable.UpgradeIndex < Upgrades.Count - 1;
 	}
 
-	public abstract class UpgradableMod : DurationAndVisualsMod
+	public abstract class UpgradableMod : VisualsMod
 	{
 		public override System.Type DataType => typeof(LiteNetworkedData.UpgradableData);
 
 		public abstract System.Type[] ValidTargets { get; }
 
-		public class UpgradableContext : DurationAndVisualsContext
+		public class UpgradableContext : VisualsContext
 		{
 			public int UpgradeIndex;
 

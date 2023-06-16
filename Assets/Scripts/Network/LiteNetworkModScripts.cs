@@ -66,7 +66,7 @@ namespace Pnak
 					continue;
 				}
 
-				FieldNames[i + 1] = Mods[i].DataType.Name + "Field";
+				FieldNames[i + 1] = (Mods[i].DataType == null) ? null : Mods[i].DataType.Name + "Field";
 				ModOptions[i + 1] = new GUIContent(Mods[i].name);
 
 				Mods[i].EditorSetScriptIndex(i);

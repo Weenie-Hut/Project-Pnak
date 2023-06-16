@@ -1,11 +1,25 @@
 using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
+using System.Linq;
 
 namespace Pnak
 {
 	public class Enemy : StateBehaviour
 	{
+		public static List<Enemy> Enemies = new List<Enemy>();
+		public static float FurthestEnemyDistance()
+		{
+			if (Enemies.Count == 0) return 0;
+			return Enemies.Max(e => e.DistanceLeft);
+		}
+
+		public static float NormalizedFurthestEnemyDistance()
+		{
+			if (Enemies.Count == 0) return 0;
+			return Enemies.Max(e => e.DistanceLeft / e.totalDistance);
+		}
+
 		[SerializeField]
 		private DataSelectorWithOverrides<MovementAmount> MovementDataSelector = new DataSelectorWithOverrides<MovementAmount>();
 
@@ -13,6 +27,12 @@ namespace Pnak
 		public Vector3 PreviousPosition { get; set; }
 		private byte CurrentPathIndex = 0;
 		private Transform path;
+
+		public int[] pathIndexes;
+		private float distanceBase;
+		private float totalDistance;
+
+		public float DistanceLeft => distanceBase + Vector3.Distance(TargetPosition, transform.position);
 
 		private int endHoldTick = -1;
 		private int EndHoldTick
@@ -66,14 +86,14 @@ namespace Pnak
 
 			if (CurrentPathIndex >= path.childCount)
 			{
-				LiteNetworkManager.QueueDeleteLiteObject(Controller.NetworkContext);
+				Controller.QueueForDestroy();
 				return;
 			}
 
 			PreviousPosition = TargetPosition;
+			TargetPosition = path.GetChild(CurrentPathIndex).GetChild(pathIndexes[CurrentPathIndex]).position;
 
-			var target = Random.Range(0, path.GetChild(CurrentPathIndex).childCount);
-			TargetPosition = path.GetChild(CurrentPathIndex).GetChild(target).position;
+			distanceBase -= Vector3.Distance(PreviousPosition, TargetPosition);
 		}
 
 		public void RevertToPreviousPosition()
@@ -82,10 +102,11 @@ namespace Pnak
 				return;
 
 			CurrentPathIndex--;
-			TargetPosition = PreviousPosition;
 
-			var target = Random.Range(0, path.GetChild(CurrentPathIndex - 1).childCount);
-			PreviousPosition = path.GetChild(CurrentPathIndex - 1).GetChild(target).position;
+			distanceBase += Vector3.Distance(PreviousPosition, TargetPosition);
+
+			TargetPosition = PreviousPosition;
+			PreviousPosition = path.GetChild(CurrentPathIndex - 1).GetChild(pathIndexes[CurrentPathIndex - 1]).position;
 		}
 
 		public void Init(Transform path)
@@ -94,9 +115,30 @@ namespace Pnak
 
 			if (path != null)
 			{
+				pathIndexes = new int[path.childCount];
+				distanceBase = 0f;
+				for (int i = 0; i < path.childCount; i++)
+				{
+					pathIndexes[i] = Random.Range(0, path.GetChild(i).childCount);
+					if (i > 0)
+						distanceBase += Vector3.Distance(
+							path.GetChild(i - 1).GetChild(pathIndexes[i - 1]).position,
+							path.GetChild(i).GetChild(pathIndexes[i]).position);
+				}
+				totalDistance = distanceBase;
+
 				TargetPosition = Controller.TransformCache.Value.Position;
 				SetNextPosition();
 			}
+
+			Enemies.Add(this);
+		}
+
+		public override void QueuedForDestroy()
+		{
+			base.QueuedForDestroy();
+
+			Enemies.Remove(this);
 		}
 
 		public override void InputFixedUpdateNetwork()

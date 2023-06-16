@@ -67,7 +67,7 @@ namespace Pnak
 	{
 		public override System.Type DataType => typeof(LiteNetworkedData.ResistanceData);
 
-		public class ResistanceContext : DurationAndVisualsContext
+		public class ResistanceContext : VisualsContext
 		{
 			public HealthBehaviour HealthBehaviour;
 			public DataOverride<ResistanceAmount> Override;

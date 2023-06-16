@@ -134,6 +134,8 @@ namespace Pnak
 			// SetRuntime(ref data);
 		}
 
+		public virtual string Format(string format, in LiteNetworkedData data = default) => format;
+
 		public virtual void SetRuntime(ref LiteNetworkedData data)
 		{
 		}

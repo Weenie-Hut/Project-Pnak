@@ -11,13 +11,6 @@ namespace Pnak
 		public struct ShootUpgradeData
 		{
 			/***** Copy of UpgradableData ******/
-			/***** Copy of Duration and Visuals ******/
-			[Suffix("sec"), Tooltip("The duration of this upgrade. Use 0 or less for permanent upgrades.")]
-			[Default(float.PositiveInfinity), Min(0)]
-			public float Duration;
-			[HideInInspector]
-			public int startTick;
-			/***********************************/
 			[HideInInspector] public ushort UpgradeIndex;
 			/***********************************/
 		}

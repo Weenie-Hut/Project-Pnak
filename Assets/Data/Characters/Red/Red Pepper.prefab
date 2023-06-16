@@ -333,6 +333,7 @@ MonoBehaviour:
   MP_RegenerationRate: 1
   InteractionOptions:
   - {fileID: 11400000, guid: 7cb13676c4d430a488186301b96559a0, type: 2}
+  - {fileID: 11400000, guid: 06e859a763a110b4ba4e1cac519de0db, type: 2}
   _AimGraphic: {fileID: 5555317936244450478}
   DisableWhenBusy:
   - {fileID: 3296648624864799941}

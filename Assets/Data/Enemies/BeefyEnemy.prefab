@@ -137,6 +137,7 @@ MonoBehaviour:
         HoldDuration: Infinity
       Weight: 0
     RandomizeDataOrder: 0
+  pathIndexes: 
 --- !u!114 &1542059804515670451
 MonoBehaviour:
   m_ObjectHideFlags: 0

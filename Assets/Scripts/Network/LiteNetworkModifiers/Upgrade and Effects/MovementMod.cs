@@ -64,7 +64,7 @@ namespace Pnak
 	{
 		public override System.Type DataType => typeof(LiteNetworkedData.MovementData);
 
-		public class MovementContext : DurationAndVisualsContext
+		public class MovementContext : VisualsContext
 		{
 			public Enemy Enemy;
 			public DataOverride<MovementAmount> Override;

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scriptIndex: 16
   Visuals: {fileID: 6443340962870154360, guid: 5b095de2100a33c4db7f8b0c51ed2b3f, type: 3}
-  defaultDuration: Infinity
   Upgrades:
   - Upgrade:
       Priority: 300

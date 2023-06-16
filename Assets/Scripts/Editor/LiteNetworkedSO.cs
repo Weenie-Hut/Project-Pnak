@@ -35,6 +35,7 @@ namespace PnakEditor
 			}
 		}
 
+		public LiteNetworkedData.SteamBurstData SteamBurstDataField;
 		public LiteNetworkedData.LifetimeData LifetimeDataField;
 		public LiteNetworkedData.KinematicPositionData KinematicPositionDataField;
 		public LiteNetworkedData.PositionAndChildRotationData PositionAndChildRotationDataField;

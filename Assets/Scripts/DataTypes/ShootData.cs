@@ -20,6 +20,19 @@ namespace Pnak
 		[Tooltip("The mods that are added to the munition as damage overrides.")]
 		public DataOverride<DamageAmount>[] DamageMods = new DataOverride<DamageAmount>[0];
 
+		public static ShootData CreateNulled()
+		{
+			return new ShootData
+			{
+				ReloadTime = float.NaN,
+				FireCountRange = new Vector2(float.NaN, float.NaN),
+				FireSpreadAngle = float.NaN,
+				Spawn = null,
+				MunitionMods = new SerializedLiteNetworkedData[0],
+				DamageMods = new DataOverride<DamageAmount>[0]
+			};
+		}
+
 
 		public string Format(string format)
 		{
