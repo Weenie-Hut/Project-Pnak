@@ -98,6 +98,9 @@ namespace Pnak
 			if (DurationStackingType == ValueStackingType.DoNotStack) return false;
 			if (DamageScaleStackingType == ValueStackingType.DoNotStack) return false;
 
+			current.DoT.Duration = DurationRemaining(current);
+			current.DoT.startTick = SessionManager.Tick;
+
 			current.DoT.Duration = ValueStack.Stack(current.DoT.Duration, next.DoT.Duration, DurationStackingType);
 			current.DoT.Scale = ValueStack.Stack(current.DoT.Scale, next.DoT.Scale, DamageScaleStackingType);
 			if (BehaviourOnStack == DoTStackBehaviour.ResetInterval)

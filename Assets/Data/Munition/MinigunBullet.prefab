@@ -135,9 +135,6 @@ MonoBehaviour:
   SerializedMods:
   - scriptType: 2
     CustomData: 000000000000000000007a4400000000000000000000000000000000
-  OnQueuedForDestroy:
-    m_PersistentCalls:
-      m_Calls: []
   stateBehaviours:
   - {fileID: 5270848876961268193}
   - {fileID: 1559252364345579475}
@@ -161,6 +158,7 @@ MonoBehaviour:
     m_Bits: 320
   RaycastPositionChanges: 1
   CalculateDistances: 0
+  DistanceCalculation: 1
   ColliderOrigin: {x: 0, y: 0}
   OriginAtRaycastStart: 0
   SortByDistance: 0

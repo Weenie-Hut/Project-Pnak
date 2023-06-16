@@ -13,7 +13,7 @@ namespace Pnak
 		public Vector2 FireCountRange = new Vector2(1, 1);
 		[Tooltip("The maximum angle for a shot. 0 means all shots will be in the same direction. 180 means all shots will be in random directions. Format using {fireSpreadAngle}."), Suffix("deg"), MinMax(0f, 360f), NaNButton]
 		public float FireSpreadAngle = 1f;
-		[Tooltip("Format using {spawn}."), Searchable(true)]
+		[Tooltip("Format using {spawn}.")]
 		public StateBehaviourController Spawn = null;
 		[Tooltip("The mods that are applied to the munition.")]
 		public SerializedLiteNetworkedData[] MunitionMods = new SerializedLiteNetworkedData[0];

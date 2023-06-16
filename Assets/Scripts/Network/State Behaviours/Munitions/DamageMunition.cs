@@ -5,7 +5,7 @@ using System;
 
 namespace Pnak
 {
-	public class DamageMunition : Munition
+	public class DamageMunition : Munition, Overridable<DamageAmount>
 	{
 		public enum DamageIntervalType
 		{
@@ -34,16 +34,17 @@ namespace Pnak
 		public DamageIntervalType IntervalType = DamageIntervalType.None;
 
 		[Tooltip("The time between each time damage is done. If less than runner.DeltaTime, damage will be applied every frame to every overlapping target.")]
-		[ShowIf(nameof(IntervalType))]
+		[ShowIf(nameof(IntervalType)), Tab]
 		[Suffix("sec"), MinMax(min: 0.0333f)]
 		public float IntervalBetweenHits = 0.33f;
 
-		[HideIf(nameof(intervalInTicks), -1)]
+		[HideIf(nameof(intervalInTicks), -1), Tab]
 		[AsLabel(LabelType.Italic | LabelType.Right, "Damage is in d/sec and dealt every {0} network tick(s)")]
 		[SerializeField]
 		private int intervalInTicks; // Used for any interval
 
 		[Tooltip("If true, the damage data will be cycled after each hit. Otherwise, if multiple targets are hit on a single frame, the same damage data will be used for each target.")]
+		[HideIf(nameof(Peirce), 1u)]
 		public bool PickDamageDataAfterEachHit = false;
 
 		private int lastIntervalTick = -1;
@@ -186,6 +187,22 @@ namespace Pnak
 						break;
 				}
 			}
+		}
+
+		public void QueueSpawnWithOverrides(StateBehaviourController prefab)
+		{
+			LiteNetworkManager.QueueNewNetworkObject(prefab, Controller.HasTransform ? Controller.TransformCache.Value : new TransformData {
+				Position = transform.position,
+				RotationAngle = transform.localEulerAngles.z,
+				Scale = transform.localScale
+			}, CopyOverrides);
+		}
+
+		private void CopyOverrides(LiteNetworkObject networkObject)
+		{
+			foreach(Overridable<DamageAmount> overridable in networkObject.Target.GetComponents<Overridable<DamageAmount>>())
+				foreach(DataOverride<DamageAmount> data in DamageDataSelector.DataOverridesEnumerator)
+					overridable.AddOverride(data);
 		}
 
 		private bool ValidateIntervalType()

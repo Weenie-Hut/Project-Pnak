@@ -175,12 +175,12 @@ namespace Pnak
 				LiteNetworkManager.QueueAddModifier(networkObject, mod);
 			}
 
-			DamageMunition damageMunition = networkObject.Target.GetStateBehaviour<DamageMunition>();
-			if (damageMunition != null)
+			Overridable<DamageAmount>[] damageContainers = networkObject.Target.GetComponents<Overridable<DamageAmount>>();
+			foreach (Overridable<DamageAmount> damageContainer in damageContainers)
 			{
 				foreach (DataOverride<DamageAmount> overrides in current.DamageMods)
 				{
-					damageMunition.AddOverride(overrides);
+					damageContainer.AddOverride(overrides);
 				}
 			}
 		}

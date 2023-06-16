@@ -202,9 +202,6 @@ MonoBehaviour:
     CustomData: 00000000000000000000000000000000000000000000000000000000
   - scriptType: 7
     CustomData: 000000000ad7a33c00000000000020420000803f0000000000000000
-  OnQueuedForDestroy:
-    m_PersistentCalls:
-      m_Calls: []
   stateBehaviours:
   - {fileID: 4484754667655281186}
   - {fileID: 3296648624864799941}

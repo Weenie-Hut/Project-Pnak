@@ -24,39 +24,13 @@ namespace PnakEditor
 		private GUIContent GetContent(SerializedProperty property, out GUIStyle style, ref Vector2 size)
 		{
 			GUIContent content = new GUIContent(GetText(property));
-			style = GetGUIStyle();
+			style = DrawingUtility.GetGUIStyle((attribute as AsLabelAttribute).Type);
 			
 			size = style.CalcSize(content);
 			return content;
 		}
 
-		private GUIStyle GetGUIStyle()
-		{
-			AsLabelAttribute asLabelAttribute = attribute as AsLabelAttribute;
-
-			GUIStyle style = new GUIStyle(GUI.skin.label);
-			style.wordWrap = true;
-
-			if (asLabelAttribute.Type.HasFlag(LabelType.Bold))
-				style.fontStyle = FontStyle.Bold;
-
-			if (asLabelAttribute.Type.HasFlag(LabelType.Italic))
-				style.fontStyle = FontStyle.Italic;
-
-			if (asLabelAttribute.Type.HasFlag(LabelType.Mini))
-				style.fontSize = 9;
-
-			if (asLabelAttribute.Type.HasFlag(LabelType.Left))
-				style.alignment = TextAnchor.MiddleLeft;
-			
-			if (asLabelAttribute.Type.HasFlag(LabelType.Center))
-				style.alignment = TextAnchor.MiddleCenter;
-
-			if (asLabelAttribute.Type.HasFlag(LabelType.Right))
-				style.alignment = TextAnchor.MiddleRight;
-
-			return style;
-		}
+		
 
 		public override float GetPropertyHeight(SerializedProperty property,
 												GUIContent label)

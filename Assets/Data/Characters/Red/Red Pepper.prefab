@@ -309,9 +309,6 @@ MonoBehaviour:
     CustomData: 000000000ad7a33c00000000000020420000803f0000000000000000
   - scriptType: 7
     CustomData: 000000000ad7a33c0000000000005c420000803f0000000000000000
-  OnQueuedForDestroy:
-    m_PersistentCalls:
-      m_Calls: []
   stateBehaviours:
   - {fileID: 4484754667655281186}
   - {fileID: 1603884731937558083}
@@ -418,6 +415,7 @@ MonoBehaviour:
     m_Bits: 64
   RaycastPositionChanges: 0
   CalculateDistances: 0
+  DistanceCalculation: 1
   ColliderOrigin: {x: 0.3434875, y: 1.3744262}
   OriginAtRaycastStart: 0
   SortByDistance: 0

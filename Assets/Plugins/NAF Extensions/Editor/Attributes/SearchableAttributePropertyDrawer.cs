@@ -16,20 +16,18 @@ namespace PnakEditor
 	[CustomPropertyDrawer(typeof(SearchableAttribute))]
 	public class SearchableAttributePropertyDrawer : PropertyDrawer
 	{
-		public string GetAnyErrors(SerializedProperty property)
+		public static string GetAnyErrors(SerializedProperty property, System.Type[] requiredComponents = null, bool assetsOnly = false, bool includeChildren = false)
 		{
 			if (property.propertyType != SerializedPropertyType.ObjectReference)
 			{
 				return "ERROR: Field is not an Object";
 			}
 
-			SearchableAttribute searchable = attribute as SearchableAttribute;
-
 			Object obj = property.objectReferenceValue;
 
 			if (obj == null) return null; // Use the required attribute if you want to force a value
 
-			if (searchable.RequiredComponents != null)
+			if (requiredComponents != null)
 			{
 				if (!(obj is GameObject go))
 				{
@@ -39,9 +37,9 @@ namespace PnakEditor
 						return "ERROR: Field Target Invalid";
 				}
 
-				foreach (System.Type type in searchable.RequiredComponents)
+				foreach (System.Type type in requiredComponents)
 				{
-					if (searchable.IncludeChildren)
+					if (includeChildren)
 						{ if (go.GetComponent(type) != null) continue; }
 					else
 						{ if (go.GetComponentInChildren(type) != null) continue; }
@@ -50,7 +48,7 @@ namespace PnakEditor
 				}
 			}
 
-			if (searchable.AssetsOnly && PrefabUtility.GetPrefabAssetType(obj) == PrefabAssetType.NotAPrefab)
+			if (assetsOnly && PrefabUtility.GetPrefabAssetType(obj) == PrefabAssetType.NotAPrefab)
 			{
 				return "Not a Prefab";
 			}
@@ -58,51 +56,35 @@ namespace PnakEditor
 			return null;
 		}
 
+		public static float GetExtraHeight(SerializedProperty property, System.Type[] requiredComponents = null, bool assetsOnly = false, bool includeChildren = false)
+		{
+			return (GetAnyErrors(property, requiredComponents, assetsOnly, includeChildren) != null ? EditorGUIUtility.singleLineHeight : 0);
+		}
+
+		private float ThisGetExtraHeight(SerializedProperty property)
+		{
+			SearchableAttribute searchable = attribute as SearchableAttribute;
+			return GetExtraHeight(property, searchable.RequiredComponents, searchable.AssetsOnly, searchable.IncludeChildren);
+		}
+
 		public override float GetPropertyHeight(SerializedProperty property,
 												GUIContent label)
 		{
-			return EditorGUI.GetPropertyHeight(property, label, true) + (GetAnyErrors(property) != null ? EditorGUIUtility.singleLineHeight : 0);
+			return EditorGUI.GetPropertyHeight(property, label, true) + ThisGetExtraHeight(property);
 		}
 
-		public override void OnGUI(Rect position,
-								SerializedProperty property,
-								GUIContent label)
+		public static void Draw(ref Rect position, SerializedProperty property, System.Type propertyType, System.Type[] requiredComponents = null, bool assetsOnly = false, bool includeChildren = false)
 		{
-			int indent = EditorGUI.indentLevel;
-			EditorGUI.indentLevel = 0;
+			float originalWidth = position.width;
 
 			GUIContent content = new GUIContent("Search", "Search for a prefab using the type of the field (will show all component on the root of prefabs)");
-			GUIStyle style = EditorStyles.miniButton;
 
-
-			float thisWidth = style.CalcSize(content).x;
-			float originalWidth = position.width;
-			position.x += position.width - thisWidth;
-			position.width = thisWidth;
-
-			if (GUI.Button(position, content, style))
+			if (DrawingUtility.InlineButton(ref position, content))
 			{
-				SearchableAttribute searchable = attribute as SearchableAttribute;
-
-				var options = ObjectPickerEntry.CreateObjectPickerDictionary(
-					property, IsValid,
-					searchable.AssetsOnly ? ObjectPickerEntry.IncludeDropdowns.Assets : ObjectPickerEntry.IncludeDropdowns.All);
-
-				UnityObjectPicker.Show(options, (obj) =>
-				{
-					property.objectReferenceValue = obj;
-					property.serializedObject.ApplyModifiedProperties();
-				});
+				UnityObjectPicker.Show(property, go => IsValid(go, propertyType, requiredComponents, includeChildren), assetsOnly);
 			}
 
-			position.x -= originalWidth - thisWidth;
-			position.width = originalWidth - thisWidth;
-
-			EditorGUI.indentLevel = indent;
-
-			EditorGUI.PropertyField(position, property, label, true);
-
-			string error = GetAnyErrors(property);
+			string error = GetAnyErrors(property, requiredComponents, assetsOnly, includeChildren);
 			if (error != null)
 			{
 				Rect errorRect = position;
@@ -111,21 +93,30 @@ namespace PnakEditor
 				errorRect.width = originalWidth - EditorGUIUtility.labelWidth;
 				errorRect.x += EditorGUIUtility.labelWidth;
 				EditorGUI.HelpBox(errorRect, error, MessageType.Error);
-			} 
+			}
 		}
 
-		public bool IsValid(GameObject go)
+		public override void OnGUI(Rect position,
+								SerializedProperty property,
+								GUIContent label)
 		{
-			if (typeof(Component).IsAssignableFrom(fieldInfo.FieldType) &&
-				go.GetComponent(fieldInfo.FieldType) == null) return false;
-
 			SearchableAttribute searchable = attribute as SearchableAttribute;
-			foreach (System.Type type in searchable.RequiredComponents)
+			Draw(ref position, property, fieldInfo.FieldType, searchable.RequiredComponents, searchable.AssetsOnly, searchable.IncludeChildren);
+			EditorGUI.PropertyField(position, property, label, true);
+		}
+
+		public static bool IsValid(GameObject go, System.Type type, System.Type[] requiredComponents, bool includeChildren)
+		{
+			if (typeof(Component).IsAssignableFrom(type) &&
+				go.GetComponent(type) == null) return false;
+			if (requiredComponents == null) return true;
+
+			foreach (System.Type cType in requiredComponents)
 			{
-				if (searchable.IncludeChildren)
-					{ if (go.GetComponent(type) != null) continue; }
+				if (includeChildren)
+					{ if (go.GetComponent(cType) != null) continue; }
 				else
-					{ if (go.GetComponentInChildren(type) != null) continue; }
+					{ if (go.GetComponentInChildren(cType) != null) continue; }
 
 				return false;
 			}

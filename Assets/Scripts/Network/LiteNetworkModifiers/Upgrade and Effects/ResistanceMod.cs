@@ -100,7 +100,10 @@ namespace Pnak
 			if (current.Resistance.DurationStackType != next.Resistance.DurationStackType) return false;
 			if (current.Resistance.AmountStackType != next.Resistance.AmountStackType) return false;
 
-			current.DoT.Duration = ValueStack.Stack(current.Resistance.Duration, next.Resistance.Duration, (ValueStackingType)current.Resistance.DurationStackType);
+			current.Resistance.Duration = DurationRemaining(current);
+			current.Resistance.startTick = SessionManager.Tick;
+
+			current.Resistance.Duration = ValueStack.Stack(current.Resistance.Duration, next.Resistance.Duration, (ValueStackingType)current.Resistance.DurationStackType);
 
 			current.Resistance.AllDamageAmount = ValueStack.Stack(current.Resistance.AllDamageAmount, next.Resistance.AllDamageAmount, (ValueStackingType)current.Resistance.AmountStackType);
 			current.Resistance.PhysicalDamageAmount = ValueStack.Stack(current.Resistance.PhysicalDamageAmount, next.Resistance.PhysicalDamageAmount, (ValueStackingType)current.Resistance.AmountStackType);

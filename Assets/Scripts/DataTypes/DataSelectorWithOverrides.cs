@@ -116,10 +116,18 @@ namespace Pnak
 		}
 	}
 
+	public interface Overridable<T> where T : Stackable<T>, Copyable<T>
+	{
+		public void AddOverride(DataOverride<T> data);
+		public void RemoveOverride(DataOverride<T> data);
+		public void ModifyOverride(DataOverride<T> data);
+	}
+
 	[System.Serializable]
-	public class DataSelectorWithOverrides<T> : DataSelector<T> where T : Stackable<T>, Copyable<T>
+	public class DataSelectorWithOverrides<T> : DataSelector<T>, Overridable<T> where T : Stackable<T>, Copyable<T>
 	{
 		private SortedSet<DataOverride<T>> DataOverrides = new SortedSet<DataOverride<T>>(new DuplicateKeyComparer<T>());
+		public SortedSet<DataOverride<T>> DataOverridesEnumerator => DataOverrides;
 
 		protected override void SetData()
 		{

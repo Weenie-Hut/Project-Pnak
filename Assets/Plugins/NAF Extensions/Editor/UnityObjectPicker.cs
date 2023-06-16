@@ -39,6 +39,19 @@ namespace PnakEditor
 
 		private static int selectedTab = 0;
 
+		public static void Show(SerializedProperty property, Predicate<GameObject> filter, bool assetsOnly)
+		{
+			var options = ObjectPickerEntry.CreateObjectPickerDictionary(
+				property, filter,
+				assetsOnly ? ObjectPickerEntry.IncludeDropdowns.Assets : ObjectPickerEntry.IncludeDropdowns.All);
+
+			UnityObjectPicker.Show(options, (obj) =>
+			{
+				property.objectReferenceValue = obj;
+				property.serializedObject.ApplyModifiedProperties();
+			});
+		}
+
 		public static void Show(Dictionary<string, ObjectPickerEntry[]> objectOptions, Action<UnityEngine.Object> callback)
 		{
 			UnityObjectPicker.objectOptions = objectOptions;

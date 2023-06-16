@@ -58,11 +58,14 @@ namespace Pnak
 		public override void SetRuntime(ref LiteNetworkedData data)
 		{
 			base.SetRuntime(ref data);
-			data.DurationAndVisuals.startTick = SessionManager.Instance.NetworkRunner.Tick;
+			data.DurationAndVisuals.startTick = SessionManager.Tick;
 		}
 
 		public override void Initialize(LiteNetworkObject networkContext, in LiteNetworkedData data, out object context)
 			=> context = new DurationAndVisualsContext(networkContext);
+
+		protected float DurationRemaining(in LiteNetworkedData data)
+			=> data.DurationAndVisuals.Duration - (SessionManager.Tick - data.DurationAndVisuals.startTick) * SessionManager.DeltaTime;
 
 		public override void OnFixedUpdate(object rContext, ref LiteNetworkedData data)
 		{

@@ -83,6 +83,8 @@ GameObject:
   - component: {fileID: 1326432680719098604}
   - component: {fileID: 5270848876961268193}
   - component: {fileID: -2771670484422843685}
+  - component: {fileID: -5518869782928998691}
+  - component: {fileID: -7212850124110355598}
   m_Layer: 0
   m_Name: CannonShell
   m_TagString: Untagged
@@ -121,24 +123,10 @@ MonoBehaviour:
   SerializedMods:
   - scriptType: 2
     CustomData: 00000000000000000000964400000000000000000000000000000000
-  OnQueuedForDestroy:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1326432680719098604}
-        m_TargetAssemblyTypeName: Pnak.StateBehaviourController, Pnak
-        m_MethodName: QueueSpawnHere
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 1326432680719098604, guid: 14fab893ec855684ab389053cce1979b, type: 3}
-          m_ObjectArgumentAssemblyTypeName: Pnak.StateBehaviourController, Pnak
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
   stateBehaviours:
   - {fileID: 5270848876961268193}
   - {fileID: -2771670484422843685}
+  - {fileID: -7212850124110355598}
   prefabIndex: -1
 --- !u!114 &5270848876961268193
 MonoBehaviour:
@@ -158,6 +146,7 @@ MonoBehaviour:
     m_Bits: 320
   RaycastPositionChanges: 1
   CalculateDistances: 0
+  DistanceCalculation: 1
   ColliderOrigin: {x: 0, y: 0}
   OriginAtRaycastStart: 0
   SortByDistance: 0
@@ -179,6 +168,50 @@ MonoBehaviour:
   _DespawnImpactLayers:
     serializedVersion: 2
     m_Bits: 320
+--- !u!114 &-5518869782928998691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513871686737893388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c7175b4d992be445aec97482023c22e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _controller: {fileID: 1326432680719098604}
+--- !u!114 &-7212850124110355598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513871686737893388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f88ef589f8485e346a85fa6b9c1bec65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Events:
+  - Delay: 0
+    ActiveIfAlive: 0
+    Event:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: -5518869782928998691}
+          m_TargetAssemblyTypeName: Pnak.OverrideContainer`1[[Pnak.DamageAmount,
+            Pnak
+          m_MethodName: QueueSpawnWithOverrides
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 1326432680719098604, guid: 14fab893ec855684ab389053cce1979b, type: 3}
+            m_ObjectArgumentAssemblyTypeName: Pnak.StateBehaviourController, Pnak
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &2973621702732448016
 GameObject:
   m_ObjectHideFlags: 0

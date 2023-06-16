@@ -42,19 +42,17 @@ namespace PnakEditor
 				return;
 			}
 
+			EditorGUI.BeginProperty(position, label, property);
+
 			if (!result)
 			{
 				ValidateAttribute attribute = (ValidateAttribute)base.attribute;
-
-				float width = position.width;
-				position.x += position.width - 65f;
-				position.width = 65f;
-				EditorGUI.HelpBox(position, attribute.Message, MessageType.Error);
-				position.x -= width - 65f;
-				position.width = width - 65f;
+				DrawingUtility.InlineHelpBox(ref position, attribute.Message, MessageType.Error);
 			}
 
 			EditorGUI.PropertyField(position, property, label, true);
+			
+			EditorGUI.EndProperty();
 		}
 	}
 }

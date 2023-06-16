@@ -133,9 +133,6 @@ MonoBehaviour:
   SerializedMods:
   - scriptType: 3
     CustomData: 00000000000000000000000000000000000000000000000000000000
-  OnQueuedForDestroy:
-    m_PersistentCalls:
-      m_Calls: []
   stateBehaviours: []
   prefabIndex: -1
 --- !u!1 &4104794997157482176

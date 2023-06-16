@@ -11,9 +11,6 @@ namespace Pnak
 	{
 		// TODO: This is copied to all instances created, but only needed on the prefab. Maybe use serialized object?
 		public SerializedLiteNetworkedData[] SerializedMods;
-		
-		// Used for disabling object features when the object is queued for destroy, like disabling a collider.
-		public UnityEngine.Events.UnityEvent OnQueuedForDestroy;
 
 		private LiteNetworkedData[] data;
 		public LiteNetworkedData[] Data
@@ -35,9 +32,18 @@ namespace Pnak
 		public void QueueForDestroy()
 		{
 			if (!LiteNetworkManager.QueueDeleteLiteObject(NetworkContext)) return;
-			OnQueuedForDestroy?.Invoke();
+			foreach (StateBehaviour stateBehaviour in stateBehaviours)
+				stateBehaviour.QueuedForDestroy();
 		}
-		
+
+		public void QueueSpawnHere(StateBehaviourController prefab)
+		{
+			LiteNetworkManager.QueueNewNetworkObject(prefab, HasTransform ? TransformCache.Value : new TransformData {
+				Position = transform.position,
+				RotationAngle = transform.localEulerAngles.z,
+				Scale = transform.localScale
+			});
+		}
 
 		public LiteNetworkObject NetworkContext { get; private set; }
 		public int TargetNetworkIndex => NetworkContext.Index;
@@ -230,15 +236,6 @@ namespace Pnak
 			}
 		}
 
-		public void QueueSpawnHere(StateBehaviourController prefab)
-		{
-			LiteNetworkManager.QueueNewNetworkObject(prefab, HasTransform ? TransformCache.Value : new TransformData {
-				Position = transform.position,
-				RotationAngle = transform.localEulerAngles.z,
-				Scale = transform.localScale
-			});
-		}
-
 		// private int predictedDestroyTick = -1;
 		// public void SetPredictedDestroyTick(int tick)
 		// {
@@ -300,61 +297,4 @@ namespace Pnak
 		}
 #endif
 	}
-#if UNITY_EDITOR
-// Create a custom property drawer for the StateBehaviourController class which will show all assets with a statebehaviourcontroller on the root object. Also, it will display a warning if the object does not have a prefab index set.
-[UnityEditor.CustomPropertyDrawer(typeof(StateBehaviourController))]
-public class StateBehaviourControllerDrawer : UnityEditor.PropertyDrawer
-{
-	public override void OnGUI(Rect position, UnityEditor.SerializedProperty property, GUIContent label)
-	{
-		UnityEditor.EditorGUI.BeginProperty(position, label, property);
-		
-		// Get the object:
-		StateBehaviourController controller = property.objectReferenceValue as StateBehaviourController;
-		int prefabIndex = controller?.PrefabIndex ?? -2;
-
-		if (prefabIndex != -2)
-		{
-			GUIContent content = new GUIContent("ID: " + prefabIndex.ToString());
-			GUIStyle style = UnityEditor.EditorStyles.miniLabel;
-			Vector2 size = style.CalcSize(content);
-
-			Rect copy = position;
-			copy.width -= size.x;
-			UnityEditor.EditorGUI.PropertyField(copy, property, label, true);
-
-			copy.x += copy.width;
-			copy.width = size.x;
-			copy.height = UnityEditor.EditorGUIUtility.singleLineHeight;
-			UnityEditor.EditorGUI.LabelField(copy, "ID: " + prefabIndex.ToString(), style);
-		}
-		else {
-			UnityEditor.EditorGUI.PropertyField(position, property, label, true);
-		}
-
-		if (prefabIndex == -1)
-		{
-			// Display a warning if the prefab index is not set. Get the prefered height of the warning box:
-			float height = UnityEditor.EditorGUIUtility.singleLineHeight * 2;
-			UnityEditor.EditorGUI.HelpBox(new Rect(position.x, position.y + UnityEditor.EditorGUIUtility.singleLineHeight, position.width, height), "Target has not been added to the Network Prefab pool!", UnityEditor.MessageType.Error);
-		}
-
-		UnityEditor.EditorGUI.EndProperty();
-	}
-
-	public override float GetPropertyHeight(UnityEditor.SerializedProperty property, GUIContent label)
-	{
-		float height = UnityEditor.EditorGUI.GetPropertyHeight(property, label);
-
-		// Get the object:
-		StateBehaviourController controller = property.objectReferenceValue as StateBehaviourController;
-		int prefabIndex = controller?.PrefabIndex ?? -2;
-		if (prefabIndex == -1)
-			height += UnityEditor.EditorGUIUtility.singleLineHeight * 2;
-
-		return height;
-	}
-}
-#endif
-
 }

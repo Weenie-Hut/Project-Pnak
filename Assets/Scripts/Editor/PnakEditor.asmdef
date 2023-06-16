@@ -2,7 +2,8 @@
     "name": "PnakEditor",
     "rootNamespace": "",
     "references": [
-        "GUID:76e58230c6f41924c8c51fc1a146aa77"
+        "GUID:76e58230c6f41924c8c51fc1a146aa77",
+        "GUID:5cd78fd32ec22694e8155ce59d2604fd"
     ],
     "includePlatforms": [
         "Editor"

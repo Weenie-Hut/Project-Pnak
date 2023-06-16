@@ -20,13 +20,13 @@ MonoBehaviour:
     NormalData:
     - Option:
         PhysicalDamage: NaN
-        MagicalDamage: 3
+        MagicalDamage: 1.25
         PureDamage: NaN
         ApplyModifiers: []
       Weight: 0
     RandomizeDataOrder: 0
-  IntervalBetweenHits: 0.04
-  intervalInTicks: 2
+  IntervalBetweenHits: 0
+  intervalInTicks: 1
   DurationStackingType: 2
   DamageScaleStackingType: 2
   BehaviourOnStack: 2

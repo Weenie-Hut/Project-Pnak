@@ -8,8 +8,9 @@
 
 using UnityEditor;
 using UnityEngine;
+using Pnak;
 
-namespace Pnak
+namespace PnakEditor
 {
 	[CustomPropertyDrawer(typeof(SuffixAttribute))]
 	public class SuffixAttributePropertyDrawer : PropertyDrawer
@@ -34,20 +35,7 @@ namespace Pnak
 				if (!string.IsNullOrEmpty(tooltip))
 					label.tooltip = tooltip;
 
-				GUIStyle style = UnityEditor.EditorStyles.miniLabel;
-				Vector2 textDimensions = style.CalcSize(content);
-
-				int indent = EditorGUI.indentLevel;
-				EditorGUI.indentLevel = 0;
-
-				float width = position.width;
-				position.x += position.width - textDimensions.x;
-				position.width = textDimensions.x;
-				UnityEditor.EditorGUI.LabelField(position, content, style);
-				position.x -= width - textDimensions.x;
-				position.width = width - textDimensions.x;
-
-				EditorGUI.indentLevel = indent;
+				DrawingUtility.GUISuffix(ref position, content);
 			}
 
 			EditorGUI.PropertyField(position, property, label, true);

@@ -220,9 +220,6 @@ MonoBehaviour:
     CustomData: 00000000000000000000000000000000000000000000000000000000
   - scriptType: 7
     CustomData: 000000000ad7a33c0000000000002042000000000000000000000000
-  OnQueuedForDestroy:
-    m_PersistentCalls:
-      m_Calls: []
   stateBehaviours:
   - {fileID: 4775989943319580470}
   - {fileID: 6537687673443203514}
@@ -246,6 +243,7 @@ MonoBehaviour:
     m_Bits: 64
   RaycastPositionChanges: 0
   CalculateDistances: 1
+  DistanceCalculation: 1
   ColliderOrigin: {x: 0, y: 0}
   OriginAtRaycastStart: 0
   SortByDistance: 1
@@ -282,7 +280,7 @@ MonoBehaviour:
     TemporaryData: []
     NormalData:
     - Option:
-        ReloadTime: 1
+        ReloadTime: 0.15
         FireCountRange: {x: 1, y: 1}
         FireSpreadAngle: 11.6
         Spawn: {fileID: 1326432680719098604, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
@@ -290,7 +288,7 @@ MonoBehaviour:
         DamageMods: []
       Weight: 29
     - Option:
-        ReloadTime: 3
+        ReloadTime: 1.5
         FireCountRange: {x: 1, y: 1}
         FireSpreadAngle: 0
         Spawn: {fileID: 1326432680719098604, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
