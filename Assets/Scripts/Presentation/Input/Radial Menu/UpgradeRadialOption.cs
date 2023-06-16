@@ -21,7 +21,7 @@ namespace Pnak
 			if (interactable == null || !interactable.TryGetComponent(out StateBehaviourController controller))
 				throw new System.ArgumentException("Interactable is not valid but is still trying to access cost.");
 
-			UnityEngine.Debug.Log("ScriptType: " + ScriptType + " Upgrade Get Cost");
+			// UnityEngine.Debug.Log("ScriptType: " + ScriptType + " Upgrade Get Cost");
 			
 			int address = controller.FindModifierAddress(ScriptType, out LiteNetworkedData data);
 			if (address != -1)

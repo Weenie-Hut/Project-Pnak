@@ -47,7 +47,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 300
+  m_Radius: 400
 --- !u!1 &8108588416235182582
 GameObject:
   m_ObjectHideFlags: 0
@@ -73,8 +73,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8108588416235182582}
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 37.8, y: 0, z: 0}
-  m_LocalScale: {x: 50, y: 60, z: 1}
+  m_LocalPosition: {x: 25.8, y: 0, z: 0}
+  m_LocalScale: {x: 75, y: 50, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8108588416480219547}
@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 7866721918867511350}
   - component: {fileID: 476052751296769762}
   m_Layer: 0
-  m_Name: Minigun Tower
+  m_Name: Cannon Tower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -264,7 +264,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionProcessor: {fileID: 4775989943319580470}
   MaxHitsPerTick: 10
-  RotationSpeed: 150
+  RotationSpeed: 120
   LookTargetType: 0
 --- !u!114 &7866721918867511350
 MonoBehaviour:
@@ -282,22 +282,14 @@ MonoBehaviour:
     TemporaryData: []
     NormalData:
     - Option:
-        ReloadTime: 1
+        ReloadTime: 2
         FireCountRange: {x: 1, y: 1}
         FireSpreadAngle: 11.6
-        Spawn: {fileID: 1326432680719098604, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
+        Spawn: {fileID: 1326432680719098604, guid: 34c9a737876c3c242ac9d5965d4361ec, type: 3}
         MunitionMods: []
         DamageMods: []
-      Weight: 29
-    - Option:
-        ReloadTime: 3
-        FireCountRange: {x: 1, y: 1}
-        FireSpreadAngle: 0
-        Spawn: {fileID: 1326432680719098604, guid: 70bc6bdc711498243a19dc45c3008396, type: 3}
-        MunitionMods: []
-        DamageMods: []
-      Weight: 1
-    RandomizeDataOrder: 1
+      Weight: 0
+    RandomizeDataOrder: 0
   FireBehaviour: 0
   PlayerShootButton: 1
   UseMinimumFireAngle: 1
@@ -403,7 +395,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -5177388603050735206, guid: cc35afd292fc349128b36a291fb3a165, type: 3}
-  m_Color: {r: 0.30588236, g: 0.50882643, b: 0.54901963, a: 1}
+  m_Color: {r: 0.40489456, g: 0.30588236, b: 0.54901963, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

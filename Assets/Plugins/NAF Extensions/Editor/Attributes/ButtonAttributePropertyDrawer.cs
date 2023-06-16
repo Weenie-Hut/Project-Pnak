@@ -63,7 +63,7 @@ namespace PnakEditor
 			
 			Object target = property.serializedObject.targetObject;
 			System.Type type = target.GetType();
-			MethodInfo method = type.GetMethod(buttonAttribute.MethodName);
+			MethodInfo method = type.GetMethod(buttonAttribute.MethodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 
 			if (method == null && !DefaultMethods.ContainsKey(buttonAttribute.MethodName))
 			{
@@ -107,14 +107,14 @@ namespace PnakEditor
 							method.Invoke(target, new object[] { property });
 						else if (ExpressionEvaluator.TryPropertyAsType(parameters[0].ParameterType, property, out object arg))
 							method.Invoke(target, new object[] { arg });
-						else if (parameters[0].ParameterType == typeof(Object))
-							method.Invoke(target, new object[] { target });
+						else if (typeof(Object).IsAssignableFrom(parameters[0].ParameterType))
+							method.Invoke(target, new object[] { (Object)property.objectReferenceValue });
 						else
-							Debug.LogError("Invalid parameter type for method " + method.Name);
+							Debug.LogError("Invalid parameter type for method " + method.Name + ": " + parameters[0].ParameterType.Name);
 					}
 					else if (parameters.Length == 0)
 						method.Invoke(target, null);
-					else Debug.LogError("Invalid number of parameters for method " + method.Name);
+					else Debug.LogError("Invalid number of parameters for method " + method.Name + ": " + parameters.Length);
 				}
 			}
 			GUI.enabled = GUIEnabled;

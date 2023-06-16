@@ -99,10 +99,9 @@ namespace Pnak
 				return true;
 			}
 
-			foreach (SerializedLiteNetworkedData mod in amount.ApplyModifiers)
-			{
-				LiteNetworkManager.QueueAddModifier(Controller.NetworkContext, mod);
-			}
+			if (amount.ApplyModifiers != null)
+				foreach (SerializedLiteNetworkedData mod in amount.ApplyModifiers)
+					LiteNetworkManager.QueueAddModifier(Controller.NetworkContext, mod);
 
 			if (_Health > _MaxHealth)
 				_Health = _MaxHealth;

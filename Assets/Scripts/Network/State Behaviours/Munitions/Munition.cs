@@ -1,3 +1,4 @@
+using System;
 using Fusion;
 using UnityEngine;
 
@@ -9,7 +10,10 @@ namespace Pnak
 		public CollisionProcessor CollisionProcessor => _collisionProcessor;
 
 		[Validate(nameof(ValidateHitsPerTick)), Min(1), Tooltip("The maximum number of hits that is processed per tick. Use for munitions that effect an area but only apply to a limited number of targets.")]
+		[Button(nameof(MaxOutHitsPerTick), "Max", "Set the maximum number of hits to the maximum number of collisions.")]
 		public int MaxHitsPerTick = 1;
+
+		
 
 		protected int workingHitsRemaining;
 		public override void FixedUpdateNetwork()
@@ -34,6 +38,11 @@ namespace Pnak
 		public bool ValidateHitsPerTick()
 		{
 			return MaxHitsPerTick <= (CollisionProcessor?.MaxCollisions ?? 0);
+		}
+		
+		public void MaxOutHitsPerTick()
+		{
+			MaxHitsPerTick = CollisionProcessor?.MaxCollisions ?? 1;
 		}
 
 		private void Reset()

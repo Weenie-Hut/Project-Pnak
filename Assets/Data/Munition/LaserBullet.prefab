@@ -111,7 +111,7 @@ MonoBehaviour:
   - scriptType: 3
     CustomData: 00000000000000000000000000000000000000000000000000000000
   - scriptType: 4
-    CustomData: 00000000000020400000c07f0000c07f0000c07f0000000000000000
+    CustomData: 00000000666606400000c07f0000c07f0000c07f0000000000000000
   OnQueuedForDestroy:
     m_PersistentCalls:
       m_Calls: []
@@ -137,9 +137,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 320
   RaycastPositionChanges: 0
+  CalculateDistances: 0
+  ColliderOrigin: {x: 0, y: 0}
+  OriginAtRaycastStart: 0
   SortByDistance: 0
-  UseDistanceOnStaticTransform: 0
-  UseTransformDistanceOnStaticTransform: 0
   maxCollisions: 10
 --- !u!114 &1559252364345579475
 MonoBehaviour:
@@ -160,7 +161,7 @@ MonoBehaviour:
     NormalData:
     - Option:
         PhysicalDamage: 0
-        MagicalDamage: 3
+        MagicalDamage: 2
         PureDamage: 0
         ApplyModifiers: []
       Weight: 0

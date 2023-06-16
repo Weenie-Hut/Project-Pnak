@@ -126,14 +126,15 @@ namespace Pnak
 				{
 					if (HealthVisualContext.lastHealth != data.HealthVisual.currentHealth)
 					{
+						float normDamage = (HealthVisualContext.lastHealth - data.HealthVisual.currentHealth) / data.HealthVisual.maxHealth;
 						int ticksSinceLastChange = SessionManager.Tick - HealthVisualContext.lastChangeTick.Value;
-						if (ticksSinceLastChange >= intervalInTicks)
+						if (ticksSinceLastChange >= intervalInTicks || normDamage >= 0.15f)
 						{
 							change = true;
 							SpawnDamageText(
 								HealthVisualContext.NetworkContext.Target.transform.position,
 								HealthVisualContext.lastHealth - data.HealthVisual.currentHealth,
-								data.HealthVisual.maxHealth);
+								normDamage);
 						}
 					}
 				}
@@ -148,7 +149,7 @@ namespace Pnak
 			}
 		}
 
-		private void SpawnDamageText(Vector3 position, float amount, float max)
+		private void SpawnDamageText(Vector3 position, float amount, float normDamage)
 		{
 			if (DamageTextPool == null)
 				DamageTextPool = new ComponentPool<CartoonFX.CFXR_ParticleText>(DamageTextPrefab);
@@ -157,7 +158,7 @@ namespace Pnak
 			damageText.transform.position = position;
 
 			var baseSize = DamageTextPrefab.transform.localScale;
-			float normDamage = amount / max;
+			
 			damageText.transform.localScale = baseSize * Mathf.Lerp(0.5f, 1.5f, normDamage);
 
 			damageText.UpdateText(amount.ToString("0.##"));

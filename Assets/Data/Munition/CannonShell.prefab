@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4824208289284672205}
-  - component: {fileID: 1854844583991640616}
-  - component: {fileID: 8830517687095343894}
+  - component: {fileID: 2072581054365606410}
+  - component: {fileID: 7232971813482087826}
   m_Layer: 0
   m_Name: Graphics
   m_TagString: Untagged
@@ -34,8 +34,8 @@ Transform:
   m_Father: {fileID: 6328995277521983043}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!60 &1854844583991640616
-PolygonCollider2D:
+--- !u!58 &2072581054365606410
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -48,22 +48,9 @@ PolygonCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: -23, y: 14}
-      - {x: -13.78557, y: 0}
-      - {x: -23, y: -14}
-      - {x: 21.94448, y: 0}
---- !u!50 &8830517687095343894
+  serializedVersion: 2
+  m_Radius: 21.5
+--- !u!50 &7232971813482087826
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -95,10 +82,9 @@ GameObject:
   - component: {fileID: 6328995277521983043}
   - component: {fileID: 1326432680719098604}
   - component: {fileID: 5270848876961268193}
-  - component: {fileID: 1559252364345579475}
   - component: {fileID: -2771670484422843685}
   m_Layer: 0
-  m_Name: MinigunBullet
+  m_Name: CannonShell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -134,13 +120,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SerializedMods:
   - scriptType: 2
-    CustomData: 000000000000000000007a4400000000000000000000000000000000
+    CustomData: 00000000000000000000964400000000000000000000000000000000
   OnQueuedForDestroy:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1326432680719098604}
+        m_TargetAssemblyTypeName: Pnak.StateBehaviourController, Pnak
+        m_MethodName: QueueSpawnHere
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1326432680719098604, guid: 14fab893ec855684ab389053cce1979b, type: 3}
+          m_ObjectArgumentAssemblyTypeName: Pnak.StateBehaviourController, Pnak
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   stateBehaviours:
   - {fileID: 5270848876961268193}
-  - {fileID: 1559252364345579475}
   - {fileID: -2771670484422843685}
   prefabIndex: -1
 --- !u!114 &5270848876961268193
@@ -155,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ec43fa111b41e7478d24cf202449fac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Collider: {fileID: 1854844583991640616}
+  _Collider: {fileID: 2072581054365606410}
   _CollisionMask:
     serializedVersion: 2
     m_Bits: 320
@@ -165,36 +162,6 @@ MonoBehaviour:
   OriginAtRaycastStart: 0
   SortByDistance: 0
   maxCollisions: 5
---- !u!114 &1559252364345579475
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2513871686737893388}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e7c41dc6d8c22b46aaba34042b41a73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _collisionProcessor: {fileID: 5270848876961268193}
-  MaxHitsPerTick: 5
-  DamageDataSelector:
-    TemporaryData: []
-    NormalData:
-    - Option:
-        PhysicalDamage: 0.25
-        MagicalDamage: 0
-        PureDamage: 0
-        ApplyModifiers: []
-      Weight: 0
-    RandomizeDataOrder: 0
-  Peirce: 1
-  IgnoreAfterFirstHit: 1
-  IntervalType: 0
-  IntervalBetweenHits: 0.0333
-  intervalInTicks: -1
-  PickDamageDataAfterEachHit: 0
 --- !u!114 &-2771670484422843685
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,10 +175,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _collisionProcessor: {fileID: 5270848876961268193}
-  MaxHitsPerTick: 5
+  MaxHitsPerTick: 1
   _DespawnImpactLayers:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 320
 --- !u!1 &2973621702732448016
 GameObject:
   m_ObjectHideFlags: 0
@@ -236,14 +203,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2973621702732448016}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0.92387956, w: 0.38268343}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 25, y: 25, z: 1}
+  m_LocalScale: {x: 200, y: 200, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4824208289284672205}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 135}
 --- !u!212 &3718346043457529188
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -285,8 +252,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: b0394665e16ef504bb922274dd606020, type: 3}
-  m_Color: {r: 0, g: 0.16861442, b: 0.20754719, a: 1}
+  m_Sprite: {fileID: 21300052, guid: 10045ad39fef69944b33bedc39310592, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -8,7 +8,7 @@ namespace Pnak
 	public class CollisionProcessor : StateBehaviour
 	{
 		[Tooltip("The collider that will be used to detect collisions."), Required]
-		[SerializeField] private Collider2D _Collider;
+		public Collider2D _Collider;
 
 		[Tooltip("The layers that the collider will collide with.")]
 		[SerializeField] private LayerMask _CollisionMask;
@@ -17,14 +17,23 @@ namespace Pnak
 		[Validate(nameof(ValidateRaycastPositionChanges))]
 		public bool RaycastPositionChanges = false;
 
+		[Tooltip("If true, the distances will be calculated for each collision.")]
+		public bool CalculateDistances = false;
+
+		[Tooltip("The origin of the collider, in local coord of this object. This is used to calculate the distance to the center of the overlapping collider.")]
+		[ShowIf(nameof(CalculateDistances))]
+		[Button(nameof(SetOriginToColliderCenter), "Collider Center", "Set the origin to the center of the collider.")]
+		[Suffix("local")]
+		public Vector2 ColliderOrigin = Vector2.negativeInfinity;
+
+		[Tooltip("Only effects raycasting with distances. If true, the origin will be set relative to the start of the raycast. If false, the origin will be set relative to the current position (end of raycast).")]
+		[ShowIf(nameof(CalculateDistances))]
+		[ShowIf(nameof(RaycastPositionChanges))]
+		public bool OriginAtRaycastStart = false;
+
 		[Tooltip("If true, the colliders will be sorted by distance from the transform position. If false, the colliders will be sorted by distance from the collider. This can be forced through other components.")]
+		[ShowIf(nameof(CalculateDistances))]
 		public bool SortByDistance = false;
-
-		public bool UseDistanceOnStaticTransform;
-
-		[Tooltip("If SortByDistance is true, this will be used to calculate the distance between the colliders. If true, the distance between the colliders will be calculated using the transform position. If false, the distance between the colliders will be calculated using the collider distance. False is more accurate, but more expensive.")]
-		[SerializeField, ShowIf(nameof(UseDistanceOnStaticTransform))]
-		private bool UseTransformDistanceOnStaticTransform = false;
 
 		[Tooltip("The maximum number of collisions that can be detected. This is used to create the array of colliders that will be passed to the collision events.")]
 		[SerializeField, Min(1)]
@@ -39,14 +48,16 @@ namespace Pnak
 		public ContactFilter2D ContactFilter { get; private set; }
 
 		private List<Collider2D> ignoredColliders = new List<Collider2D>();
-		private Vector2 lastPosition = Vector2.negativeInfinity;
+
+		private Vector2 lastOrigin = Vector2.zero;
+		private Vector2? lastPosition = null;
 
 		protected override void Awake()
 		{
 			base.Awake();
 
 			Colliders = new Collider2D[maxCollisions];
-			Distances = new float[maxCollisions];
+			if (CalculateDistances) Distances = new float[maxCollisions];
 			RaycastData = new RaycastHit2D[maxCollisions];
 
 			ContactFilter = new ContactFilter2D {
@@ -93,38 +104,45 @@ namespace Pnak
 
 			// If haven't moved or haven't set previous position
 			Vector2 currentPosition = (Vector2)_Collider.transform.position;
-			if (Vector2.Distance(lastPosition, currentPosition) < 1f ||
-				(float.IsNegativeInfinity(lastPosition.x) || float.IsNegativeInfinity(lastPosition.y)) ||
+			if (!lastPosition.HasValue ||
+				Vector2.Distance(lastPosition.Value, currentPosition) < 1f ||
 				!RaycastPositionChanges
 			) {
 				// UnityEngine.Debug.Log($"Overlapping");
 
 				ColliderCount = Physics2D.OverlapCollider(_Collider, ContactFilter, Colliders);
 
-				for (int i = 0; i < ColliderCount && UseDistanceOnStaticTransform; i++)
-					if (UseTransformDistanceOnStaticTransform)
-						Distances[i] = Vector2.Distance(_Collider.transform.position, Colliders[i].transform.position);
-					else
-						Distances[i] = Colliders[i].Distance(_Collider).distance;
+				if (Distances != null)
+				{
+					lastOrigin = transform.localToWorldMatrix.MultiplyPoint3x4(ColliderOrigin);
+					for (int i = 0; i < ColliderCount; i++)
+						Distances[i] = Vector2.Distance(lastOrigin, Colliders[i].bounds.center);
+				}
 			}
 			else
 			{
-				Vector3 direction = currentPosition - lastPosition;
+				Vector3 direction = currentPosition - lastPosition.Value;
 				float distance = direction.magnitude;
 
 
 				ColliderCount = _Collider.Cast(direction, ContactFilter, RaycastData, distance);
 				for (int i = 0; i < ColliderCount; i++)
 					Colliders[i] = RaycastData[i].collider;
-				for (int i = ColliderCount; i < RaycastData.Length; i++)
-					Distances[i] = RaycastData[i].distance;
 
-				// UnityEngine.Debug.Log($"Direction: {direction}, Distance: {distance} ({ColliderCount}) -> {Colliders.Format()}");
+				if (Distances != null)
+				{
+					Vector2 newOrigin = transform.localToWorldMatrix.MultiplyPoint3x4(ColliderOrigin);
+					Vector2 origin = OriginAtRaycastStart ? lastOrigin : newOrigin;
+					for (int i = 0; i < ColliderCount; i++)
+						Distances[i] = Vector2.Distance(origin, Colliders[i].bounds.center);
+
+					lastOrigin = newOrigin;
+				}
 			}
 
 			lastPosition = currentPosition;
 
-			if (SortByDistance && ColliderCount > 1)
+			if (SortByDistance && ColliderCount > 1 && Distances != null)
 			{
 				Array.Fill(Distances, float.MaxValue, ColliderCount, Distances.Length - ColliderCount);
 				Array.Sort(Distances, Colliders);
@@ -148,5 +166,30 @@ namespace Pnak
 		{
 			return !RaycastPositionChanges || _Collider?.GetComponent<Rigidbody2D>() != null;
 		}
+
+		public void SetOriginToColliderCenter()
+		{
+			ColliderOrigin = transform.worldToLocalMatrix.MultiplyPoint3x4(_Collider.bounds.center);
+		}
+
+#if UNITY_EDITOR
+		private void OnDrawGizmos()
+		{
+			if (_Collider == null || !CalculateDistances)
+				return;
+
+			// Draw the origin
+			Gizmos.color = Color.red;
+			Gizmos.DrawSphere(transform.localToWorldMatrix.MultiplyPoint3x4(ColliderOrigin), _Collider.bounds.extents.magnitude * 0.05f);
+		}
+
+		private void OnValidate()
+		{
+			if (_Collider == null) return;
+
+			if (float.IsNegativeInfinity(ColliderOrigin.x) || float.IsNegativeInfinity(ColliderOrigin.y))
+				SetOriginToColliderCenter();
+		}
+#endif
 	}
 }

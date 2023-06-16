@@ -147,9 +147,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 320
   RaycastPositionChanges: 1
+  CalculateDistances: 0
+  ColliderOrigin: {x: 0, y: 0}
+  OriginAtRaycastStart: 0
   SortByDistance: 0
-  UseDistanceOnStaticTransform: 0
-  UseTransformDistanceOnStaticTransform: 0
   maxCollisions: 5
 --- !u!114 &1559252364345579475
 MonoBehaviour:

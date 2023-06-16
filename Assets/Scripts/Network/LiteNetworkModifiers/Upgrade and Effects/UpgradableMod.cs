@@ -40,7 +40,7 @@ namespace Pnak
 		public override Cost GetBaseCost() => Upgrades[0].cost;
 		public override Cost GetCost(in LiteNetworkedData data)
 		{
-			UnityEngine.Debug.Log("UpgradeIndex: " + data.Upgradable.UpgradeIndex);
+			// UnityEngine.Debug.Log("UpgradeIndex: " + data.Upgradable.UpgradeIndex);
 			return Upgrades[data.Upgradable.UpgradeIndex + 1].cost;
 		}
 		public override bool CanUpgrade(in LiteNetworkedData data) => data.Upgradable.UpgradeIndex < Upgrades.Count - 1;

@@ -148,6 +148,11 @@ namespace Pnak
 			}
 		}
 
+		protected virtual void ApplyDamage(Collider2D collider2D, float? distance, DamageAmount damageAmount)
+		{
+			CollisionProcessor.ApplyDamage(collider2D, damageAmount);
+		}
+
 		protected override void OnHit(Collider2D collider2D, float? distance)
 		{
 			if (HitCount >= Peirce)
@@ -158,7 +163,7 @@ namespace Pnak
 			}
 
 			// UnityEngine.Debug.Log("Munition hit " + collider2D.name + " at " + SessionManager.Tick + " with " + DamageDataSelector.CurrentData);
-			CollisionProcessor.ApplyDamage(collider2D, DamageDataSelector.CurrentData);
+			ApplyDamage(collider2D, distance, DamageDataSelector.CurrentData);
 
 			HitCount++;
 			if (HitCount >= Peirce)

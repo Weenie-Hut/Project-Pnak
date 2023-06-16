@@ -230,6 +230,15 @@ namespace Pnak
 			}
 		}
 
+		public void QueueSpawnHere(StateBehaviourController prefab)
+		{
+			LiteNetworkManager.QueueNewNetworkObject(prefab, HasTransform ? TransformCache.Value : new TransformData {
+				Position = transform.position,
+				RotationAngle = transform.localEulerAngles.z,
+				Scale = transform.localScale
+			});
+		}
+
 		// private int predictedDestroyTick = -1;
 		// public void SetPredictedDestroyTick(int tick)
 		// {

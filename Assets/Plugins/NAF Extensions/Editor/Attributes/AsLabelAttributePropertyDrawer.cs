@@ -35,6 +35,7 @@ namespace PnakEditor
 			AsLabelAttribute asLabelAttribute = attribute as AsLabelAttribute;
 
 			GUIStyle style = new GUIStyle(GUI.skin.label);
+			style.wordWrap = true;
 
 			if (asLabelAttribute.Type.HasFlag(LabelType.Bold))
 				style.fontStyle = FontStyle.Bold;
